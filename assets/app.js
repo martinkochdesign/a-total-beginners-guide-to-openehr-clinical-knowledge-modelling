@@ -623,6 +623,7 @@ function closeImgOverlay() {
   };
 
   langSelect.addEventListener('change', (e) => {
+
     const lang = e.target.value;
     state.currentLang = lang;
 
@@ -643,8 +644,12 @@ function closeImgOverlay() {
     });
 
     // Re-render the active view with the new language files
-    loadActiveContent(); 
+    // loadActiveContent(); 
+    loadGuideContent();
+    buildSearchIndex();
+    
   });
+
 
   // Print to PDF
   printBtn.addEventListener('click', () => {
