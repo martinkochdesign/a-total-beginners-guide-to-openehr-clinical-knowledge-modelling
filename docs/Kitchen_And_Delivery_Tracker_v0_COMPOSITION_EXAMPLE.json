@@ -1,0 +1,216 @@
+{
+    "_type": "COMPOSITION",
+    "name": {
+        "_type": "DV_TEXT",
+        "value": "Kitchen_And_Delivery_Tracker_v0"
+    },
+    "archetype_details": {
+        "archetype_id": {
+            "value": "openEHR-EHR-COMPOSITION.example_base.v0"
+        },
+        "template_id": {
+            "value": "Kitchen_And_Delivery_Tracker_v0"
+        },
+        "rm_version": "1.1.0"
+    },
+    "language": {
+        "_type": "CODE_PHRASE",
+        "terminology_id": {
+            "_type": "TERMINOLOGY_ID",
+            "value": "ISO_639-1"
+        },
+        "code_string": "en"
+    },
+    "territory": {
+        "_type": "CODE_PHRASE",
+        "terminology_id": {
+            "_type": "TERMINOLOGY_ID",
+            "value": "ISO_3166-1"
+        },
+        "code_string": "DE"
+    },
+    "category": {
+        "_type": "DV_CODED_TEXT",
+        "value": "event",
+        "defining_code": {
+            "_type": "CODE_PHRASE",
+            "terminology_id": {
+                "_type": "TERMINOLOGY_ID",
+                "value": "openehr"
+            },
+            "code_string": "433"
+        }
+    },
+    "composer": {
+        "_type": "PARTY_IDENTIFIED",
+        "name": "Max Mustermann"
+    },
+    "content": [
+	{
+            "_type": "ACTION",
+            "name": {
+                "_type": "DV_TEXT",
+                "value": "pizza_preparation"
+            },
+            "archetype_details": {
+                "archetype_id": {
+                    "value": "openEHR-EHR-ACTION.pizza_preparation.v0"
+                },
+                "rm_version": "1.1.0"
+            },
+            "language": {
+                "_type": "CODE_PHRASE",
+                "terminology_id": {
+                    "_type": "TERMINOLOGY_ID",
+                    "value": "ISO_639-1"
+                },
+                "code_string": "en"
+            },
+            "encoding": {
+                "_type": "CODE_PHRASE",
+                "terminology_id": {
+                    "_type": "TERMINOLOGY_ID",
+                    "value": "IANA_character-sets"
+                },
+                "code_string": "ISO-10646-UTF-1"
+            },
+            "subject": {
+                "_type": "PARTY_SELF"
+            },
+            "protocol": {
+                "_type": "ITEM_TREE",
+                "name": {
+                    "_type": "DV_TEXT",
+                    "value": "Item tree"
+                },
+                "items": [{
+                        "_type": "ELEMENT",
+                        "name": {
+                            "_type": "DV_TEXT",
+                            "value": "Order ID"
+                        },
+                        "value": {
+                            "_type": "DV_IDENTIFIER",
+                            "id": "dev/null"
+                        },
+                        "archetype_node_id": "at0011"
+                    }
+                ],
+                "archetype_node_id": "at0006"
+            },
+            
+            "time": {
+                "_type": "DV_DATE_TIME",
+                "value": "2022-02-03T04:05:06.0"
+            },
+            "description": {
+                "_type": "ITEM_TREE",
+                "name": {
+                    "_type": "DV_TEXT",
+                    "value": "Item tree"
+                },
+                "items": [{
+                        "_type": "ELEMENT",
+                        "name": {
+                            "_type": "DV_TEXT",
+                            "value": "Baking Temperature"
+                        },
+                        "value": {
+                            "_type": "DV_QUANTITY",
+                            "units": "Cel",
+                            "magnitude": 42.0
+                        },
+                        "archetype_node_id": "at0008"
+                    }, {
+                        "_type": "ELEMENT",
+                        "name": {
+                            "_type": "DV_TEXT",
+                            "value": "Notes"
+                        },
+                        "value": {
+                            "_type": "DV_TEXT",
+                            "value": "Lorem ipsum"
+                        },
+                        "archetype_node_id": "at0009"
+                    }, {
+                        "_type": "CLUSTER",
+                        "name": {
+                            "_type": "DV_TEXT",
+                            "value": "pizza_topping"
+                        },
+                        "archetype_details": {
+                            "archetype_id": {
+                                "value": "openEHR-EHR-CLUSTER.pizza_topping.v0"
+                            },
+                            "rm_version": "1.1.0"
+                        },
+                        "items": [{
+                                "_type": "ELEMENT",
+                                "name": {
+                                    "_type": "DV_TEXT",
+                                    "value": "Topping Name"
+                                },
+                                "value": {
+                                    "_type": "DV_CODED_TEXT",
+                                    "value": "Mushrooms",
+                                    "defining_code": {
+                                        "_type": "CODE_PHRASE",
+                                        "terminology_id": {
+                                            "_type": "TERMINOLOGY_ID",
+                                            "value": "local"
+                                        },
+                                        "code_string": "at0006"
+                                    }
+                                },
+                                "archetype_node_id": "at0001"
+                            }, {
+                                "_type": "ELEMENT",
+                                "name": {
+                                    "_type": "DV_TEXT",
+                                    "value": "Amount"
+                                },
+                                "value": {
+                                    "_type": "DV_ORDINAL",
+                                    "symbol": {
+                                        "_type": "DV_CODED_TEXT",
+                                        "value": "Regular",
+                                        "defining_code": {
+                                            "_type": "CODE_PHRASE",
+                                            "terminology_id": {
+                                                "_type": "TERMINOLOGY_ID",
+                                                "value": "external"
+                                            },
+                                            "code_string": "at0003"
+                                        }
+                                    },
+                                    "value": 1
+                                },
+                                "archetype_node_id": "at0002"
+                            }
+                        ],
+                        "archetype_node_id": "openEHR-EHR-CLUSTER.pizza_topping.v0"
+                    }
+                ],
+                "archetype_node_id": "at0007"
+            },
+            "ism_transition": {
+                "_type": "ISM_TRANSITION",
+                "current_state": {
+                    "_type": "DV_CODED_TEXT",
+                    "value": "cancelled",
+                    "defining_code": {
+                        "_type": "CODE_PHRASE",
+                        "terminology_id": {
+                            "_type": "TERMINOLOGY_ID",
+                            "value": "openehr"
+                        },
+                        "code_string": "528"
+                    }
+                }
+            },
+            
+            "archetype_node_id": "openEHR-EHR-ACTION.pizza_preparation.v0"
+        }
+    ],
+    "archetype_node_id": "openEHR-EHR-COMPOSITION.example_base.v0"
+}

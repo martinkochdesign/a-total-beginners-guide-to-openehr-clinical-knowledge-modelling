@@ -1,0 +1,182 @@
+<section>
+<h1>Nächste Schritte</h1>
+
+<h2>Herzlichen Glückwunsch!</h2>
+
+<p>
+  Wenn Sie von Teil 1 bis Teil 3 durchgehalten haben, haben Sie etwas gemeistert, das viele anfangs einschüchtert: Sie haben klinische Archetypen erstellt, diese in einem Operational Template (OPT) gebündelt, auf ein Open-Source-CDR (EHRbase) hochgeladen, klinische (nun ja... Pizza-bezogene) Kompositionen über REST-APIs persistiert und gezielte Datenpunkte mittels AQL abgefragt.
+</p>
+
+<h2>Wie geht es weiter?</h2>
+
+<p>
+  Der Übergang von unserer kleinen Testumgebung zu einem produktionsreifen Gesundheitssystem bringt neue Herausforderungen mit sich.
+  Welche Themen sollten Sie sich also als Nächstes ansehen?
+</p>
+
+<h3>Bestehende Templates erkunden und gängige Archetyp-Inklusionsmuster kennenlernen</h3>
+
+<p>
+  Sie müssen das Rad beim Erstellen neuer Templates nicht neu erfinden. Reale Templates nutzen häufig bewährte strukturelle Muster, wie z. B. das Einbetten eines <em>Geräte-</em> oder <em>anatomischen Lokalisations-</em>Clusters in eine Observation oder das Einbinden von <em>Unverträglichkeiten/Risiken</em> in einen Aufnahmebericht. Das Erkunden veröffentlichter Templates und die Analyse von <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a> hilft Ihnen zu verstehen, wie erfahrene Modellierer Cluster in Slots anordnen und klinische Abschnitte gliedern.
+</p>
+
+<h3>Mit Multiplizität experimentieren: Existence vs. Occurrences vs. Cardinality</h3>
+
+<p>
+  In openEHR werden alle drei Einschränkungen im selben Intervallformat geschrieben (wie <code>[0..1]</code>, <code>[1..1]</code> oder <code>[1..*]</code>), was häufig für Verwirrung sorgt. Sie steuern jedoch völlig unterschiedliche Ebenen des Modells:
+</p>
+
+<ul>
+  <li>
+    <strong>Existence (Objektattribute):</strong> Definiert, ob ein Attribut einer Klasse des Referenzmodells beim Erstellen einer Komposition verpflichtend oder optional ist. Sie kann immer nur <code>[0..1]</code> (optional) oder <code>[1..1]</code> (verpflichtend) sein. Dies wird durch das Referenzmodell selbst vorgegeben und nicht durch den Modellierer – so sind beispielsweise in <code>DV_QUANTITY</code> <em>magnitude</em> und <em>units</em> obligatorisch (<code>[1..1]</code>), während <em>precision</em> optional ist (<code>[0..1]</code>).
+  </li>
+  <li>
+    <strong>Occurrences (Knoteninstanzen):</strong> Legt fest, wie viele Instanzen eines spezifisch modellierten Datenelements oder Slots existieren dürfen (z. B. <code>0..1</code>, <code>1..1</code>, <code>0..*</code>). Dies ist die Einstellung, die Sie als Modellierer in Archetypen und Templates am häufigsten konfigurieren (z. B. nur 1 Hauptdiagnose vs. mehrere Nebensymptome).
+  </li>
+  <li>
+    <strong>Cardinality (Listen-Container):</strong> Definiert die Gesamtanzahl an Elementen, die innerhalb eines Listenattributs (wie <code>items</code>, <code>events</code> oder <code>participations</code>) zulässig sind. Sie verbleibt üblicherweise auf dem openEHR-Standardwert (<code>[0..*]</code> oder <code>[1..*]</code>). Weist eine übermittelte Komposition weniger oder mehr Elemente auf als für diese Liste erlaubt, lehnt das CDR sie mit einem <em>Unprocessable Entity (Attribute does not match cardinality)</em>-Fehler ab.
+  </li>
+</ul>
+
+<h3>Über Ad-hoc-Abfragen hinaus: Stored AQLs (Gespeicherte AQLs)</h3>
+
+<p>
+  In Teil 3 haben wir unsere AQL-Abfragen direkt im HTTP-Body eines <code>POST /query/aql</code>-Requests übermittelt. Während Ad-hoc-Abfragen ideal zum Testen und Erkunden sind, ist das direkte Senden reiner AQL-Strings aus klinischen Benutzeroberflächen (wie KIS-Masken oder Patientenportalen) im Produktivbetrieb ein absolutes No-Go.
+</p>
+<p>
+  Stattdessen verwenden produktive CDRs <strong>Stored AQLs</strong>: versionierte Abfragedefinitionen, die auf dem Server unter einem qualifizierten Namen registriert sind (z. B. <code>org.openehr::pizza_orders/1.0.0</code>). Frontend-Anwendungen rufen einfach diesen Endpunkt auf und übergeben Parameter wie <code>$ehr_id</code>. So bleiben interne Archetyp-Pfade verborgen, Ausführungspläne werden optimiert und die klinische Logik wird zentral gepflegt.
+</p>
+
+<h3>Fortgeschrittene AQL-Konzepte für die nächste Etappe</h3>
+
+<p>
+  Sobald Sie sich mit grundlegenden <code>SELECT ... FROM ... WHERE</code>-Abfragen sicher fühlen, lohnt sich der Einstieg in ausdrucksstärkere AQL-Funktionen, wie zum Beispiel:
+</p>
+<ul>
+  <li>Aggregationsfunktionen (<code>COUNT</code>, <code>AVG</code> etc.)</li>
+  <li>Zuweisen von Variablennamen zu den selektierten Elementen mittels <code>AS</code></li>
+  <li>Sortierung und Paginierung mit <code>LIMIT</code>, <code>OFFSET</code> und <code>ORDER BY</code></li>
+  <li>Terminologie-Filterung mit <code>matches</code></li>
+  <li>Korrelierte Abfragen: Verknüpfen zusammengehöriger Kompositionen über fachliche Identifikatoren über separate Einträge hinweg.</li>
+</ul>
+
+<h3>Nutzung des internationalen CKM</h3>
+
+<p>
+  Der <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a> ist die weltweite kollaborative Bibliothek, in der internationale Fachexperten Archetypen begutachten und standardisieren. Die goldene Regel der openEHR-Modellierung lautet: <em>Immer zuerst im CKM suchen, bevor man einen Archetyp neu anlegt</em>.
+</p>
+<p>Erkunden Sie das internationale CKM und machen Sie sich mit dessen Funktionen vertraut.</p>
+
+<h3>Grenzen und Rahmenbedingungen von openEHR verstehen</h3>
+
+<p>
+  openEHR ist eine herausragende Technologie zur standardisierten Persistierung klinischer Daten, deckt jedoch nicht alle Anforderungen eines klinischen Workflows alleine ab. Es empfiehlt sich zu prüfen, wie openEHR mit folgenden Systemen zusammenspielt:
+</p>
+<ul>
+  <li><strong>Workflow- und Geschäftsprozess-Engines (BPMN):</strong> openEHR dokumentiert den klinischen Zustand einer Handlung (über ISM-Zustandsübergänge), ist aber keine Prozess-Engine zur Steuerung von Krankenhausabläufen.</li>
+  <li><strong>Zugriffskontrolle und Benutzerautorisierung:</strong> Rollenbasierte Zugriffskontrolle (RBAC) und Benutzerauthentifizierung (OAuth2 / OpenID Connect) gehören ins API-Gateway oder den Identity Provider, nicht in den Archetyp.</li>
+  <li><strong>UI-Rendering:</strong> Archetypen beschreiben klinische Semantik – nicht, ob ein Eingabefeld als Radio-Button, Dropdown oder Schieberegler dargestellt wird.</li>
+</ul>
+
+<h3>Verknüpfung mit externen Terminologien: Term Mapping vs. Term Binding</h3>
+
+<p>
+  openEHR-Archetypen verfügen über eigene interne Codesätze (wie <code>at0001</code>, <code>at0005</code>), reale Systeme müssen sich jedoch mit globalen (oder lokalen) Terminologien wie SNOMED CT, LOINC oder ICD-10 verbinden. Daher lohnt es sich, tiefer in <strong>Term Bindings</strong> und <strong>Term Mapping</strong> einzutauchen.
+</p>
+  
+<p>
+  Mit wachsender Reife Ihrer Modelle wird die Anbindung an internationale Standards unerlässlich. Hierbei müssen drei oft verwechselte Begriffe klar unterschieden werden: <strong>Term Definitions</strong> geben den internen Codes eines Archetyps (<code>atnnnn</code>) menschenlesbare Namen und Beschreibungen in verschiedenen Sprachen; <strong>Term Bindings</strong> verknüpfen diese internen Knoten zur <em>Entwurfszeit</em> (im Archetyp/Template) direkt mit externen Standards; und <strong>Term Mappings</strong> erfassen externe Terminologie-Zuordnungen zur <em>Laufzeit</em> direkt an den konkreten klinischen Werten innerhalb einer Patienten-Komposition.
+</p>
+
+<h3>Übersetzungen und Beschriftungen von Datenelementen</h3>
+
+<p>
+  Archetypen sind von Grund auf mehrsprachig: Derselbe Knotenbezeichner (z. B. <code>at0005</code>) kann Übersetzungen für Katalanisch, Spanisch, Englisch und Deutsch direkt im Archetyp tragen. Darüber hinaus ist die Unterscheidung folgender Ebenen wichtig:
+</p>
+<ul>
+  <li><strong>Das Template-Label:</strong> Die Bezeichnung, auf die sich die Modellierer während der Template-Erstellung fachlich einigen.</li>
+  <li><strong>Das UI-Anzeige-Label:</strong> Die kontextspezifische Beschriftung, die dem Anwender auf einer bestimmten Bildschirmmaske angezeigt wird (z. B. „RR“ auf einem Intensivstations-Dashboard vs. „Blutdruckkontrolle“ auf einem Patiententablet).</li>
+</ul>
+
+<p>
+  Wie wir gesehen haben, ist die Verwendung mehrsprachiger Templates in der Praxis mit Hürden verbunden. Es bedarf einer Governance außerhalb der Templates, die Übersetzungen und UI-Labels regelt. Da es hierfür noch keinen einheitlichen Standard gibt, gilt es, dieses Thema aufmerksam weiterzuverfolgen.
+</p>
+
+<h3>Übersetzung zwischen FHIR und openEHR (über FHIRConnect)</h3>
+
+<p>
+  Moderne digitale Gesundheitsarchitekturen müssen sich selten zwischen openEHR und HL7 FHIR entscheiden – sie kombinieren häufig beide. openEHR stellt das strukturierte, versionierte und longitudinale Kern-Repository (CDR) bereit, während FHIR als Austauschstandard für APIs und externe Kommunikation dient. Oft müssen eingehende FHIR-Nachrichten zur Speicherung im CDR in openEHR-Strukturen transformiert werden.
+</p>
+<p>
+  Mithilfe deklarativer Mapping-Engines wie <strong>FHIRConnect</strong> können bidirektionale Abbildungen zwischen openEHR-Templates und FHIR-Ressourcen (wie <code>Observation</code>, <code>Condition</code> oder <code>CarePlan</code>) definiert werden.
+</p>
+
+<h3>In Kontakt bleiben</h3>
+
+<p>Werden Sie Teil der weltweiten openEHR-Community unter <a href="https://discourse.openehr.org/" target="_blank" rel="noopener noreferrer">discourse.openehr.org</a>, um Fragen zu stellen, an Archetyp-Reviews teilzunehmen und Erfahrungen auszutauschen!</p>
+
+<!-- ============================================================ -->
+<!-- 5. Recommended Ecosystem Tools -->
+<!-- ============================================================ -->
+<h2>Zusammenfassung unverzichtbarer Werkzeuge für die klinische Modellierung</h2>
+
+<p>Hier finden Sie eine Übersicht der Werkzeuge und Spezifikationen, auf die in diesem Leitfaden verwiesen wurde:</p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Werkzeug</th>
+      <th>Zweck</th>
+      <th>Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>openEHR-Spezifikationen</strong></td>
+      <td>Offizielle Architektur- und Referenzmodell-Spezifikationen von openEHR.</td>
+      <td><a href="https://specifications.openehr.org/" target="_blank" rel="noopener noreferrer">openEHR-Spezifikationen</a></td>
+    </tr>
+    <tr>
+      <td><strong>NeoEHR openEHR-Spezifikationen (UML)</strong></td>
+      <td>Interaktive, visuelle openEHR-Spezifikationen dargestellt als UML-Klassendiagramme.</td>
+      <td><a href="https://neoehr.com/openehr/uml" target="_blank" rel="noopener noreferrer">openEHR als UML-Diagramme</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Archetype Designer</strong></td>
+      <td>Webbasiertes Autorensystem für Archetypen, Templates (OPT) und Web-Templates.</td>
+      <td><a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">Archetype Designer</a></td>
+    </tr>
+    <tr>
+      <td><strong>Clinical Knowledge Manager (CKM)</strong></td>
+      <td>Internationales Repositorium für geprüfte und konsentierte klinische Archetypen.</td>
+      <td><a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">openEHR CKM</a></td>
+    </tr>
+    <tr>
+      <td><strong>The Archetype Companion</strong></td>
+      <td>Inoffizielle Schnellsuchmaschine für Archetypen des internationalen openEHR CKM.</td>
+      <td><a href="https://martinkochdesign.github.io/archetype_companion/" target="_blank" rel="noopener noreferrer">The Archetype Companion</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR AQL Manager</strong></td>
+      <td>Visuelles Werkzeug zum Erstellen, Formatieren und Dokumentieren mehrzeiliger AQL-Abfragen.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">AQL Manager</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Reference Model Browser</strong></td>
+      <td>Interaktiver Explorer zum Navigieren durch Klassen, Datentypen und Attribute des Referenzmodells.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">RM Browser</a></td>
+    </tr>
+    <tr>
+      <td><strong>Archetype Inclusion Patterns</strong></td>
+      <td>Interaktiver Explorer zur Visualisierung gängiger Archetyp-Kombinationsmuster in Templates.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a></td>
+    </tr>
+    <tr>
+      <td><strong>EHRbase-Dokumentation</strong></td>
+      <td>Offizielle Bereitstellungs-, Konfigurations- und REST-API-Anleitungen für EHRbase.</td>
+      <td><a href="https://docs.ehrbase.org/" target="_blank" rel="noopener noreferrer">docs.ehrbase.org</a></td>
+    </tr>
+  </tbody>
+</table>
+
+</section>

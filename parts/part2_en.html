@@ -1,0 +1,246 @@
+<section>
+
+<h1>Modelling a process with archetypes and templates</h1>
+
+<p>As we have learned, openEHR models clinical data across two clear layers: clinical concepts (archetypes) and clinical context (templates).</p>
+<p>To start modeling in practice, we are going to use an analogy to a clinical workflow that encompasses the different archetype classes.</p>
+<p>We are going to keep with the food related analogies and we are going to model the process of a <strong>pizza order and delivery</strong>.</p>
+<p>We use the pizza analogy so we can focus on the modeling mechanics without getting distracted by real clinical debates.</p>
+<p>For this, we are going to model the following workflow:</p>
+<ul>
+  <li>The customer sends an order to the pizzeria via an online form. An Order ID is created to link subsequent documentation back to this specific order.</li>
+  <li>The kitchen prepares and tracks the pizza until delivery. Every step of this tracking is documented.</li>
+  <li>After receiving and enjoying the pizza, the customer fills out a customer satisfaction form.</li>
+</ul>
+
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261023112056.png" alt="Pizza Process" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;" >
+    <p class="img-caption">Figure 2.1: The pizza delivery process and the three documentations that emerge from it.</p>
+  </div>
+
+
+<h2>Structuring the process</h2>
+<p>The templates and archetypes we will develop for this workflow are:</p>
+<ul>
+  <li><strong>Template 1: "Online Customer Checkout"</strong></li>
+  <li><strong>Template 2: "Kitchen and Courier Tracker"</strong></li>
+  <li><strong>Template 3: "Customer Review"</strong></li>
+</ul>
+
+<p>In the following paragraphs we will map out which templates shoud contain which archetypes and which data elements we have to model in the archetypes.</p>
+
+<h3>Base archetype</h3>
+<p>To keep things simple, we will base all our templates on a single archetype: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. In real-world practice, you would select or create a specific composition archetype depending on its intended purpose. such as modeling an encounter, a persistent list, or a report.</p>
+<p>
+  This base composition is made by creating a new COMPOSITION archetype with <code>openEHR-EHR-COMPOSITION.example_base.v0</code> as the ID and saving it. No modifications needed. 
+
+</p>
+
+<h3>Template 1: Online Customer Order</h3>
+<ul>
+  <li><strong>Archetype:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
+    <ul>
+      <li>Data element: <strong>Customer Name</strong> — Type: <code>DV_TEXT</code></li>
+      <li>Data element: <strong>Delivery Street and Number</strong> — Type: <code>DV_TEXT</code></li>
+      <li>Data element: <strong>Contact Phone</strong> — Type: <code>DV_TEXT</code></li>
+    </ul>
+  </li>
+  <li><strong>Archetype:</strong> <code>INSTRUCTION.pizza_order.v0</code>
+    <ul>
+      <li>Data element: <strong>Pizza Name</strong> — Type: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
+      <li>Data element: <strong>Size</strong> — Type: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
+      <li>Data element: <strong>Special Kitchen Notes</strong> — Type: <code>DV_TEXT</code> (e.g., "Well done, please")</li>
+      <li>Slot: <strong>Extra Toppings</strong> (includes <code>CLUSTER.pizza_topping.v0</code> below)</li>
+    </ul>
+  </li>
+  <li><strong>Archetype:</strong> <code>CLUSTER.pizza_topping.v0</code> (slotted into <code>INSTRUCTION.pizza_order.v0</code>)
+    <ul>
+      <li>Data element: <strong>Topping Name</strong> — Type: <code>DV_CODED_TEXT</code> (e.g., Mushrooms, Extra Mozzarella, Jalapeños)</li>
+      <li>Data element: <strong>Amount</strong> — Type: <code>DV_ORDINAL</code> (1: Regular, 2: Double, 3: Triple)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Template 2: Kitchen and Delivery Tracker</h3>
+<ul>
+  <li><strong>Archetype:</strong> <code>ACTION.pizza_preparation.v0</code>
+    <ul>
+      <li>Data element: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (UUID of the order)</li>
+      <li>Data element: <strong>ISM Lifecycle State</strong> — Type: <code>ISM_TRANSITION</code> (Planned → In Oven → Dispatched → Delivered, or Cancelled)</li>
+      <li>Data element: <strong>Baking Temperature</strong> — Type: <code>DV_QUANTITY</code> (e.g., 320 °C)</li>
+      <li>Data element: <strong>Notes</strong> — Type: <code>DV_TEXT</code> (e.g., "Handed to customer at front gate")</li>
+      <li>Slot: <strong>Toppings Verified</strong> (reuses <code>CLUSTER.pizza_topping.v0</code> to cross-check what was actually baked)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Template 3: Customer Review</h3>
+<ul>
+  <li><strong>Archetype:</strong> <code>EVALUATION.customer_review.v0</code>
+    <ul>
+      <li>Data element: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (UUID of the order)</li>
+      <li>Data element: <strong>Satisfaction Rating</strong> — Type: <code>DV_COUNT</code> (constrained between 1 and 5)</li>
+      <li>Data element: <strong>Recommend to Friend?</strong> — Type: <code>DV_BOOLEAN</code> (True / False)</li>
+      <li>Data element: <strong>Customer Feedback</strong> — Type: <code>DV_TEXT</code> (Free-text comments)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Let's start modelling archetypes</h2>
+<p>Now that we have a plan, we can create the archetypes. The exact clicks depend a bit on the tool you are using. In these examples, we will use the <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/">https://tools.openehr.org/designer/</a>, developed by Better).</p>
+
+<h3>Modelling COMPOSITION.example_base.v0</h3>
+<p>As a base for all our templates, we need a COMPOSITION archetype. To keep things clean and minimal, we simply create a COMPOSITION and save it without adding any custom elements.</p>
+<img src="images/Pasted image 20261020151218.png" alt="Pasted image 20261020151218.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h3>Modelling ADMIN_ENTRY.delivery_address.v0</h3>
+<p>We create an ADMIN_ENTRY archetype and add 3 <code>DV_TEXT</code> elements under the <code>data</code> attribute.</p>
+
+<img src="images/Pasted image 20261020135043.png" alt="Pasted image 20261020135043.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"   />
+
+<p>Note that we are storing client contact details here for our pizza delivery. In real clinical openEHR implementations, <strong>we never persist direct identifying patient data</strong> inside the clinical record.</p>
+
+<h3>Modelling INSTRUCTION.pizza_order.v0</h3>
+<p>We create an INSTRUCTION archetype and rename "Current Activity" to "Order".</p>
+<p>Under <code>description</code>, we add a <code>DV_CODED_TEXT</code> for Pizza Name and Size, a <code>DV_TEXT</code> for Special Kitchen Notes, and a CLUSTER slot for Extra Toppings.</p>
+<img src="images/Pasted image 20261020135237.png" alt="Pasted image 20261020135237.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Selecting <strong>Pizza Name</strong>, we configure internal coded terms for our three pizza options:</p>
+<img src="images/Pasted image 20261020135603.png" alt="Pasted image 20261020135603.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+<p>Notice that an internal code (beginning with <code>at</code>) is automatically generated for every choice.</p>
+
+<p>Similarly, we add options for the sizes:</p>
+<img src="images/Pasted image 20261020135750.png" alt="Pasted image 20261020135750.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>In the cluster slot for toppings, we can specify which archetypes are accepted. We simply use an open wildcard pattern (<code>.*</code>), allowing any CLUSTER archetype to be slotted in at the template level.</p>
+<img src="images/Pasted image 20261020135901.png" alt="Pasted image 20261020135901.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+<p>Notice that the occurrences on this cluster slot are set to <code>0..*</code>. This ensures customers can add multiple different extra toppings.</p>
+
+<h3>Modelling CLUSTER.pizza_topping.v0</h3>
+<p>We create a CLUSTER archetype. Directly at the root level, we add a <code>DV_CODED_TEXT</code> for the topping name and a <code>DV_ORDINAL</code> for the topping amount.</p>
+<img src="images/Pasted image 20261020143746.png" alt="Pasted image 20261020143746.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Selecting <strong>Topping Name</strong>, we add internal codes for our 3 topping choices:</p>
+<img src="images/Pasted image 20261020144047.png" alt="Pasted image 20261020144047.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+
+<p>In the <strong>Amount</strong> ordinal, we add value-text pairs for each amount level. Note that ordinals require integer numbers for their numeric value (e.g., 1 = Regular, 2 = Double, 3 = Triple):</p>
+<img src="images/Pasted image 20261020144107.png" alt="Pasted image 20261020144107.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h3>Modelling ACTION.pizza_preparation.v0</h3>
+<p>We create an ACTION archetype to track the preparation lifecycle from planned to completed via the <code>ism_transition</code>.</p>
+<p>Under <code>description</code>, we add a <code>DV_QUANTITY</code> for Baking Temperature, specifying <code>Cel</code> as the only allowed unit.</p>
+<img src="images/Pasted image 20261020144924.png" alt="Pasted image 20261020144924.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>We add a <code>DV_TEXT</code> for Notes:</p>
+<img src="images/Pasted image 20261020144904.png" alt="Pasted image 20261020144904.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Next, we add a CLUSTER slot for "Toppings verified", again keeping the inclusion slot open:</p>
+<img src="images/Pasted image 20261020144848.png" alt="Pasted image 20261020144848.png" w width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Under <code>protocol</code>, we add a <code>DV_IDENTIFIER</code> for the <strong>Order ID</strong>. This is where we will store the UID of the original Order composition, allowing us to connect the action back to its instruction:</p>
+<img src="images/Pasted image 20261020144831.png" alt="Pasted image 20261020144831.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>In <code>ism_transition</code>, we define 5 operational states. While we can label the states using our own domain terminology, each one must map to an official openEHR state code. For example, our "Planned" state maps to openEHR code 526 (<code>planned</code>):</p>
+<img src="images/Pasted image 20261020144720.png" alt="Pasted image 20261020144720.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>The codes for our 5 states are:</p>
+<ul>
+  <li>Planned — <code>526::planned</code></li>
+  <li>In Oven — <code>524::initial</code></li>
+  <li>Dispatched — <code>245::active</code></li>
+  <li>Delivered — <code>531::completed</code></li>
+  <li>Cancelled — <code>528::cancelled</code></li>
+</ul>
+<p>The full standard catalog of openEHR instruction and action state codes can be referenced in the <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states">openEHR Support Terminology Specification</a>.</p>
+
+<h3>Modelling EVALUATION.customer_review.v0</h3>
+<p>As our final archetype, we create the customer review evaluation:</p>
+<img src="images/Pasted image 20261020150118.png" alt="Pasted image 20261020150118.png" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+
+<p>Under <code>data</code>, we add a <code>DV_COUNT</code> for the <strong>Satisfaction Rating</strong>. We constrain the allowed range by defining:</p>
+<ul>
+  <li>Min: <code>&gt;=0</code></li>
+  <li>Max: <code>&lt;=5</code></li>
+</ul>
+<img src="images/Pasted image 20261020150242.png" alt="Pasted image 20261020150242.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>We add a <code>DV_BOOLEAN</code> for recommending the pizza to a friend (<code>true</code> or <code>false</code>):</p>
+<img src="images/Pasted image 20261020150310.png" alt="Pasted image 20261020150310.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Finally, we add a free-text <code>DV_TEXT</code> element for <strong>Customer Feedback</strong>:</p>
+<img src="images/Pasted image 20261020150329.png" alt="Pasted image 20261020150329.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<p>Under <code>protocol</code>, we add a <code>DV_IDENTIFIER</code> for the <strong>Order ID</strong> so this review can be linked back to the original order:</p>
+<img src="images/Pasted image 20261020150345.png" alt="Pasted image 20261020150345.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h2>Modelling our 3 templates</h2>
+<p>Now that all our archetypes are defined, we can assemble them into our 3 templates.</p>
+
+<h3>Modelling Template 1: "Online Customer Checkout"</h3>
+<p>Based on <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, create the template <code>Online_Customer_Order_v0</code>.</p>
+<p>Under <code>content</code>, add:</p>
+<ul>
+  <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
+  <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
+</ul>
+<p>Select the <strong>Extra Toppings</strong> CLUSTER slot inside the instruction and slot in <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<img src="images/Pasted image 20261020151744.png" alt="Pasted image 20261020151744.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+<p>That's it! Let's move on to the next template.</p>
+
+<h3>Modelling Template 2: "Kitchen and Courier Tracker"</h3>
+<p>Following the same approach with <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, create the template <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
+<p>Under <code>content</code>, add:</p>
+<ul>
+  <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
+</ul>
+<p>Select the <strong>Toppings Verified</strong> CLUSTER slot and insert <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<img src="images/Pasted image 20261020151841.png" alt="Pasted image 20261020151841.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+
+<h3>Modelling Template 3: "Customer Review"</h3>
+<p>Now for our final template: based on <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, create <code>Customer_Review_v0</code>.</p>
+<p>Under <code>content</code>, add:</p>
+<ul>
+  <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
+</ul>
+<img src="images/Pasted image 20261020151821.png" alt="Pasted image 20261020151821.png"  width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+<p>That's it! We have successfully planned and modeled a complete set of archetypes and templates for our workflow.</p>
+
+<h2>Example Files</h2>
+<p>You can download the full set of example files here:</p>
+<p><a href="docs/A_total_beginners_guide_Example_files.zip">A total beginners guide - Example files.zip</a></p>
+
+<h2>Wait, there is more! - Restricting archetypes in templates</h2>
+<p>As we have seen in our example, it was quite easy to assemble a template from existing archetypes. It just looks like using reusable building blocks to create a structure. This is an analogy that we find often when talking about openEHR.</p>
+<p>In practice, this is not the whole truth. Archetypes are created to have a lot of elements and options that are not needed or have to be changed in the template. This means that we are not merely assembling building blocks, we are modifying the blocks during assembly. That's why, on my mission to make everything food related, I introduced the idea of the "baking" of the template, where the "ingredients" (archetypes) are changed in the process.</p>
+<p>The modification can take different forms. This includes, but is not limited to:</p>
+<ul>
+  <li>Changing element names</li>
+  <li>Cloning elements</li>
+  <li>Cloning archetypes</li>
+  <li>Restricting options</li>
+  <li>Constraining number of instances</li>
+</ul>
+<p>Be aware that any modification bears a risk of changing the significance of the data element or archetype and it might lead into technical difficulties further down the line.</p>
+
+<h3>Changing element names</h3>
+<p>You can easily change the name of a data element or an archetype. Beware that you should not change the name to something that goes against the intended use of this element.</p>
+<img src="images/Pasted image 20261021083407.png" alt="Pasted image 20261021083407.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h3>Cloning elements</h3>
+<p>If the "occurrence"of a data element permits the existence of multiple instances, this data element can be cloned.</p>
+<img src="images/Pasted image 20261021101127.png" alt="Pasted image 20261021101127.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h3>Cloning archetypes</h3>
+<p>If the "occurrence"of an archetype permits the existence of multiple instances, this archetype can be cloned.</p>
+<img src="images/Pasted image 20261021093844.png" alt="Pasted image 20261021093844.png" width="600px" onclick="openImg(this)"  />
+
+<h3>Restricting options</h3>
+<p>When a list of internal codes is provided by the archetype, in the template we can "deselect" options. This is always restrictive. We cannot add an option to a selection in the template.</p>
+<img src="images/Pasted image 20261021083213.png" alt="Pasted image 20261021083213.png" width="800px" onclick="openImg(this)" style="cursor:pointer;"  />
+
+<h3>Constraining number of instances</h3>
+<p>If an occurrence of an archetype or data element is "open", permitting multiple instances, we can constrain this.</p>
+<img src="images/Pasted image 20261021082906.png" alt="Pasted image 20261021082906.png" width="800px" onclick="openImg(this)" style="cursor:pointer;" style="cursor:pointer;"/>
+<p>This restriction of occurrences can only be "restrictive", going from more to less. You cannot "open up" occurrences by changing for example 0..1 (optional, but maximum 1 occurrence) to 0..* (option, with infinite occurrences allowed).</p>
+</section>

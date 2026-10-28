@@ -1,0 +1,670 @@
+<section>
+  <h1>Warum klinische Daten modellieren?</h1>
+  <p>Um openEHR zu verstehen, müssen wir zunächst einen Schritt zurücktreten und das grundlegende Problem der Medizininformatik betrachten: <strong>Was geschieht mit klinischen Informationen, sobald sie erfasst wurden?</strong></p>
+
+  <p>Stellen wir uns ein alltägliches Szenario vor: Ein Patient sucht eine Ambulanz auf, ihm wird Blut abgenommen und das Labor analysiert die Probe.</p>
+
+  <p>Von diesem Moment an begeben sich die Daten auf einen entscheidenden Weg:</p>
+  <ol>
+    <li><strong>Erzeugung:</strong> Die Daten entstehen (z. B. ein Laborbefund, eine Blutdruckmessung oder ein histopathologischer Befundbericht).</li>
+    <li><strong>Persistierung:</strong> Die Daten werden in einem elektronischen System gespeichert.</li>
+    <li><strong>Übertragung:</strong> Sie werden über Abteilungen, Krankenhäuser oder primärversorgende Netzwerke hinweg weitergeleitet.</li>
+    <li><strong>Interpretation:</strong> Ein Arzt in einer völlig anderen Einrichtung liest und interpretiert diese Daten.</li>
+    <li><strong>Handlung:</strong> Auf Basis dieser Interpretation trifft der Arzt eine Behandlungsentscheidung.</li>
+  </ol>
+
+  <p>Es ist von elementarer Bedeutung, dass bei diesem Prozess keinerlei klinische Daten verfälscht werden oder bei der Übertragung verloren gehen.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928120847.png" alt="Lebenszyklus klinischer Daten" class="guide-img" width="450px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.1: Der Lebenszyklus klinischer Daten von der Erzeugung bis zur klinischen Entscheidung.</p>
+  </div>
+
+  <p>Wenn jedes Krankenhaus, jede Fachabteilung oder jeder Softwarehersteller eigene Datenbanktabellen und Datenformate erfindet, leidet die Datenqualität bei jeder Transformation. Ein Feld, das im System A für den „systolischen Blutdruck“ vorgesehen war, wird im System B möglicherweise in ein allgemeines Feld für „Beobachtungswerte“ gezwängt. Dabei geht essenzieller Kontext wie die Körperposition des Patienten, die Manschettengröße oder vorherige körperliche Belastung unwiderruflich verloren.</p>
+
+  <p>Um Datenverlust und semantische Verfälschungen zu verhindern, benötigen wir einheitliche Datenmodelle. Wenn alle Beteiligten dasselbe Modell nutzen, entfallen fehleranfällige Übersetzungen zwischen Systemen und es entsteht echte Interoperabilität.</p>
+
+  <p>Damit ein Datenmodell im klinischen Alltag erfolgreich ist, muss es:</p>
+  <ul>
+    <li><strong>Wiederverwendbare Strukturen nutzen:</strong> Das Rad nicht neu erfinden. Ein einziges, fundiertes Modell für die Beobachtung „Blutdruck“ sollte in der Primärversorgung, auf der Intensivstation, in der Forschung und im Telemonitoring gleichermaßen einsetzbar sein.</li>
+    <li><strong>Herstellerneutral sein:</strong> Das Modell darf weder einem einzelnen Softwareanbieter gehören noch von einer proprietären Datenbank abhängen. Jeder Entwickler von Gesundheitssoftware muss darauf aufbauen können.</li>
+    <li><strong>Zukunftssicher und anpassungsfähig sein:</strong> Die Medizin entwickelt sich weiter, Leitlinien ändern sich und Technologien schreiten voran. Das Modell muss flexibel genug sein, um neue klinische Anforderungen abzubilden, ohne bestehende Systeme zu beschädigen oder historische Daten unbrauchbar zu machen.</li>
+  </ul>
+
+  <h1>Warum openEHR der ideale Kandidat für die klinische Wissensmodellierung ist</h1>
+
+  <p>Als Open-Source-Standard bietet openEHR herstellerneutrale, frei zugängliche Spezifikationen für die Verwaltung, Speicherung, Abfrage und den Austausch von elektronischen Patientenaktendaten (Electronic Health Records, EHR). Genau dafür steht openEHR: offene Spezifikationen (<strong>open</strong>) für Patientenakten (<strong>EHR</strong>).</p>
+
+  <p>Dies ermöglicht interoperable Datenmodelle, die innerhalb einer offenen Gemeinschaft von Entwicklern und Klinikern geteilt und kontinuierlich weiterentwickelt werden können.</p>
+
+  <h2>Die grundlegende openEHR-Architektur</h2>
+
+  <p>openEHR nutzt eine mehrschichtige Architektur, die technische Spezifikationen strikt von klinischem Fachwissen trennt. Diese umfasst das Referenzmodell (RM) auf technischer Ebene, Archetypen und Templates auf der Ebene des klinischen Wissens sowie zu einem gewissen Grad Kompositionen. In den folgenden Abschnitten werfen wir einen Blick auf diese Schichten.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928122912.png" alt="Mehrschichtige Architektur" class="guide-img" width="400px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.2: Die mehrschichtige openEHR-Architektur zur Trennung technischer Modelle von klinischen Konzepten.</p>
+  </div>
+
+  <h3>Das Referenzmodell (Reference Model, RM)</h3>
+
+  <p>Das Fundament von openEHR bilden grundlegende Festlegungen darüber, wie Daten gespeichert werden und welche Funktionen Softwareanwendungen bereitstellen müssen, um diese Daten abzufragen oder zu verarbeiten. Dies ist das <strong>Referenzmodell</strong> (RM). Es ist unentbehrlich für Softwareingenieure, die Anwendungen, Repositorien und Schnittstellen implementieren. Es ist vollständig vom klinischen Fachkontext entkoppelt, damit der Programmcode nicht jedes Mal angepasst werden muss, wenn eine neue medizinische Leitlinie erscheint.</p>
+
+  <p>Das technische Referenzmodell von openEHR finden Sie hier: <a href="https://specifications.openehr.org/" target="_blank" rel="noopener">https://specifications.openehr.org/</a></p>
+
+  <h3>Die klinischen Komponenten der openEHR-Modellierung</h3>
+
+  <p>Getrennt von der technischen Ebene (dem Referenzmodell) arbeiten klinische Wissensmodellierer (Clinical Knowledge Modeller) in der Schicht des klinischen Fachwissens.</p>
+
+  <p>Im Folgenden geben wir einen kurzen Überblick über die wesentlichen Bausteine: Archetypen, Templates und Kompositionen. Keine Sorge – wir werden in den folgenden Kapiteln noch sehr detailliert darauf eingehen.</p>
+
+  <h4>Archetypen (Archetypes)</h4>
+
+  <p>Ein Archetyp ist ein universeller, granularer und wiederverwendbarer Baustein, der ein eigenständiges klinisches Konzept repräsentiert (z. B. Blutdruck, Körpergewicht, Körpergröße). Um einen solchen Baustein zu erstellen, nutzen wir die im Referenzmodell definierten <strong>Datentypen</strong>, um die einzelnen klinischen Datenelemente des Konzepts zu strukturieren.</p>
+
+  <h4>Templates (Vorlagen)</h4>
+  <p>Ein openEHR-Template bildet einen konkreten klinischen Kontext ab. Es wird vom Clinical Knowledge Modeller für einen spezifischen Arbeitsablauf, ein Dokument oder ein Formular zusammengestellt (z. B. Entlassungsbrief, Notaufnahme-Triage oder onkologischer Behandlungspfad). Es besteht aus einer strukturierten Anordnung von Archetypen.</p>
+
+  <p>Während Archetypen universelle klinische Konzepte bereitstellen, legen erst Templates fest, wie klinische Daten in einem konkreten openEHR-System validiert und gespeichert werden.</p>
+
+  <p>Für den Clinical Knowledge Modeller ist das Template das eigentliche Endergebnis (auch wenn viel Arbeit in die Ausgestaltung perfekter Archetypen fließt!).</p>
+
+  <h4>Kompositionen (Compositions)</h4>
+
+  <p>Wenn Ärzte oder Pflegekräfte Daten in einer klinischen Software erfassen, erzeugt die Anwendung Kompositionen, die exakt den Regeln des Templates und des Referenzmodells entsprechen. Diese Dokumente sind es, die die Patientendaten schließlich im klinischen Daten-Repository (Clinical Data Repository, CDR) speichern.</p>
+
+  <p>Theoretisch liegen Kompositionen außerhalb des täglichen Aufgabenbereichs eines Modellierers. Für die Erzeugung von Kompositionen anhand der Templates sind letztlich die Softwareentwickler verantwortlich.</p>
+
+  <p>Dennoch müssen Modellierer – wie wir später sehen werden – ein genaues Auge auf diese Dokumente haben, um sicherzustellen, dass die gespeicherten Daten das beabsichtigte klinische Modell unverfälscht widerspiegeln.</p>
+
+  <h1>Grundlegende Bausteine von openEHR</h1>
+
+  <p>Nachdem wir die Architektur und die wichtigsten Komponenten im Überblick kennengelernt haben, vertiefen wir nun die Details.</p>
+
+  <h2>Data-Value-Klassen (Datentyp-Klassen)</h2>
+
+  <p>Bevor wir uns mit Archetypen befassen, müssen wir verstehen, wie einzelne Datenpunkte in openEHR abgebildet werden. Es liegt auf der Hand, dass ein quantitativer Messwert, ein Datum und ein Freitextkommentar nicht auf dieselbe Weise gespeichert werden können.</p>
+
+  <p>In openEHR werden klinische Elemente über Data-Value-Klassen dargestellt (alle mit dem Präfix <code>DV_</code> versehen). Entscheidend ist: Es handelt sich hierbei nicht bloß um primitive Programmierdatentypen wie einfache Integer, Reals oder Strings. Stattdessen sind es durchdachte Strukturen, die möglichst viele Kontextinformationen zu einem Wert aufnehmen können.</p>
+
+  <p>openEHR definiert eine breite Palette an Data-Value-Klassen, die sich in folgende Kernbereiche unterteilen lassen:</p>
+  <ul>
+    <li><strong>Text und codierter Text</strong> (Freitext, terminologiegebundene Werte)</li>
+    <li><strong>Mengen und Messwerte</strong> (Zahlen mit Einheiten, Verhältnisse, Skalen)</li>
+    <li><strong>Datum und Uhrzeit</strong> (Kalenderdaten, Uhrzeiten, Zeitspannen und Zeitstempel)</li>
+    <li><strong>Identifikatoren und Referenzen</strong> (URIs, Objekt-IDs)</li>
+    <li><strong>Gekapselte Daten</strong> (Multimedia, parsbare Formate)</li>
+    <li><strong>Booleans und Statuswerte</strong> (Flags, Statusmaschinen-Werte)</li>
+    <li><strong>Intervalle</strong> (Bereiche von Mengenangaben, Daten oder Zählwerten)</li>
+  </ul>
+
+  <div class="img-container">
+    <img src="images/Data Value Types.png" alt="Übersicht der Data Value Typen" class="guide-img" width="650px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.3: Übersicht der openEHR Data-Value-Typen.</p>
+  </div>
+
+  <p>Als Clinical Knowledge Modeller gehört es zu Ihren zentralen Aufgaben, zu entscheiden, wie jedes klinische Element abgebildet werden soll.</p>
+
+  <p>Beim Modellieren eines Datenelements wählen Sie den passenden Data-Value-Typ aus dem openEHR-Referenzmodell (RM) aus.</p>
+
+  <p>Betrachten wir zur Veranschaulichung die Klasse <code>DV_QUANTITY</code>. Um die Spezifikationen zu studieren, stehen Ihnen je nach Vorliebe mehrere Hilfsmittel zur Verfügung:</p>
+  <ul>
+    <li><strong><a href="https://specifications.openehr.org/releases/RM/development/data_types.html#_dv_quantity_class" target="_blank" rel="noopener">Offizielle openEHR-Datentypspezifikation</a>:</strong> Die verbindliche und normative Definition des Referenzmodells.</li>
+    <li><strong><a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener">Interaktiver openEHR RM Browser</a>:</strong> Ein praktisches Werkzeug zum Durchsuchen von RM-Klassen, Hierarchien und Attributen.</li>
+    <li><strong><a href="https://neoehr.com/openehr/uml/rm110/c/dv-quantity" target="blank" rel="noopener">NeoEHR UML-Diagramme</a>:</strong> Eine visuelle UML-Darstellung der Vererbungshierarchie und strukturellen Beziehungen von DV_QUANTITY.</li>
+  </ul>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928153556.png" alt="DV_QUANTITY UML" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.4: Struktur des Referenzmodells für DV_QUANTITY.</p>
+  </div>
+
+  <p>Auf den ersten Blick wirkt eine quantitative Messung simpel: bloß eine Zahl kombiniert mit einer Maßeinheit.
+    <ul>
+      <li>Körpergewicht: <code>82 kg</code></li>
+      <li>Blutdruck: <code>120 mmHg</code></li>
+      <li>Körpertemperatur: <code>36.7 °C</code></li>
+    </ul>
+  </p>
+
+  <p>Ein Blick in das Referenzmodell von <code>DV_QUANTITY</code> bestätigt dies: Es gibt zwingend das Attribut <code>magnitude</code> für eine Fließkommazahl und das Attribut <code>units</code> für eine Textzeichenkette.</p>
+
+  <p>
+    Darüber hinaus bietet das Referenzmodell jedoch wertvolle optionale Attribute:
+    <ul>
+      <li><code>normal_range</code></li>
+      <li><code>other_reference_ranges</code></li>
+      <li><code>precision</code></li>
+      <li><code>units_display_name</code></li>
+      <li><code>units_system</code></li>
+      <li><code>accuracy</code> (geerbt von <code>DV_AMOUNT</code>)</li>
+      <li><code>accuracy_is_percent</code> (geerbt von <code>DV_AMOUNT</code>)</li>
+      <li><code>magnitude_status</code> (geerbt von <code>DV_QUANTIFIED</code>)</li>
+      <li><code>normal_status</code> (geerbt von <code>DV_ORDERED</code>)</li>
+    </ul>
+
+    Hier wird deutlich, mit wie viel Weitsicht die Klassen konzipiert wurden, um maximale Vielseitigkeit zu gewährleisten.
+  </p>
+
+  <h4>Der Stammbaum der Data Values</h4>
+
+  <p>In der Praxis sind die Datentyp-Klassen keine unzusammenhängenden Kategorien. Sie bilden eine durchdachte Vererbungshierarchie, die sich von einer gemeinsamen Basisklasse (<code>DATA_VALUE</code>) ableitet.</p>
+
+  <p>
+    Wenn Sie nachvollziehen möchten, wie diese Klassen zusammenhängen und wie Eigenschaften vererbt werden, sehen Sie hier den vollständigen „Stammbaum“:
+  </p>
+
+  <div class="img-container">
+    <img src="images/DATA_VALUE.png" alt="DATA_VALUE Stammbaum" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.5: Vererbungshierarchie ausgehend von der Basisklasse DATA_VALUE.</p>
+  </div>
+
+  <h2>Archetypen</h2>
+
+  <p>Mit dem Wissen über Datentypen können wir nun nachvollziehen, wie daraus ein vollwertiges klinisches Konzept aufgebaut wird.</p>
+
+  <p>Nehmen wir das Beispiel Blutdruck: Wir können einen einfachen Archetyp erstellen, indem wir zwei <code>DV_QUANTITY</code> zusammenfügen – eine für den diastolischen und eine für den systolischen Druck. Sinnvollerweise ergänzen wir ein <code>DV_TEXT</code> für Bemerkungen... ein Feld für das verwendete Messgerät... den Zustand des Patienten... und so weiter.</p>
+
+  <p>Das Konzept „Blutdruck“ gewinnt schnell an Komplexität, da wir es so umfassend halten möchten, dass es in unterschiedlichste medizinische Settings passt. Aus diesem Grund bezeichnen wir Archetypen als <strong>maximal</strong>. Wenn wir sie später in ein Template einbetten, können wir alles einschränken, was für das jeweilige Szenario überflüssig ist. Das macht Archetypen wiederverwendbar – eines der Kernziele von openEHR.</p>
+
+  <p>Hier ist die Abbildung des Archetyps zur Blutdruckmessung. Erkennen Sie, wie viele klinische Aspekte darin bereits berücksichtigt sind?</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929122300.png" alt="Blutdruck-Archetyp im CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.6: Darstellung des Blutdruck-Archetyps im internationalen CKM. <a href="https://ckm.openehr.org/ckm/archetypes/1013.1.3574" target="_blank" rel="noopener">Blutdruck-Archetyp im internationalen CKM ansehen</a></p>
+  </div>
+
+  <h3>Mehrsprachige Archetypen</h3>
+  <p>
+    Archetypen sind von Grund auf mehrsprachig ausgelegt. Das bedeutet, dass offizielle Übersetzungen direkt im Modell verankert sind. Das ist ein großer Vorteil für Modellierer, die häufig in mehrsprachigen Regionen arbeiten.
+  </p>
+  <p>
+    Gleichzeitig bedeutet dies: <strong>Nur Archetypen, die eine gemeinsame Sprache teilen</strong>, können in einem Template kombiniert werden. Daher kann es erforderlich sein, einem Archetyp zunächst eine Übersetzung hinzuzufügen, bevor er lokal eingesetzt werden kann. Es empfiehlt sich, Archetypen stets auf Englisch zu beginnen, da sie so unkompliziert im internationalen CKM geteilt werden können.
+  </p>
+
+  <h3>Kann man eine Archetyp-Datei direkt lesen?</h3>
+  <p>Archetypen werden in einem menschenlesbaren Format namens <strong>ADL</strong> (Archetype Definition Language) gespeichert. Man kann jede <code>.adl</code>-Datei in einem Texteditor öffnen und lesen. Zwar ist die Syntax mit ihren verschiedenen Abschnitten recht anspruchsvoll, doch dank moderner Modellierungswerkzeuge müssen wir diese Dateien glücklicherweise nicht von Hand schreiben.</p>
+
+  <p>Ausführlichere Informationen zum Aufbau eines Archetyps finden Sie hier: <a href="https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl" target="_blank" rel="noopener">https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl</a></p>
+
+  <h3>Anatomie einer Archetyp-ID</h3>
+
+  <p>Wie unterscheiden Systeme tausende von Archetypen weltweit zuverlässig voneinander?</p>
+
+  <p>Sie nutzen die standardisierte <strong>Archetype ID</strong>. Anstelle willkürlicher Namen verwendet openEHR eine Kennung, aus der Zweck, Klasse und Version auf einen Blick hervorgehen.</p>
+
+  <p>Jeder Archetyp folgt dieser festen Konvention. Ein Beispiel:</p>
+
+  <pre><code>openEHR-EHR-OBSERVATION.blood_pressure.v2</code></pre>
+  <ul>
+    <li><code>openEHR</code> &rarr; Standard / Herausgeber</li>
+    <li><code>EHR</code> &rarr; Paket des Referenzmodells (Patientenakte)</li>
+    <li><code>OBSERVATION</code> &rarr; Archetyp-Klasse</li>
+    <li><code>blood_pressure</code> &rarr; Name des klinischen Konzepts</li>
+    <li><code>v2</code> &rarr; Hauptversionsnummer (Major Version)</li>
+  </ul>
+
+  <h3>Woher stammen Archetypen? Ein Blick auf das internationale CKM</h3>
+
+  <p>Bevor Sie daran denken, einen Archetyp von Grund auf neu zu entwerfen: <strong>Erfinden Sie das Rad nicht neu!</strong> Der <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener">internationale Clinical Knowledge Manager (CKM)</a> ist die weltweite Wissensbibliothek und das Governance-Zentrum für openEHR-Archetypen.</p>
+
+  <strong>Warum lohnt sich die Mitarbeit im CKM?</strong>
+  <ul>
+    <li>
+      <strong>Klinischer Konsens:</strong> Archetypen im CKM entstehen nicht isoliert an einem einzelnen Schreibtisch. Sie durchlaufen rigorose, weltweite Peer-Review-Runden mit Medizinern, Terminologen und Modellierern.
+    </li>
+    <li>
+      <strong>Globale Interoperabilität:</strong> Wenn eine Klinik in Barcelona, ein Krankenhaus in Norwegen und ein Health-Tech-Startup in Australien denselben CKM-Archetyp <code>blood_pressure</code> nutzen, sind ihre Daten grenzüberschreitend semantisch kompatibel.
+    </li>
+    <li>
+      <strong>Ihre Stimme zählt:</strong> Die medizinische Praxis hat regionale Besonderheiten. Indem Sie an CKM-Reviews teilnehmen, Übersetzungen beisteuern oder Feedback geben, stellen Sie sicher, dass weltweite Standards auch Ihre klinische Realität abbilden.
+    </li>
+  </ul>
+
+  <p>
+    Die goldene Regel für Modellierer lautet: <strong>Zuerst im CKM suchen, Vorhandenes übernehmen und aktiv Verbesserungen zurückgeben</strong>.
+  </p>
+
+  <p class="callout note">
+    <em>(Selbstverständlich können Sie eigene Modelle bauen und lokal einsetzen, ohne sie im internationalen CKM zu veröffentlichen – aber Sie würden auf die wertvolle Expertise zahlloser internationaler Fachleute verzichten!)</em>
+  </p>
+
+  <h3>Archetyp-Varianten: die verschiedenen Klassen</h3>
+
+  <p>Ein Archetyp ist mehr als nur eine Ansammlung von Datenfeldern. Er nimmt einen definierten Platz im Behandlungspfad ein. Eine Verordnung ist etwas anderes als die tatsächliche Verabreichung eines Medikaments und erfordert dementsprechend andere Attribute.</p>
+
+  <p>Grundsätzlich unterteilen wir Archetypen in drei Gruppen:
+  <br><br>
+  <strong>Strukturelle Klassen</strong>
+  <ul>
+    <li>COMPOSITION - Dokumenten-Rahmen und Container.</li>
+    <li>SECTION - Gliederungselement innerhalb einer COMPOSITION.</li>
+    <li>CLUSTER - Wiederverwendbare Gruppe von Datenelementen (als modulare Erweiterung).</li>
+  </ul>
+  <strong>Entry-Klassen (Eintragsklassen)</strong>
+  <ul>
+    <li>ACTION - Für durchgeführte Handlungen und Interventionen.</li>
+    <li>EVALUATION - Für klinische Beurteilungen, Diagnosen und Einschätzungen.</li>
+    <li>INSTRUCTION - Für Aufträge, Verordnungen und Handlungsanweisungen für die Zukunft.</li>
+    <li>OBSERVATION - Für gemessene und direkt beobachtete Befunde.</li>
+  </ul>
+  <strong>Administrative Entry-Klasse</strong>
+  <ul>
+    <li>ADMIN_ENTRY - Für rein administrative Daten.</li>
+  </ul>
+  </p>
+
+  <h3>Was zeichnet die einzelnen Archetyp-Klassen aus?</h3>
+
+  <p>
+  Die einzelnen Klassen verfügen über spezifische Attribute, die sie für ihren Zweck qualifizieren. 
+  Diese Attribute können entweder während der Modellierung des Archetyps oder beim Einbetten in ein Template befüllt werden. 
+  Zur Unterscheidung kennzeichnen wir dies im Folgenden mit <strong>im Archetyp</strong> oder <strong>im Template</strong>.
+  </p>
+
+  <em>Beachten Sie, dass wir hier nur die Elemente betrachten, die vom Clinical Knowledge Modeller konfiguriert werden können. Das Referenzmodell definiert darüber hinaus viele weitere Attribute, die in der finalen Komposition enthalten sind.</em>
+
+  <h4>Strukturelle Archetypen</h4>
+
+  <h5><code>COMPOSITION</code> - Der Basis-Archetyp</h5>
+  <p>Eine <code>COMPOSITION</code> besitzt die Attribute <code>context</code> und <code>content</code>:</p>
+  <ul>
+    <li>
+      In <code>context</code> erlaubt ein Slot für <code>other_context</code> das Einfügen von Datenelementen oder Cluster-Slots (<strong>im Archetyp</strong>). Wurde ein Cluster-Slot eingefügt, kann ein CLUSTER-Archetyp eingebunden werden (<strong>im Template</strong>).
+    </li>
+    <li>
+      In <code>content</code> wird eine Liste von Archetypen eingefügt, die den fachlichen Inhalt der Komposition bilden (<strong>im Template</strong>).
+    </li>
+  </ul>
+
+  <h5><code>SECTION</code> - Der strukturierende Archetyp</h5>
+  <p>
+    Der <code>SECTION</code>-Archetyp verfügt über das Attribut <code>items</code>. In <code>items</code> kann eine Liste von Archetypen eingefügt werden (<strong>im Template</strong>).
+  </p>
+
+  <h5><code>CLUSTER</code> - Der Archetyp für wiederverwendbare Datenelement-Gruppen</h5>
+  <p>
+    Der <code>CLUSTER</code>-Archetyp ist flexibel: Sie können beliebige Datenelemente direkt auf oberster Ebene hinzufügen (<strong>im Archetyp</strong>). Wurde ein Cluster-Slot definiert, kann ein weiterer CLUSTER-Archetyp verschachtelt werden (<strong>im Template</strong>).
+  </p>
+
+  <h4>Entry-Archetypen (Eintragsklassen)</h4>
+
+  <h5><code>ACTION</code> - Dokumentation einer durchgeführten Handlung</h5>
+  <p>Ein <code>ACTION</code>-Archetyp besitzt drei spezifische Abschnitte: <code>description</code>, <code>protocol</code> und <code>ism_transition</code>:</p>
+  <ul>
+    <li>In <code>description</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>In <code>protocol</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>
+      Im Abschnitt <code>ism_transition</code> wird eine Liste von ordinalen Datenelementen definiert (<strong>im Archetyp</strong>). Diese Ordinalwerte entsprechen den openEHR-Statuscodes für Handlungsabläufe (z. B. <code>"526::geplant"</code>, <code>"245::aktiv"</code> oder <code>"532::abgeschlossen"</code>).
+    </li>
+    <li>
+      Wurde ein Cluster-Slot (in <code>description</code> oder <code>protocol</code>) eingefügt, kann ein CLUSTER-Archetyp angebunden werden (<strong>im Template</strong>).
+    </li>
+  </ul>
+
+  <h5><code>EVALUATION</code> - Der Archetyp für Beurteilung und Synthese</h5>
+  <p>Ein <code>EVALUATION</code>-Archetyp besitzt zwei Abschnitte: <code>data</code> und <code>protocol</code>:</p>
+  <ul>
+    <li>In <code>data</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>In <code>protocol</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>
+      Wurde ein Cluster-Slot (in <code>data</code> oder <code>protocol</code>) vorgesehen, kann ein CLUSTER-Archetyp verknüpft werden (<strong>im Template</strong>).
+    </li>
+  </ul>
+
+  <h5><code>INSTRUCTION</code> - Handlungsanweisungen und Verordnungen für die Zukunft</h5>
+  <p>Ein <code>INSTRUCTION</code>-Archetyp verfügt über zwei Abschnitte: <code>activities</code> und <code>protocol</code>:</p>
+  <ul>
+    <li>In <code>protocol</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>
+      In <code>activities</code> gibt es eine „Current Activity“ (aktuelle Aktivität). Sie können diese umbenennen (z. B. „Verordnung“) und es wird empfohlen, deren Häufigkeit (Occurrences) beim Erstellen des Archetyps auf <code>0..*</code> zu setzen, um eine Liste geplanter Maßnahmen erfassen zu können (<strong>im Template</strong>). Die Aktivität besitzt einen <code>description</code>-Abschnitt für Data-Value-Elemente (<strong>im Archetyp</strong>).
+    </li>
+    <li>
+      Wurde der Aktivitätsbeschreibung ein Cluster-Slot hinzugefügt, kann ein CLUSTER-Archetyp angebunden werden (<strong>im Template</strong>).
+    </li>
+  </ul>
+
+  <h5><code>OBSERVATION</code> - Messwerte und Befunde</h5>
+  <p>Ein <code>OBSERVATION</code>-Archetyp besitzt zwei Abschnitte: <code>data</code> und <code>protocol</code>:</p>
+  <ul>
+    <li>
+      In <code>data</code> werden Punkt-Ereignisse (Point Events), Intervall-Ereignisse oder beliebige Ereignisse definiert (<strong>im Archetyp</strong>). Das erste Ereignis enthält einen <code>data</code>-Bereich für Data-Value-Elemente. Bei weiteren Ereignissen müssen die Elemente nicht einzeln neu erstellt werden; sie werden automatisch aus der ursprünglichen Ereignisdefinition übernommen.
+    </li>
+    <li>In <code>protocol</code> kann jedes beliebige Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).</li>
+    <li>
+      Wurde ein Cluster-Slot (in <code>data</code> oder <code>protocol</code>) definiert, kann ein CLUSTER-Archetyp angebunden werden (<strong>im Template</strong>).
+    </li>
+  </ul>
+
+  <h4>Administrative Archetypen</h4>
+
+  <h5><code>ADMIN_ENTRY</code></h5>
+  <p>
+    Im Abschnitt <code>data</code> kann jedes beliebige administrative Data-Value-Element hinzugefügt werden (<strong>im Archetyp</strong>).
+  </p>
+
+  <h3>Cluster vs. Cluster vs. Cluster</h3>
+
+  <p>
+    Wir haben bereits den Archetyp <code>CLUSTER</code> erwähnt, und wahrscheinlich ist Ihnen der Begriff „Cluster“ auch in anderen Zusammenhängen begegnet. In unserer täglichen Modellierungsarbeit hat diese Namensgleichheit schon für manche Verwirrung gesorgt! Es ist essenziell zu unterscheiden, welche Art von Cluster gemeint ist. In openEHR begegnen Ihnen „Cluster“ in drei unterschiedlichen Formen:
+  </p>
+
+  <ol>
+    <li>
+      <strong>Als <code>CLUSTER</code>-Archetyp:</strong> Eine eigenständige, wiederverwendbare Archetyp-Klasse (z. B. <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>).
+    </li>
+    <li>
+      <strong>Als interner <code>CLUSTER</code> von Datenelementen:</strong> Ein gruppierender Container von Elementen, der direkt innerhalb eines Archetyps modelliert wird, um zusammengehörige Felder zu bündeln.
+    </li>
+    <li>
+      <strong>Als <code>CLUSTER</code>-Slot:</strong> Ein Erweiterungsslot (<code>allow_archetype</code>), der in einem Archetyp vorgesehen wird, um beim Zusammenstellen eines Templates externe Cluster-Archetypen einzubinden.
+    </li>
+  </ol>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261023081154.png" alt="Drei Bedeutungen von Cluster in openEHR" style="width:400px; height: auto;cursor:pointer;" onclick="openImg(this)">
+    <p class="img-caption">
+      <em>Abbildung 1.7: Ein Cluster bezeichnet (1) eine Archetyp-Klasse, (2) ein internes Cluster zur Gruppierung von Feldern innerhalb eines Archetyps oder (3) einen Slot in einem Archetyp zum Einbinden von Cluster-Archetypen bei der Template-Erstellung.</em>
+    </p>
+  </div>
+
+  <h2>Templates (Vorlagen)</h2>
+  <p>
+    Bislang haben wir Archetypen als wiederverwendbare, international abgestimmte klinische Konzepte kennengelernt. Um sie in einer klinischen Software tatsächlich einsetzen zu können, müssen wir sie in <strong>Templates</strong> strukturieren.
+  </p>
+
+  <p>
+  In einem Template tun wir im Wesentlichen zwei Dinge:
+  <ol>
+    <li>Archetypen in eine funktionale hierarchische Struktur bringen.</li>
+    <li>Die maximalen Archetypen auf die exakten Anforderungen unserer Anwendung einschränken.</li>
+  </ol>
+  </p>
+
+  <h3>Ein Template – eine Struktur aus Archetypen</h3>
+
+  <p>Zur Erstellung eines Templates werden verschiedene Archetypen ineinander verschachtelt, stets ausgehend von einem COMPOSITION-Archetyp als Basis.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929115414.png" alt="International Patient Summary im CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.8: Beispiel einer Template-Struktur aus verschiedenen Archetypen (basierend auf dem <a href="https://ckm.openehr.org/ckm/templates/1013.26.376" target="_blank" rel="noopener">International Patient Summary im CKM</a>).</p>
+  </div>
+
+  <p>Nicht alle Archetyp-Klassen können beliebig miteinander kombiniert werden:
+    <ul>
+      <li>Eine <code>COMPOSITION</code> kann <code>CLUSTER</code> enthalten (wenn ein Slot in <code>other_context</code> modelliert wurde), ebenso <code>ENTRY</code>- und <code>SECTION</code>-Archetypen.</li>
+      <li>Eine <code>SECTION</code> kann eine Liste von <code>ENTRY</code>-Archetypen sowie weitere verschachtelte <code>SECTION</code>-Archetypen enthalten.</li>
+      <li>Ein <code>ENTRY</code>-Archetyp kann <code>CLUSTER</code> enthalten, sofern dafür ein Slot modelliert wurde.</li>
+      <li>Ein <code>CLUSTER</code>-Archetyp kann weitere verschachtelte <code>CLUSTER</code> enthalten, wenn entsprechende Slots vorgesehen sind.</li>
+    </ul>
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929115611.png" alt="Verbindungen zwischen Archetyp-Klassen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.9: Gültige Einbettungen von Archetyp-Klassen ineinander.</p>
+  </div>
+
+  <p>
+    Erfahren Sie mehr über typische Archetyp-Kombinationsmuster:
+    <br>
+    <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener">https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/</a>
+  </p>
+
+  <p>
+    <em>
+      Beachten Sie, dass die Struktur des Templates nicht nur die klinische Logik widerspiegelt, sondern auch die Abfragepfade bestimmt, über die später Daten aus den gespeicherten Kompositionen gesucht und abgerufen werden.
+    </em>
+  </p>
+
+  <p>
+  Es mag intuitiv erscheinen, eine Struktur zu erstellen, die den klinischen Arbeitsablauf 1:1 abbildet – wie ein Formular auf dem Bildschirm. Als Clinical Knowledge Modeller müssen wir jedoch auch die Effizienz bei Speicherung und Abfrage im Blick behalten und die Balance zwischen Workflow- und Speicherlogik wahren.
+  </p>
+
+  <p>
+  Ein weiterer wichtiger Aspekt: Man könnte theoretisch ein einziges monolithisches Template erstellen, das alle Informationen eines gesamten Behandlungspfads umfasst (Verordnungen, Handlungen, Befunde usw.). Das Problem dabei: Jedes Mal, wenn ein einziger Wert erfasst oder geändert wird, speichert das System die gesamte Komposition ab, was zu massiver Datenredundanz führt. Es ist ratsam, modulare Templates für die einzelnen Teilschritte eines Workflows zu entwerfen.
+  </p>
+
+  <h3>Einschränken von Archetypen und Datenelementen</h3>
+
+  <p>Wie bereits erwähnt, werden Archetypen <strong>maximal</strong> modelliert, um in möglichst vielen klinischen Kontexten einsetzbar zu sein. Das bedeutet, dass in einem konkreten Anwendungsfall nicht alle modellierten Elemente benötigt werden. Daher müssen Archetypen im Template eingeschränkt (constrained) werden.</p>
+
+  <p>Typische Einschränkungen in einem Template sind:</p>
+  <ul>
+    <li>
+      <strong>Unnötige Datenelemente entfernen:</strong> Ausblenden oder Setzen der Häufigkeit (Occurrences) auf <code>0</code> für Felder, die in Ihrem spezifischen Workflow nicht erfasst werden (z. B. das Entfernen von Manschettengröße oder Neigungswinkel bei einer routinemäßigen Blutdruckmessung).
+    </li>
+    <li>
+      <strong>Wertelisten einschränken:</strong> Zulässige Einheiten oder Auswahlmöglichkeiten begrenzen (z. B. Beschränkung der Temperatur auf <code>Cel</code> oder Reduzierung eines Dropdowns auf für Ihre Abteilung relevante SNOMED-CT-Codes).
+    </li>
+    <li>
+      <strong>Knoten umbenennen:</strong> Anpassen von Bezeichnungen an den lokalen Sprachgebrauch oder Abteilungsstandards, ohne die Identität des zugrundeliegenden Archetyps zu verändern.
+    </li>
+    <li>
+      <strong>Knoten klonen:</strong> Duplizieren eines generischen Slots oder Elements, um mehrere strukturierte Einträge zu erfassen (z. B. das Klonen eines Symptoms für „Hauptsymptom“ und „Begleitsymptom“).
+    </li>
+    <li>
+      <strong>Elemente verpflichtend machen:</strong> Verschärfen von Kardinalitäten von optional (<code>0..1</code>) auf verpflichtend (<code>1..1</code>), damit kritische Angaben niemals vergessen werden.
+    </li>
+  </ul>
+
+  <p>So entsteht ein Template, das einen präzisen klinischen Kontext abbildet und die Anforderungen einer Anwendung oder eines Formulars passgenau erfüllt.</p>
+
+  <h3>Technische Formate: OET vs. OPT (Die Cupcake-Analogie)</h3>
+
+  <p>In der praktischen Arbeit mit openEHR-Templates begegnen uns zwei Dateiformate:</p>
+  <ul>
+    <li><strong>openEHR Template (<code>.oet</code>):</strong> Das bearbeitbare Autorefformat, das von Modellierungswerkzeugen (wie dem openEHR Archetype Designer) erzeugt und gespeichert wird.</li>
+    <li><strong>Operational Template (<code>.opt</code>):</strong> Das kompilierte, in sich geschlossene Artefakt, das aus der <code>.oet</code>-Datei und den eingebundenen Archetypen generiert wird.</li>
+  </ul>
+
+  <p>
+  Eine anschauliche Metapher für den Zusammenbau von Archetypen zu Templates und die Rollen von OET und OPT ist das Backen eines Cupcakes (wobei der fertige Cupcake unser openEHR-Template darstellt).
+  </p>
+
+  <p>
+  Wir haben die Zutaten für den Cupcake, den wir backen möchten. Diese Zutaten sind klar definiert – genau wie unsere Archetypen. Die Definition eines Archetyps manifestiert sich in seiner <code>.adl</code>-Datei.
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928123744.png" alt="Template-Formate" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.10: Die Cupcake-Analogie zum Verständnis der Template-Formate.</p>
+  </div>
+
+  <p>
+  <strong>Die Zutaten: die Archetypen.</strong> Genau wie Mehl, Zucker, Eier und Heidelbeeren in der Vorratskammer sind Archetypen unsere standardisierten, universellen Zutaten. Jeder Archetyp ist ein eigenständiges, wohldefiniertes klinisches Konzept in seiner reinsten Form. Für sich allein stellen sie noch kein fertiges Gericht und kein konkretes Dokument dar – sie sind die modularen Bausteine, die darauf warten, kombiniert zu werden.
+  </p>
+
+  <p>
+  Wenn wir die Zutaten vermengen, benötigen wir ein Rezept. Bei openEHR ist dieses Rezept eine Datei mit Anweisungen, welche Archetypen enthalten sein sollen und welche Anpassungen an ihnen vorgenommen werden. Werden Archetypen in ein Template integriert, können Variablen umbenannt, ihr Vorkommen verändert (Felder können komplett verschwinden!) oder Auswahllisten eingeschränkt werden.
+  </p>
+
+  <p>
+  <strong>Das Rezept: die OET-Datei.</strong> Das Rezept zur Erstellung des Templates ist die OET-Datei. Sie ist die offizielle Bauanleitung und kann während der Entwicklung editiert werden. Archetypen können gegen neuere Versionen ausgetauscht und Einschränkungen angepasst werden. In dieser Form verweist das Template eindeutig auf die exakte Revision jedes verwendeten Archetyps. Sie ist unverzichtbar für die Dokumentation des Entwicklungsprozesses. Es gilt: <em>Ein Template ist weit mehr als die bloße Summe seiner Archetypen</em>.
+  </p>
+
+  <p>
+  <strong>Der gebackene Cupcake: die OPT-Datei.</strong> Mit dem Rezept in der Hand erzeugen wir das Template. Bildlich gesprochen backen wir den Cupcake – danach können die Zutaten nicht mehr verändert werden. Die resultierende OPT-Datei ist das fertige Template, das in das Clinical Data Repository (CDR) hochgeladen wird. Sie enthält nicht mehr die ursprünglichen Archetypen separat, sondern deren kompilierte Endform mit allen eingebackenen Einschränkungen. Daraus lässt sich die genaue Revision der verwendeten Archetypen nicht mehr direkt ablesen; es ist die unveränderliche Laufzeitversion des Templates.
+  </p>
+
+  <p>
+  ⚠️ Achtung! Das <strong>OET</strong>-Format ist zwar nicht kanonisch, in der Praxis jedoch unverzichtbar:
+  <ol>
+    <li>Es ist das einzige Template-Format, das in den CKM (Clinical Knowledge Manager) importiert werden kann.</li>
+    <li>Es ist das einzige Format, das die Verknüpfung der spezifischen Archetypen mit dem Template lückenlos wahrt.</li>
+  </ol>
+
+  Warum das wichtig ist:
+  <br><br>
+
+  Stellen wir uns ein „Vitalzeichen“-Template vor, das den Archetyp „Body-Mass-Index“ enthält. Ein Archetyp wird über drei Faktoren eindeutig identifiziert: ID, Revision und Hash. Zum Beispiel:
+  <br>
+  <ul>
+    <li>ID: <code>openEHR-EHR-OBSERVATION.body_mass_index.v2</code></li>
+    <li>Revision: <code>2.1.0</code></li>
+    <li>Integritäts-Hash: <code>MD5-CAM-1.0.1 = 45CDA8C2180DDA3CAB6EBB6AF603493D</code></li>
+  </ul>
+
+  Archetypen entwickeln sich weiter und verschiedene Templates bauen oft auf ganz bestimmten Revisionen auf.
+  <br><br>
+
+  Die <strong>OET-Datei</strong> enthält am Ende eine Prüfsumme, die die genaue Revision anhand von ID und Hash festhält.
+  <br><br>
+
+  Die <strong>OPT-Datei</strong> hingegen benennt den Archetyp nur noch über seine ID. Liegt ausschließlich die OPT-Datei vor, ist es unmöglich, verlässlich nachzuvollziehen, welche exakte Revision des Archetyps beim Kompilieren des Templates genutzt wurde.
+  </p>
+
+  <h3>Ein Hinweis zu mehrsprachigen Templates</h3>
+
+  <p>Wie erwähnt sind Archetypen von Haus aus mehrsprachig. Bei der Erstellung von Templates dürfen jedoch nur Archetypen kombiniert werden, die dieselben Sprachen teilen.</p>
+
+  <p>
+  Theoretisch kann das Template selbst die Übersetzungen für die verschiedenen Datenelemente enthalten. In der Praxis treten hierbei jedoch oft Probleme auf, da häufig nur die erste Instanz eines Archetyps die Übersetzungen im Template beibehält. Werden mehrere Instanzen desselben Archetyps verwendet, fehlen die Übersetzungen in der generierten OPT-Datei oft.
+  </p>
+  <p>
+  Zudem erfasst die OET-Datei die Übersetzungssprachen oft nicht standardisiert. Der CKM, der für den Template-Upload nur OET-Dateien akzeptiert, zeigt das Template meist nur in der Hauptsprache an und erlaubt den Download der OPT-Datei oft nur in einer einzigen Sprache.
+  </p>
+
+  <p>Daher empfiehlt es sich meist, ein Template in seiner primären Sprache zu verwalten und offizielle Übersetzungen in einer separaten Datei bereitzustellen, die von anbindenden Anwendungen herangezogen werden kann. Wie dies ideal gelöst wird, ist noch nicht abschließend standardisiert und bietet Raum für fachliche Diskussionen in der openEHR-Community.</p>
+
+  <h2>Kompositionen (Compositions)</h2>
+
+  <p>
+  Sobald ein klinischer Kontext in einem Operational Template (OPT) definiert ist, wird dieses in das Clinical Data Repository (CDR) hochgeladen. Das CDR ist nicht nur der Speicherort für Templates, sondern vor allem die Datenbank für die Patientendaten. Werden Daten in einer klinischen Anwendung eingegeben, werden sie nach den Regeln des Templates in eine <strong>Komposition</strong> verpackt. Zur Unterscheidung: Es gibt auch eine Archetyp-Klasse namens „COMPOSITION“, die das strukturelle Wurzelelement dieses Dokuments festlegt.
+  </p>
+  <p>
+  Eine Komposition ist das eigentliche klinische Dokument (z. B. ein Triage-Befund, ein Laborbericht oder ein Entlassungsbrief). Jede Komposition ist an ein bestimmtes Template gebunden, wird dagegen validiert und kann Datenelemente gemäß dem Referenzmodell enthalten.
+  </p>
+  <p>
+  Als Clinical Knowledge Modeller sind wir für die Erzeugung der Kompositionen nicht direkt verantwortlich – dies obliegt den Softwareentwicklern.
+  <strong>Allerdings</strong> müssen wir Entwickler häufig darüber informieren, welche Referenzmodell-Attribute an Stellen gespeichert werden können, die im Template nicht explizit modelliert sind.
+  </p>
+  <p>
+  Kompositionen werden üblicherweise in JSON formatiert. Das ist vorteilhaft, da man die Datenstruktur jederzeit direkt einsehen und prüfen kann. Auch wenn wir uns nicht im Code verlieren sollten, ist ein solides Verständnis der serialisierten Datenstruktur unverzichtbar.
+  </p>
+
+  <h2>Beiträge (Contributions)</h2>
+
+  <p>
+  Wenn wir sagen, dass Patientendaten in einem <strong>Kompositions-Dokument</strong> an das CDR gesendet werden, ist das eine kleine Vereinfachung.
+  </p>
+  <p>
+  Wir müssen dem CDR mitteilen, was diese <strong>Komposition</strong> darstellt: Handelt es sich um einen neuen Datensatz, um eine Korrektur bestehender Daten oder soll das Dokument als „veraltet“ gekennzeichnet werden?
+  </p>
+  <p>
+  Um dies zu übermitteln, senden wir die Komposition als versioniertes Dokument innerhalb einer <strong>Contribution</strong> (eines Beitrags). Man kann sich das so vorstellen, als würde das ausgefüllte Formular in einen Umschlag gesteckt, der die Version ausweist, und dieser wiederum in einen zweiten Umschlag (die Contribution) gelegt, bevor er an das CDR geschickt wird.
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261019143814.png" alt="Contributions" class="guide-img" width="200px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 1.11: Eine Komposition wird stets als Version eines Dokuments identifiziert und innerhalb einer Contribution übermittelt.</p>
+  </div>
+
+  <p>Der große Vorteil von Contributions liegt darin, dass sie mehrere Kompositionen bündeln können. So lassen sich brandneue Datensätze und Aktualisierungen früherer Dokumente in einer einzigen Transaktion atomar übermitteln, ohne jede Komposition einzeln anfragen zu müssen.</p>
+
+  <p>In den meisten Fällen übernehmen Client-Bibliotheken und API-Funktionen dieses Verpacken automatisch, sodass man den äußeren Umschlag selten von Hand konstruieren muss.</p>
+
+  <h1>Die Umgebung für klinische Wissensmodellierung</h1>
+
+  <p>
+  In der Praxis müssen wir openEHR-Templates entwerfen, verwalten und in den Produktivbetrieb überführen. Dafür nutzen wir drei spezialisierte Umgebungen:
+  </p>
+
+  <ol>
+    <li>Eine Umgebung zum <strong>Erstellen und Bearbeiten</strong> von Archetypen und Templates.</li>
+    <li>Eine Umgebung zum <strong>Verwalten, Begutachten und Veröffentlichen</strong> der erstellten Modelle.</li>
+    <li>Eine Umgebung zum <strong>Speichern</strong> der Templates und zur <strong>Persistierung</strong> der Kompositionen.</li>
+  </ol>
+
+  <p>In der Praxis verwenden wir:</p>
+
+  <ul>
+    <li>
+      <strong>Modellierung &amp; Autorenschaft:</strong> Den kostenlosen, webbasierten <a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">openEHR Archetype Designer</a> von Better.
+    </li>
+    <li>
+      <strong>Governance &amp; Publikation:</strong> Einen lokalen bzw. institutionellen <a href="https://ckm.salut.gencat.cat/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a>.
+    </li>
+    <li>
+      <strong>Produktion &amp; Persistierung:</strong> Ein Clinical Data Repository (CDR), in unserem Fall basierend auf HIP EHRbase von vitagroup. Zum Lernen und Testen steht die öffentliche <a href="https://sandkiste.ehrbase.org/" target="_blank" rel="noopener noreferrer">EHRbase-Sandbox</a> bereit.
+    </li>
+  </ul>
+
+  <figure class="figure">
+    <img src="images/Pasted image 20261019145141.png" alt="Typisches Ökosystem für openEHR Clinical Knowledge Modeller" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Abbildung 1.12: Das typische Arbeits-Ökosystem für openEHR Clinical Knowledge Modeller mit seinen Hauptkomponenten.</em>
+    </figcaption>
+  </figure>
+
+  <h2>Ein kurzer Blick in das CDR</h2>
+
+  <p>Das Clinical Data Repository (CDR) bildet das Herzstück des klinischen Datenflusses. Hier werden die klinischen Daten und Templates gespeichert. Zudem verwaltet das CDR Zugriffsrechte und regelt den Datenaustausch über standardisierte APIs.</p>
+
+  <p><strong>Ein essenzielles Konzept:</strong>
+  Wenn medizinisches Personal eine Anwendung nutzt, können die angezeigten Daten aus ganz unterschiedlichen Repositorien stammen – etwa einem Dokumentenserver, einem Terminologieserver oder dem Master Patient Index (MPI).</p>
+
+  <p>Für uns Modellierer ist es entscheidend zu wissen, was in openEHR gehört: Im openEHR-CDR werden ausschließlich klinische Daten modelliert. Personenidentifizierende Stammdaten des Patienten gehören nicht in das openEHR-CDR, sondern verbleiben im Master Patient Index und werden von dort referenziert.
+  </p>
+
+  <figure class="figure">
+    <img src="images/Pasted image 20261019145220.png" alt="Was der klinische Anwender sieht" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Abbildung 1.13: Nicht alle Informationen, die der Anwender sieht, müssen in openEHR modelliert werden. Viele Daten stammen aus Drittsystemen.</em>
+    </figcaption>
+  </figure>
+
+  <h2>Organisation im CDR (EHR, Kompositionen, Templates etc.)</h2>
+
+  <p>Zu Beginn fällt es oft schwer, Templates, Kompositionen und Contributions gedanklich auseinanderzuhalten. Eine einfache Analogie hilft hier weiter.</p>
+
+  <p>Man kann sich das openEHR-CDR wie einen Aktenschrank vorstellen, dessen Hauptaufgabe darin besteht, Daten geordnet aufzubewahren und gezielt wiederzufinden.</p>
+
+  <figure class="figure">
+    <img src="images/cdr_drawer_analogy.png" alt="Der CDR-Aktenschrank" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Abbildung 1.14: Das CDR als Aktenschrank: Eine Analogie zum Verständnis von EHR, Kompositionen und Templates.</em>
+    </figcaption>
+  </figure>
+
+  <p>Die klinischen Daten eines Patienten werden im CDR innerhalb eines <strong>Electronic Health Record (EHR)</strong> geführt. Jeder Patient besitzt genau eine lebenslange elektronische Akte. Diese Akte entspricht dem persönlichen Hauptordner des Patienten im digitalen Aktenschrank. Sie wird über einen eindeutigen, pseudonymen Identifikator (<code>ehr_id</code>) adressiert, wodurch klinische Daten von direkten Identitätsdaten getrennt bleiben. Alle im Laufe des Lebens erfassten Kompositionen und Beiträge landen in diesem einen zentralen EHR-Container.</p>
+
+  <p>Neben den Patientenakten beherbergt der Aktenschrank die <strong>Templates</strong>. Jedes Template ist der Bauplan für eine bestimmte Dokumentenart (z. B. Erstanamnese, Laborbericht oder PROMs-Fragebogen). Das Template selbst wird nie ausgefüllt; es liegt unabhängig von Patientendaten im CDR und dient als strukturelle Schablone.</p>
+
+  <p>
+  Wenn ein Arzt Daten dokumentiert, entsteht ein Dokument nach den Vorgaben des Templates. Dieses Dokument heißt <strong>Komposition</strong> und entspricht einem ausgefüllten Formular, das zur Archivierung an das CDR gesendet wird.</p>
+
+  <p>Dabei wird die Versionierung festgehalten. Jede Neuanlage, Korrektur oder Statusänderung erzeugt eine neue Version – so wird sichergestellt, dass historische Einträge niemals überschrieben werden oder verloren gehen.</p>
+
+  <p>Um die versionierte Komposition in der Akte abzulegen, wird sie in eine <strong>Contribution</strong> verpackt. Diese fungiert als transaktionale Einheit: Sie kann eine oder mehrere Kompositionen umfassen, sodass zusammengehörige Einträge gemeinsam und konsistent gespeichert werden.</p>
+
+  <p>Die in den Kompositionen gespeicherten Daten lassen sich über die <strong>Archetype Query Language (AQL)</strong> abfragen. Dies kann ad hoc geschehen oder über vordefinierte, im CDR hinterlegte AQL-Abfragen. In Produktivumgebungen ist es Best Practice, geprüfte und freigegebene AQL-Abfragen zu steuern, statt beliebige freie Abfragen zuzulassen.</p>
+
+  <h1>AQL-Abfragen – Daten gezielt abrufen</h1>
+
+  <p>Sobald eine Komposition im CDR liegt, stellt sich die Frage nach dem Datenabruf. Man kann die gesamte Komposition laden – das setzt jedoch voraus, dass man deren genauen Identifikator kennt.</p>
+
+  <p>Möchte man nach bestimmten Werten suchen oder Daten über mehrere Kompositionen hinweg aggregieren, nutzt man die <strong>Archetype Query Language</strong> (AQL). AQL ist konzeptionell vergleichbar mit SQL, das man aus relationalen Datenbanken kennt.</p>
+
+  <p>
+  Ohne hier zu tief in die Technik einzutauchen: <strong>AQL</strong> ermöglicht es uns, klinische Daten semantisch präzise aus dem CDR abzufragen. Zum Beispiel:
+  </p>
+
+  <h3>Bezogen auf einen einzelnen Patienten:</h3>
+  <ul>
+    <li>Gib mir eine Liste aller für diesen Patienten gespeicherten Kompositionen.</li>
+    <li>Gib mir alle Blutdruckmessungen des Patienten, chronologisch sortiert.</li>
+    <li>Gib mir alle aktuell aktiven Allergien des Patienten.</li>
+  </ul>
+
+  <h3>Bezogen auf eine Population:</h3>
+  <ul>
+    <li>
+      Gib mir alle Blutdruckmessungen von männlichen Patienten über 50 Jahren mit einem BMI von über 26,2 kg/m².
+    </li>
+  </ul>
+
+  <p>
+  Während patientenbezogene Abfragen blitzschnell sind, sind populationsweite Abfragen rechenintensiv. Genau deshalb müssen wir als Clinical Knowledge Modeller AQL verstehen: Wir müssen Datenmodelle so gestalten, dass sie nicht nur sauber gespeichert, sondern später auch performant und zuverlässig abgefragt werden können.
+  </p>
+
+</section>

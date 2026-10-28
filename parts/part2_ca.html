@@ -1,0 +1,324 @@
+<section>
+
+<h1>Modelar un procés amb arquetips i plantilles</h1>
+
+<p>Com hem après, openEHR modela les dades clíniques en dues capes ben diferenciades: els conceptes clínics (arquetips) i el context clínic (plantilles).</p>
+<p>Per començar a modelar a la pràctica, farem servir una analogia amb un flux de treball clínic que comprèn les diferents classes d'arquetip.</p>
+<p>Continuarem amb les analogies culinàries i modelarem el procés d'una <strong>comanda i lliurament de pizza</strong>.</p>
+<p>Utilitzem l'analogia de la pizza per poder-nos centrar en la mecànica del modelatge sense distreure'ns amb debats clínics reals.</p>
+<p>Per a això, modelarem el flux de treball següent:</p>
+<ul>
+  <li>El client envia una comanda a la pizzeria mitjançant un formulari en línia. Es genera un Order ID (identificador de comanda) per enllaçar tota la documentació posterior amb aquesta comanda concreta.</li>
+  <li>La cuina prepara la pizza i en fa el seguiment fins al lliurament. Cada pas d'aquest seguiment queda documentat.</li>
+  <li>Després de rebre i gaudir de la pizza, el client emplena un formulari de satisfacció.</li>
+</ul>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261023112056.png" alt="Procés de la pizza" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.1: El procés de lliurament de la pizza i les tres documentacions que se'n deriven.</p>
+</div>
+
+<h2>Estructurar el procés</h2>
+<p>Les plantilles i arquetips que desenvoluparem per a aquest flux de treball són:</p>
+<ul>
+  <li><strong>Plantilla 1: "Comanda en línia del client" (Online Customer Checkout)</strong></li>
+  <li><strong>Plantilla 2: "Seguiment de cuina i repartiment" (Kitchen and Courier Tracker)</strong></li>
+  <li><strong>Plantilla 3: "Ressenya del client" (Customer Review)</strong></li>
+</ul>
+
+<p>En els paràgrafs següents definirem quines plantilles han de contenir quins arquetips i quins elements de dades hem de modelar dins dels arquetips.</p>
+
+<h3>Arquetip base</h3>
+<p>Per mantenir les coses simples, basarem totes les nostres plantilles en un únic arquetip: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. En la pràctica clínica real, seleccionaríeu o crearíeu un arquetip de composició específic segons el propòsit previst, com ara modelar un contacte assistencial (encounter), una llista persistent o un informe.</p>
+<p>
+  Aquesta composició base es construeix creant un nou arquetip de tipus COMPOSITION amb l'ID <code>openEHR-EHR-COMPOSITION.example_base.v0</code> i desant-lo. No cal fer-hi cap modificació.
+</p>
+
+<h3>Plantilla 1: Comanda en línia del client</h3>
+<ul>
+  <li><strong>Arquetip:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
+    <ul>
+      <li>Element de dades: <strong>Nom del client</strong> — Tipus: <code>DV_TEXT</code></li>
+      <li>Element de dades: <strong>Carrer i número de lliurament</strong> — Tipus: <code>DV_TEXT</code></li>
+      <li>Element de dades: <strong>Telèfon de contacte</strong> — Tipus: <code>DV_TEXT</code></li>
+    </ul>
+  </li>
+  <li><strong>Arquetip:</strong> <code>INSTRUCTION.pizza_order.v0</code>
+    <ul>
+      <li>Element de dades: <strong>Nom de la pizza</strong> — Tipus: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
+      <li>Element de dades: <strong>Mida</strong> — Tipus: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
+      <li>Element de dades: <strong>Notes especials per a la cuina</strong> — Tipus: <code>DV_TEXT</code> (p. ex., "Molt feta, si us plau")</li>
+      <li>Ranura (slot): <strong>Ingredients extres</strong> (inclou <code>CLUSTER.pizza_topping.v0</code> a continuació)</li>
+    </ul>
+  </li>
+  <li><strong>Arquetip:</strong> <code>CLUSTER.pizza_topping.v0</code> (inserit a <code>INSTRUCTION.pizza_order.v0</code>)
+    <ul>
+      <li>Element de dades: <strong>Nom de l'ingredient</strong> — Tipus: <code>DV_CODED_TEXT</code> (p. ex., Xampinyons, Extra de mozzarella, Jalapeños)</li>
+      <li>Element de dades: <strong>Quantitat</strong> — Tipus: <code>DV_ORDINAL</code> (1: Regular, 2: Doble, 3: Triple)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Plantilla 2: Seguiment de cuina i repartiment</h3>
+<ul>
+  <li><strong>Arquetip:</strong> <code>ACTION.pizza_preparation.v0</code>
+    <ul>
+      <li>Element de dades: <strong>Order ID</strong> — Tipus: <code>DV_IDENTIFIER</code> (UUID de la comanda)</li>
+      <li>Element de dades: <strong>Estat del cicle de vida ISM</strong> — Tipus: <code>ISM_TRANSITION</code> (Planificat → Al forn → Enviat → Lliurat, o Cancel·lat)</li>
+      <li>Element de dades: <strong>Temperatura de cocció</strong> — Tipus: <code>DV_QUANTITY</code> (p. ex., 320 °C)</li>
+      <li>Element de dades: <strong>Notes</strong> — Tipus: <code>DV_TEXT</code> (p. ex., "Lliurat al client a la porta principal")</li>
+      <li>Ranura (slot): <strong>Ingredients verificats</strong> (reutilitza <code>CLUSTER.pizza_topping.v0</code> per verificar què s'ha enfornat realment)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Plantilla 3: Ressenya del client</h3>
+<ul>
+  <li><strong>Arquetip:</strong> <code>EVALUATION.customer_review.v0</code>
+    <ul>
+      <li>Element de dades: <strong>Order ID</strong> — Tipus: <code>DV_IDENTIFIER</code> (UUID de la comanda)</li>
+      <li>Element de dades: <strong>Puntuació de satisfacció</strong> — Tipus: <code>DV_COUNT</code> (restringit entre 1 i 5)</li>
+      <li>Element de dades: <strong>Recomanaries a un amic?</strong> — Tipus: <code>DV_BOOLEAN</code> (Cert / Fals)</li>
+      <li>Element de dades: <strong>Comentaris del client</strong> — Tipus: <code>DV_TEXT</code> (Comentaris en text lliure)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Comencem a modelar els arquetips</h2>
+<p>Ara que tenim un pla clar, podem crear els arquetips. Els clics concrets depenen una mica de l'eina que feu servir. En aquests exemples farem servir l'<strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, desenvolupat per Better).</p>
+
+<h3>Modelar COMPOSITION.example_base.v0</h3>
+<p>Com a base per a totes les nostres plantilles necessitem un arquetip de tipus COMPOSITION. Per mantenir l'estructura neta i minimalista, simplement creem una COMPOSITION i la desem sense afegir-hi cap element personalitzat.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151218.png" alt="Modelatge de COMPOSITION.example_base.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.2: Creació de l'arquetip de composició base.</p>
+</div>
+
+<h3>Modelar ADMIN_ENTRY.delivery_address.v0</h3>
+<p>Creem un arquetip de tipus ADMIN_ENTRY i afegim 3 elements <code>DV_TEXT</code> sota l'atribut <code>data</code>.</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261020135043.png" alt="Modelatge de ADMIN_ENTRY.delivery_address.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.3: Estructura de l'arquetip de l'adreça de lliurament.</p>
+</div>
+
+<p>Tingueu en compte que aquí desem dades de contacte del client per al lliurament de la pizza. En implementacions reals d'openEHR en salut, <strong>mai no persistim dades identificatives directes del pacient</strong> dins del registre clínic.</p>
+
+<h3>Modelar INSTRUCTION.pizza_order.v0</h3>
+<p>Creem un arquetip de tipus INSTRUCTION i reanomenem "Current Activity" com a "Order".</p>
+<p>Sota <code>description</code>, afegim un <code>DV_CODED_TEXT</code> per al nom de la pizza i per a la mida, un <code>DV_TEXT</code> per a les notes especials per a la cuina, i una ranura de CLUSTER per als ingredients extres.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135237.png" alt="Modelatge de INSTRUCTION.pizza_order.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.4: Estructura de la instrucció de comanda de pizza.</p>
+</div>
+
+<p>En seleccionar <strong>Pizza Name</strong>, configurem els termes codificats interns per a les nostres tres opcions de pizza:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135603.png" alt="Codis per al nom de la pizza" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.5: Configuració dels valors de la pizza.</p>
+</div>
+<p>Observeu que es genera automàticament un codi intern (que comença per <code>at</code>) per a cada opció.</p>
+
+<p>De la mateixa manera, afegim les opcions per a les mides:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135750.png" alt="Opcions per a les mides" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.6: Opcions per a la mida de la pizza.</p>
+</div>
+
+<p>A la ranura de clúster per als ingredients extres podem especificar quins arquetips s'hi admeten. Simplement fem servir un patró comodí obert (<code>.*</code>), que permet inserir qualsevol arquetip CLUSTER en el nivell de plantilla.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135901.png" alt="Ranura de clúster per a ingredients extres" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.7: Definició de la ranura de clúster.</p>
+</div>
+<p>Observeu que les ocurrències d'aquesta ranura s'estableixen a <code>0..*</code>. Això garanteix que els clients puguin afegir múltiples ingredients extres diferents.</p>
+
+<h3>Modelar CLUSTER.pizza_topping.v0</h3>
+<p>Creem un arquetip de tipus CLUSTER. Directament al nivell arrel, hi afegim un <code>DV_CODED_TEXT</code> per al nom de l'ingredient i un <code>DV_ORDINAL</code> per a la quantitat de l'ingredient.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020143746.png" alt="Modelatge de CLUSTER.pizza_topping.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.8: Estructura del clúster d'ingredients.</p>
+</div>
+
+<p>En seleccionar <strong>Topping Name</strong>, afegim els codis interns per a les nostres 3 opcions d'ingredients:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144047.png" alt="Codis d'ingredients" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.9: Codis interns per als ingredients.</p>
+</div>
+
+<p>A l'ordinal <strong>Amount</strong>, afegim parelles de valor-text per a cada nivell de quantitat. Tingueu en compte que els ordinals requereixen nombres enters per al seu valor numèric (p. ex., 1 = Regular, 2 = Doble, 3 = Triple):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144107.png" alt="Configuració de l'ordinal de quantitat" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.10: Valors de l'ordinal de quantitat.</p>
+</div>
+
+<h3>Modelar ACTION.pizza_preparation.v0</h3>
+<p>Creem un arquetip de tipus ACTION per fer el seguiment del cicle de vida de la preparació des de l'estat planificat fins al completat mitjançant la transició <code>ism_transition</code>.</p>
+<p>Sota <code>description</code>, afegim un <code>DV_QUANTITY</code> per a la temperatura de cocció, especificant <code>Cel</code> com l'única unitat permesa.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144924.png" alt="Temperatura de cocció a ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.11: Atribut DV_QUANTITY per a la temperatura.</p>
+</div>
+
+<p>Afegim un <code>DV_TEXT</code> per a les notes:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144904.png" alt="Notes a ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.12: Atribut DV_TEXT per a notes.</p>
+</div>
+
+<p>Tot seguit, afegim una ranura de CLUSTER per a "Toppings verified", mantenint la ranura d'inclusió oberta:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144848.png" alt="Ranura de clúster per a ingredients verificats" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.13: Ranura per a la verificació d'ingredients.</p>
+</div>
+
+<p>Sota <code>protocol</code>, afegim un <code>DV_IDENTIFIER</code> per a l'<strong>Order ID</strong>. Aquí és on desarem l'UID de la composició original de la comanda, la qual cosa ens permet connectar l'acció amb la seva instrucció d'origen:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144831.png" alt="Order ID al protocol" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.14: DV_IDENTIFIER per a l'Order ID.</p>
+</div>
+
+<p>A <code>ism_transition</code>, definim 5 estats operatius. Tot i que podem anomenar els estats amb la nostra pròpia terminologia funcional, cadascun s'ha de mapejar a un codi d'estat oficial d'openEHR. Per exemple, el nostre estat "Planned" es mapeja al codi 526 d'openEHR (<code>planned</code>):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144720.png" alt="Estats de transició ISM" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.15: Configuració dels estats a ism_transition.</p>
+</div>
+
+<p>Els codis per als nostres 5 estats són:</p>
+<ul>
+  <li>Planificat — <code>526::planned</code></li>
+  <li>Al forn — <code>524::initial</code></li>
+  <li>Enviat — <code>245::active</code></li>
+  <li>Lliurat — <code>531::completed</code></li>
+  <li>Cancel·lat — <code>528::cancelled</code></li>
+</ul>
+<p>Podeu consultar el catàleg estàndard complet dels codis d'estat d'instruccions i accions a l'<a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">especificació de terminologia de suport d'openEHR</a>.</p>
+
+<h3>Modelar EVALUATION.customer_review.v0</h3>
+<p>Com a darrer arquetip, creem l'avaluació de la ressenya del client:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150118.png" alt="Modelatge d'EVALUATION.customer_review.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.16: Creació de l'arquetip EVALUATION per a la ressenya.</p>
+</div>
+
+<p>Sota <code>data</code>, afegim un <code>DV_COUNT</code> per a la <strong>Puntuació de satisfacció</strong>. En restringim el rang permès definint:</p>
+<ul>
+  <li>Mínim: <code>&gt;=0</code></li>
+  <li>Màxim: <code>&lt;=5</code></li>
+</ul>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150242.png" alt="Restricció del rang de puntuació" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.17: Restricció del rang per al recompte.</p>
+</div>
+
+<p>Afegim un <code>DV_BOOLEAN</code> per indicar si recomanaria la pizza a un amic (<code>true</code> o <code>false</code>):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150310.png" alt="Element booleà de recomanació" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.18: Element booleà per a la recomanació.</p>
+</div>
+
+<p>Finalment, afegim un element de text lliure <code>DV_TEXT</code> per als <strong>Comentaris del client</strong>:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150329.png" alt="Comentaris del client en text lliure" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.19: Element DV_TEXT per a comentaris.</p>
+</div>
+
+<p>Sota <code>protocol</code>, afegim un <code>DV_IDENTIFIER</code> per a l'<strong>Order ID</strong> de manera que aquesta valoració es pugui vincular amb la comanda original:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150345.png" alt="Order ID al protocol de la ressenya" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.20: DV_IDENTIFIER per traçar la ressenya amb la comanda.</p>
+</div>
+
+<h2>Modelar les nostres 3 plantilles</h2>
+<p>Ara que tenim tots els arquetips definits, els podem assemblar dins de les nostres 3 plantilles.</p>
+
+<h3>Modelar la Plantilla 1: "Comanda en línia del client" (Online Customer Checkout)</h3>
+<p>Prenent com a base <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, creem la plantilla <code>Online_Customer_Order_v0</code>.</p>
+<p>Sota <code>content</code>, afegim:</p>
+<ul>
+  <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
+  <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
+</ul>
+<p>Seleccionem la ranura de CLUSTER <strong>Extra Toppings</strong> dins de la instrucció i hi inserim <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151744.png" alt="Estructura de la Plantilla 1" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.21: Muntatge de la Plantilla 1 a l'Archetype Designer.</p>
+</div>
+<p>Ja la tenim a punt! Passem a la següent plantilla.</p>
+
+<h3>Modelar la Plantilla 2: "Seguiment de cuina i repartiment" (Kitchen and Courier Tracker)</h3>
+<p>Seguint el mateix enfocament amb <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, creem la plantilla <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
+<p>Sota <code>content</code>, afegim:</p>
+<ul>
+  <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
+</ul>
+<p>Seleccionem la ranura de CLUSTER <strong>Toppings Verified</strong> i hi inserim <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151841.png" alt="Estructura de la Plantilla 2" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.22: Muntatge de la Plantilla 2.</p>
+</div>
+
+<h3>Modelar la Plantilla 3: "Ressenya del client" (Customer Review)</h3>
+<p>I ara la darrera plantilla: prenent de nou com a base <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, creem <code>Customer_Review_v0</code>.</p>
+<p>Sota <code>content</code>, afegim:</p>
+<ul>
+  <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
+</ul>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151821.png" alt="Estructura de la Plantilla 3" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.23: Muntatge de la Plantilla 3.</p>
+</div>
+<p>I llestos! Hem planificat i modelat amb èxit un conjunt complet d'arquetips i plantilles per al nostre flux de treball.</p>
+
+<h2>Fitxers d'exemple</h2>
+<p>Podeu descarregar el conjunt complet de fitxers d'exemple aquí:</p>
+<p><a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Guia per a principiants - Fitxers d'exemple.zip</a></p>
+
+<h2>Un moment, encara n'hi ha més! Restringir arquetips a les plantilles</h2>
+<p>Com hem vist al nostre exemple, ha estat relativament senzill assemblar una plantilla a partir d'arquetips existents. Sembla simplement com unir blocs de construcció reutilitzables per bastir una estructura. Aquesta és una analogia molt freqüent quan parlem d'openEHR.</p>
+<p>A la pràctica, això no és tota la veritat. Els arquetips es creen amb una gran quantitat d'elements i opcions que no es necessiten o que cal adaptar a la plantilla. Això vol dir que no només ajuntem blocs de construcció, sinó que modifiquem els blocs durant l'assemblatge. Per això, en la meva intenció de vincular-ho tot amb el món del menjar, he introduït la idea d'«enfornar» la plantilla, on els «ingredients» (arquetips) es transformen durant el procés.</p>
+<p>Aquesta modificació pot adoptar diverses formes, com ara:</p>
+<ul>
+  <li>Canviar el nom dels elements</li>
+  <li>Clonar elements</li>
+  <li>Clonar arquetips</li>
+  <li>Restringir opcions</li>
+  <li>Limitar el nombre d'instàncies</li>
+</ul>
+<p>Tingueu molt present que qualsevol modificació comporta el risc d'alterar el significat clínic de l'element de dades o de l'arquetip, i pot generar dificultats tècniques més endavant.</p>
+
+<h3>Canviar el nom dels elements</h3>
+<p>Podeu canviar fàcilment el nom d'un element de dades o d'un arquetip. Vigileu, però, de no canviar el nom per un terme que contradigui l'ús clínic previst d'aquest element.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021083407.png" alt="Canvi de nom d'un element" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.24: Modificació del nom d'un node a la plantilla.</p>
+</div>
+
+<h3>Clonar elements</h3>
+<p>Si l'«ocurrència» d'un element de dades permet l'existència de múltiples instàncies, aquest element de dades es pot clonar.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021101127.png" alt="Clonació d'elements" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.25: Clonació d'un element de dades a la plantilla.</p>
+</div>
+
+<h3>Clonar arquetips</h3>
+<p>Si l'«ocurrència» d'un arquetip permet l'existència de múltiples instàncies, aquest arquetip es pot clonar.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021093844.png" alt="Clonació d'arquetips" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.26: Clonació d'un arquetip complet.</p>
+</div>
+
+<h3>Restringir opcions</h3>
+<p>Quan l'arquetip proporciona una llista de codis interns, a la plantilla podem «desmarcar» opcions. Això sempre és restrictiu: mai no podem afegir una opció a una selecció codificada des de la plantilla.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021083213.png" alt="Restricció d'opcions codificades" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.27: Restricció d'opcions a la llista de selecció.</p>
+</div>
+
+<h3>Limitar el nombre d'instàncies</h3>
+<p>Si l'ocurrència d'un arquetip o element de dades és «oberta», permetent múltiples instàncies, podem limitar-la.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021082906.png" alt="Limitació d'ocurrències" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.28: Restricció del nombre d'ocurrències a la plantilla.</p>
+</div>
+<p>Aquesta modificació de les ocurrències només pot ser «restrictiva», anant de més a menys. No es poden «obrir» les ocurrències canviant, per exemple, de <code>0..1</code> (opcional, però com a màxim 1 ocurrència) a <code>0..*</code> (opcional, amb múltiples ocurrències permeses).</p>
+</section>

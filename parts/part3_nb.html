@@ -1,0 +1,1379 @@
+<section>
+
+<h1>Lagring og spørring av data i CDR</h1>
+
+<p>
+  I forrige del designet vi et sett med arketyper og satte dem sammen til templat for å representere en helhetlig arbeidsflyt. I denne delen går vi gjennom kjerneoperasjonene som kreves for å persistere (lagre) og hente ut kliniske data ved hjelp av et openEHR Clinical Data Repository (CDR). Vi fokuserer på praktiske, konkrete steg ved hjelp av standardiserte REST-API-er.
+</p>
+
+<div class="callout warning">
+  <strong>Merk:</strong> Selv om vi ikke benytter reelle pasientopplysninger i de følgende eksemplene (vi beholder pizza-analogien), kan alt som vises her overføres direkte til et reelt klinisk behandlingsforløp.
+</div>
+
+<h2>Det kliniske datalageret (CDR)</h2>
+
+<p>
+  Som nevnt tidligere er CDR-et databasen som lagrer og forvalter helsedata. Fordi alle komposisjoner som lagres i et openEHR-CDR styres strengt av templat, må CDR-et kjenne til og ha lagret de relevante templatene <em>før</em> det kan ta imot komposisjoner basert på dem.
+</p>
+
+<p>
+  I denne veiledningen bruker vi et CDR basert på <strong>EHRbase</strong>, en åpen kildekode-implementasjon av openEHR utviklet av vitagroup AG (<a href="https://www.vitagroup.ag/en/" target="_blank" rel="noopener noreferrer">vitagroup.ag</a>). Selv om det finnes flere ulike CDR-leverandører på markedet, tilbyr EHRbase en fritt tilgjengelig, offentlig sandkasse som er ideell for læring og uttesting:
+</p>
+
+<ul>
+  <li>
+    <strong>Sandkasse-URL:</strong> <a href="https://sandkiste.ehrbase.org" target="_blank" rel="noopener noreferrer">https://sandkiste.ehrbase.org</a>
+  </li>
+  <li>
+    <strong>Fullstendig API-dokumentasjon:</strong> <a href="https://docs.ehrbase.org/api/hip-ehrbase/openehr" target="_blank" rel="noopener noreferrer">EHRbase openEHR REST API-dokumentasjon</a>
+  </li>
+</ul>
+
+<div class="callout warning">
+  <strong>Sikkerhetsmerknad:</strong> Sandkassen er et offentlig delt testmiljø. Send aldri inn reelle pasientdata, passord eller personidentifiserende informasjon.
+</div>
+
+<h2>Verktøy for API-testing</h2>
+
+<p>
+  For å sende data til og hente data fra EHRbase-endepunktene trenger vi en HTTP/REST-klient. Populære alternativer inkluderer Insomnia, Bruno og Postman. I dette kurset benytter vi <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>, men nøyaktig de samme forespørslene og prinsippene gjelder for ethvert API-testverktøy.
+</p>
+
+<h2>En kort omvisning i Postman</h2>
+
+<p>
+  Når du åpner Postman for første gang, trenger du ikke la deg overvelde av grensesnittet. For vår openEHR-arbeidsflyt trenger du bare å forholde deg til tre hovedområder:
+</p>
+
+<ol>
+  <li>
+    <strong>Venstre sidemeny (Biblioteket ditt):</strong> Her finner du de lagrede forespørslene dine. Den viktigste seksjonen er <strong>Collections</strong> (samlinger), hvor du organiserer relaterte forespørsler i mapper. Du oppretter en ny samling ved å klikke på «+» og velge «Collection». For å legge til en forespørsel i samlingen holder du musepekeren over den og klikker på «+»-tegnet som dukker opp.
+  </li>
+  <li>
+    <strong>Øverste / midtre panel (Request-byggeren):</strong> Her setter du opp selve HTTP-kallet:
+    <ul>
+      <li><strong>HTTP-metode:</strong> Valgmenyen for verb (<code>GET</code>, <code>POST</code>, <code>PUT</code> osv.).</li>
+      <li><strong>Adresselinje (URL):</strong> Måladressen til CDR-tjeneren din.</li>
+      <li><strong>Headere (Headers):</strong> Metadata som beskriver innholdet som sendes (f.eks. <code>Content-Type: application/json</code> eller <code>Prefer: return=representation</code>).</li>
+      <li><strong>Parametere (Params):</strong> URL-spørreparametere eller stivariabler (f.eks. <code>:ehr_id</code> eller <code>:template_id</code>).</li>
+      <li><strong>Body:</strong> Nyttelasten/innholdet (f.eks. JSON-komposisjonen eller den rå XML-koden til et OPT-templat).</li>
+      <li><strong>Autorisasjon (Authorization):</strong> Hvor bearer-tokens eller grunnleggende påloggingsopplysninger konfigureres mot sikrede systemer.</li>
+    </ul>
+  </li>
+  <li>
+    <strong>Nederste panel (Response-viseren):</strong> Viser CDR-tjenerens svar så snart du har klikket på <strong>Send</strong>:
+    <ul>
+      <li><strong>Statuskode:</strong> Bekrefter suksess (<code>200 OK</code>, <code>201 Created</code>) eller rapporterer feil (<code>400 Bad Request</code>, <code>404 Not Found</code>).</li>
+      <li><strong>Response Body:</strong> Dataene som returneres (for eksempel en nygenerert EHR-ID, komposisjons-UID eller et spørringsresultat).</li>
+      <li><strong>Tid og størrelse (Time &amp; Size):</strong> Ytelsesmålinger for forespørselen.</li>
+    </ul>
+  </li>
+</ol>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261021121913.png" alt="Oversikt over Postman-grensesnittet" class="guide-img" style="max-width: 100%; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.1: Det grafiske brukergrensesnittet i Postman.</p>
+</div>
+
+<h3>Sentrale HTTP-verb i openEHR</h3>
+
+<p>For å formidle til CDR-et hva du vil oppnå med forespørselen din, finnes det ulike «verb»: GET, POST, PUT, DELETE, PATCH. I alle våre praktiske eksempler benytter vi utelukkende <code>GET</code>, <code>POST</code> og <code>PUT</code>. For en fullstendig oversikt over API-funksjonaliteten, se den offisielle EHRbase-dokumentasjonen.</p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>HTTP-metode</th>
+      <th>Betydning</th>
+      <th>Bruk i openEHR og EHRbase</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>GET</code></td>
+      <td><em>Lese / Hente</em></td>
+      <td>Hente ut data uten å endre tilstanden på tjeneren (f.eks. laste ned et templat eller hente en komposisjon).</td>
+    </tr>
+    <tr>
+      <td><code>POST</code></td>
+      <td><em>Opprette / Utføre</em></td>
+      <td>Sende nye data for opprettelse (f.eks. registrere en ny pasientjournal/EHR, lagre en ny komposisjon eller kjøre en AQL-spørring).</td>
+    </tr>
+    <tr>
+      <td><code>PUT</code></td>
+      <td><em>Laste opp / Erstatte</em></td>
+      <td>Lagre eller overskrive en ressurs på en bestemt URI (f.eks. laste opp et Operational Template (OPT) til typedefinisjonsendepunktet, eller oppdatere en eksisterende komposisjonsversjon).</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>Sjekke tjenerstatus</h2>
+
+<p>
+  Som en innledende kontroll for å verifisere at CDR-et kjører og kan nås, kaller vi tjenerens statusendepunkt. Svaret <code>200 OK</code> bekrefter at tjenesten er operativ.
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><em>Ingen</em></td></tr>
+  <tr><td><strong>Body</strong></td><td><em>Ingen</em></td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>XML-nyttelast som spesifiserer versjonene til komponentene som kjører.</td></tr>
+</table>
+
+<h3>Eksempelsvar</h3>
+<pre><code class="language-xml">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
+&lt;status&gt;
+    &lt;ehrbase_version&gt;2.33.0&lt;/ehrbase_version&gt;
+    &lt;openehr_sdk_version&gt;2.33.1&lt;/openehr_sdk_version&gt;
+    &lt;archie_version&gt;3.13.0&lt;/archie_version&gt;
+    &lt;jvm_version&gt;Eclipse Adoptium 25.0.3+9-LTS&lt;/jvm_version&gt;
+    &lt;os_version&gt;Linux amd64 4.4.0&lt;/os_version&gt;
+    &lt;postgres_version&gt;PostgreSQL 16.15 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7), 64-bit&lt;/postgres_version&gt;
+&lt;/status&gt;</code></pre>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026084826.png" alt="Forespørsel om tjenerstatus i Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.2: Verifisering av CDR-tilkobling via statusendepunktet.</p>
+</div>
+
+<h2>Liste ut eksisterende templat på CDR-et</h2>
+
+<p>
+  For å undersøke hvilke templat som for øyeblikket er aktive og tilgjengelige på tjeneren, gjør vi et oppslag mot templatdefinisjonsendepunktet:
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><em>Ingen</em></td></tr>
+  <tr><td><strong>Body</strong></td><td><em>Ingen</em></td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>JSON-array med sammendrag av installerte templat.</td></tr>
+</table>
+
+<h3>Eksempelsvar (forkortet)</h3>
+<pre><code class="language-json">[
+    {
+        "concept": "International Patient Summary",
+        "template_id": "International Patient Summary v7.1",
+        "archetype_id": "openEHR-EHR-COMPOSITION.health_summary.v1",
+        "created_timestamp": "2026-07-02T07:52:35.680Z"
+    },
+    {
+        "concept": "Self reported blood pressure",
+        "template_id": "Self reported blood pressure",
+        "archetype_id": "openEHR-EHR-COMPOSITION.self_reported_data.v1",
+        "created_timestamp": "2026-07-03T10:31:49.986Z"
+    }
+    ...
+]</code></pre>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026085105.png" alt="Lister ut templat i Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.3: Henter katalogen over lagrede templat.</p>
+</div>
+
+<h2>Laste opp et Operational Template (OPT) til CDR-et</h2>
+
+<p>
+  Før en komposisjon kan lagres, må det tilhørende templatet lastes opp som en Operational Template-fil (<code>.opt</code>). CDR-et tolker denne definisjonen og håndhever alle modellerte begrensninger mot innkommende komposisjoner.
+</p>
+
+<p>
+  Du finner eksempeltemplatene i den nedlastbare zip-pakken:
+  <a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Last ned eksempelfiler (.zip)</a>
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>POST</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/xml</code></td></tr>
+  <tr><td><strong>Body</strong></td><td>Rått XML-innhold fra din <code>.opt</code>-fil.</td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>201 Created</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Det registrerte OPT-templatet i XML-format.</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>Viktig:</strong> Dersom et templat med nøyaktig samme <code>template_id</code> allerede finnes på tjeneren, avviser CDR-et opplastingen for å ivareta versjonsintegriteten.
+</div>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026104155.png" alt="Laster opp et OPT-templat i Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.4: Registrerer et OPT-templat på EHRbase.</p>
+</div>
+
+<h2>Hente en OPT-templatdefinisjon fra CDR-et</h2>
+
+<p>
+  Dersom du ønsker å hente ut den fullstendige definisjonen av et eksisterende templat, kan du hente det via templat-ID ved hjelp av en stiparameter (<code>:template_id</code>):
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><code>Accept: application/xml</code></td></tr>
+  <tr><td><strong>Parametere (Params)</strong></td><td><code>template_id = Vital Signs</code> (avhengig av templat-ID-en du søker etter)</td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Fullstendig XML-spesifikasjon for OPT-en.</td></tr>
+</table>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026105210.png" alt="Henter en templatdefinisjon" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.5: Henter rå OPT-fil direkte fra CDR-et.</p>
+</div>
+
+<h2>Generere en eksempelkomposisjon</h2>
+
+<p>
+  Under applikasjonsutvikling kan det være svært nyttig å raskt få tak i en eksempelkomposisjon for et templat. Du kan be CDR-et generere en syntetisk JSON-nyttelast basert på et registrert templat:
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id/example?format=JSON</code></td></tr>
+  <tr><td><strong>Parametere (Params)</strong></td><td><code>template_id = Customer_Review_v0</code> (avhengig av templat-ID)</td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Syntetisk eksempelkomposisjon i openEHR Canonical JSON-format.</td></tr>
+</table>
+
+<div class="callout warning">
+  <strong>Advarsel:</strong> Eksempelstrukturene som genereres av CDR-et er kun ment for syntaksinspeksjon. De fyller feltene med tilfeldige testverdier og må aldri lagres direkte som ekte pasientopplysninger.
+</div>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026110252.png" alt="Ber om en eksempelkomposisjon" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.6: Viser en CDR-generert eksempelkomposisjon.</p>
+</div>
+
+<h2>Opprette en elektronisk pasientjournal (EHR)</h2>
+
+<p>
+  I openEHR kan kliniske komposisjoner ikke eksistere i et vakuum. De må tilhøre en <strong>EHR</strong> (pasientjournal) som representerer pasienten (eller kunden, i vår pizza-analogi). Ved å opprette en EHR genereres en unik, varig identifikator (en <code>ehr_id</code>-UUID):
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>POST</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><code>Prefer: return=representation</code></td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>201 Created</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Metadata for den opprettede journalen, inkludert <code>ehr_id</code>.</td></tr>
+</table>
+
+<div class="callout warning">
+  Dersom du ønsker det, kan du øve på dette ved å laste opp eksempeltemplatene våre til sandkassen.
+</div>
+
+<h3>Eksempelsvar</h3>
+<pre><code class="language-json">{
+    "_type": "EHR",
+    "system_id": {
+        "_type": "HIER_OBJECT_ID",
+        "value": "local.ehrbase.org"
+    },
+    "ehr_id": {
+        "_type": "HIER_OBJECT_ID",
+        "value": "7fab0168-e79f-456f-b271-02050dabaa43"
+    },
+    "ehr_status": {
+        "_type": "OBJECT_REF",
+        "namespace": "local",
+        "type": "EHR_STATUS",
+        "id": {
+            "_type": "OBJECT_VERSION_ID",
+            "value": "df7bc4cd-be17-4105-86c9-cd38f734c7f3::local.ehrbase.org::1"
+        }
+    },
+    "time_created": {
+        "_type": "DV_DATE_TIME",
+        "value": "2026-10-26T10:14:30.448343Z"
+    }
+}</code></pre>
+
+<h3>Skjermbilde</h3>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026111537.png" alt="Oppretter en EHR i Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.7: Oppretter en EHR og mottar den i JSON.</p>
+</div>
+
+<h2>Bygge en komposisjon fra bunnen av (steg for steg)</h2>
+
+<p>
+  Nå som templatene våre er lastet opp til CDR-et, kan vi persistere reelle kliniske data. I openEHR lagres kliniske data i form av en <strong>COMPOSITION</strong>.
+</p>
+
+<p>
+  Selv om du kunne bedt EHRbase om et automatisk generert eksempel, er slike strukturer fulle av forvirrende dummyverdier og valgfrie attributter som tåkelegger hva som faktisk er påkrevd. Den beste måten å virkelig forstå openEHR-data på, er å bygge en minimal, gyldig komposisjon fra bunnen av.
+</p>
+
+<p>
+  I denne gjennomgangen skal vi sette sammen en fullverdig komposisjon for templatet <strong><code>Customer_Review_v0</code></strong>.
+</p>
+
+<p>
+  Ta gjerne en titt på spesifikasjonen for klassen <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">COMPOSITION</a>. Det er lurt å følge oppbyggingen av komposisjonsfilen ved å rådføre seg med Referansemodellen. For raske oppslag anbefales den uoffisielle <a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">openEHR RM Browser</a>.
+</p>
+
+<!-- ============================================================ -->
+<!-- 7.1 Mental Model -->
+<!-- ============================================================ -->
+<h3>Steg 1 – Anatomien til en COMPOSITION</h3>
+
+<p>
+  En <code>COMPOSITION</code> er beholderen for hele dokumentet vi ønsker å lagre. På rotnivå forventer openEHRs referansemodell denne skjelettstrukturen:
+</p>
+
+<pre><code class="language-json">{
+  "_type": "COMPOSITION",
+  "name": { ... },
+  "archetype_node_id": "openEHR-EHR-COMPOSITION.example_base.v0",
+  "archetype_details": { ... },
+  "language": { ... },
+  "territory": { ... },
+  "category": { ... },
+  "composer": { ... },
+  "content": [ ... ]
+}</code></pre>
+
+<div class="callout warning">
+  <strong>Merk:</strong> Denne strukturen er forenklet. Vi har redusert elementene til et minimum for at eksemplene skal være enkle å arbeide med. Se <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">openEHR-spesifikasjonen</a> for den fullstendige listen over attributter for en komposisjon.
+</div>
+
+<p>La oss nå undersøke og bygge opp hvert av disse attributtene ett for ett.</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 2 Root Name -->
+<!-- ============================================================ -->
+<h3>Steg 2 – <code>name</code>-attributtet (RM-klasse: <code>DV_TEXT</code>)</h3>
+
+<p>
+  I openEHR er selv enkle etiketter og benevnelser sjelden rene strenger. De pakkes inn i en datatype fra Referansemodellen, vanligvis <strong><code>DV_TEXT</code></strong> (Data Value: Text), noe som gir støtte for lokalt språk og tegnsett.
+</p>
+
+<p>For rot-komposisjonen matcher dette vanligvis templatnavnet:</p>
+
+<pre><code class="language-json">"name": {
+  "_type": "DV_TEXT",
+  "value": "Customer_Review_v0"
+}</code></pre>
+
+<div class="callout note">
+  <strong>Merk:</strong> Avhengig av hvordan templatet ble forfattet, kan visningsnavnet avvike fra det underliggende arketypenavnet.
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 3 Archetype Details -->
+<!-- ============================================================ -->
+<h3>Steg 3 – <code>archetype_details</code>-attributtet (RM-klasse: <code>ARCHETYPED</code>)</h3>
+
+<p>
+  Hvordan vet CDR-et hvilke regler og begrensninger denne komposisjonen skal valideres mot? Gjennom <code>archetype_details</code>. Dette objektet kobler komposisjonen sammen med både dens underliggende rotarketype og det spesifikke templatet:
+</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261023125358.png" alt="Attributtre for archetype_details i RM Browser" class="guide-img" width="300px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.8: Attributtreet for archetype_details i openEHR RM Browser.</p>
+</div>
+
+<p>
+  Merk at verken <code>archetype_id</code> eller <code>template_id</code> er ren tekst; de er instanser av klassene <code>ARCHETYPE_ID</code> og <code>TEMPLATE_ID</code>:
+</p>
+
+<pre><code class="language-json">"archetype_details": {
+  "_type": "ARCHETYPED",
+  "archetype_id": {
+    "_type": "ARCHETYPE_ID",
+    "value": "openEHR-EHR-COMPOSITION.example_base.v0"
+  },
+  "template_id": {
+    "_type": "TEMPLATE_ID",
+    "value": "Customer_Review_v0"
+  },
+  "rm_version": "1.1.0"
+}</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 4 Language & Territory -->
+<!-- ============================================================ -->
+<h3>Steg 4 – Språk og territorium (RM-klasse: <code>CODE_PHRASE</code>)</h3>
+
+<p>
+  Helsedata er flernasjonale. Enhver komposisjon definerer sitt primærspråk og sitt juridiske territorium eksplisitt ved hjelp av <strong><code>CODE_PHRASE</code></strong>, som knytter en standard terminologi-ID sammen med en spesifikk kode.
+</p>
+
+<p>
+  De støttede kodene finnes i spesifikasjonene for <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
+</p>
+
+<h4>Språk (Language): ISO 639-1</h4>
+<div class="img-container">
+  <img src="images/Pasted image 20261023131643.png" alt="Attributtre for språk i RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.9: Attributtreet for language.</p>
+</div>
+
+<pre><code class="language-json">"language": {
+  "_type": "CODE_PHRASE",
+  "terminology_id": {
+    "_type": "TERMINOLOGY_ID",
+    "value": "ISO_639-1"
+  },
+  "code_string": "en"
+}</code></pre>
+
+<h4>Territorium (Territory): ISO 3166-1</h4>
+<div class="img-container">
+  <img src="images/Pasted image 20261023132253.png" alt="Attributtre for territorium i RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.10: Attributtreet for territory.</p>
+</div>
+
+<pre><code class="language-json">"territory": {
+  "_type": "CODE_PHRASE",
+  "terminology_id": {
+    "_type": "TERMINOLOGY_ID",
+    "value": "ISO_3166-1"
+  },
+  "code_string": "ES"
+}</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 5 Category -->
+<!-- ============================================================ -->
+<h3>Steg 5 – <code>category</code>-attributtet (RM-klasse: <code>DV_CODED_TEXT</code>)</h3>
+
+<p>
+  openEHR kategoriserer kliniske hendelser i overordnede mønstre (som <code>event</code>, <code>persistent</code> eller <code>episodic</code>). Vi bruker <strong><code>DV_CODED_TEXT</code></strong>, som binder en lesbar tekststreng sammen med en intern openEHR-kode (her representerer koden <code>433</code> en tidsavgrenset hendelse, «event»):
+</p>
+
+<p>
+  De støttede kodene finnes i spesifikasjonen for <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_composition_category" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
+</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261023132705.png" alt="Attributtre for category i RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.11: Attributtreet for category.</p>
+</div>
+
+<pre><code class="language-json">"category": {
+  "_type": "DV_CODED_TEXT",
+  "value": "event",
+  "defining_code": {
+    "_type": "CODE_PHRASE",
+    "terminology_id": {
+      "_type": "TERMINOLOGY_ID",
+      "value": "openehr"
+    },
+    "code_string": "433"
+  }
+}</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 6 Composer -->
+<!-- ============================================================ -->
+<h3>Steg 6 – <code>composer</code>-attributtet</h3>
+
+<p>
+  Enhver pasientoppføring må spore forfatterskap. I openEHR modelleres forfatteren (composer) som en <code>PARTY_PROXY</code>. Du velger vanligvis mellom:
+</p>
+<ul>
+  <li><strong><code>PARTY_SELF</code>:</strong> Brukes når pasienten selv har registrert opplysningene (f.eks. pasientrapporterte spørreskjemaer / PROMs, apper).</li>
+  <li><strong><code>PARTY_IDENTIFIED</code>:</strong> Brukes ved registrering av navnet til en helsepersonell eller en ekstern behandleridentifikator.</li>
+</ul>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261023132941.png" alt="Attributtre for composer i RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.12: Valg av PARTY_IDENTIFIED for å representere forfatteren.</p>
+</div>
+
+<pre><code class="language-json">"composer": {
+  "_type": "PARTY_IDENTIFIED",
+  "name": "Max Mustermann"
+}</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 7 Content & Entries -->
+<!-- ============================================================ -->
+<h3>Steg 7 – <code>content</code>-seksjonen: Legge til kliniske oppføringer</h3>
+
+<p>
+  Nå når vi selve innholdet: <code>content</code>-matrisen. I templatet vårt la vi inn en <strong>EVALUATION</strong>-arketype (<code>openEHR-EHR-EVALUATION.customer_review.v0</code>).
+</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026091244.png" alt="Attributtre for content i RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figur 3.13: Undersøker de obligatoriske ENTRY-attributtene inne i content.</p>
+</div>
+
+<p>
+  Fordi enhver oppføringsarketype (Entry) i teorien kan siteres, hentes ut eller oversettes uavhengig, krever openEHR at hver oppføring definerer sin egen lokale kontekst:
+</p>
+
+<ul>
+  <li><strong><code>encoding</code>:</strong> Tegnkoding (f.eks. <code>UTF-8</code>).</li>
+  <li><strong><code>language</code>:</strong> Språkkode for denne spesifikke oppføringen.</li>
+  <li><strong><code>subject</code>:</strong> Hvem denne evalueringen gjelder. I vårt tilfelle angir <code>PARTY_SELF</code> at den gjelder journalens eier direkte.</li>
+  <li><strong><code>protocol</code>:</strong> Kontekstuelle metadata om <em>hvordan</em> eller <em>hvorfor</em> oppføringen ble registrert (f.eks. Order ID).</li>
+  <li><strong><code>data</code>:</strong> De sentrale kliniske observasjonene eller vurderingene.</li>
+</ul>
+
+<hr>
+
+<h4>Steg 7.1 – Innholdets <code>encoding</code>, <code>language</code> og <code>subject</code></h4>
+
+<p>Seksjonen <code>content</code> inneholder en liste over alle arketyper modellert i denne delen av templatet. Vi legger inn <code>encoding</code>, <code>language</code> og <code>subject</code> på samme måte som tidligere:</p>
+
+<pre><code class="language-json">{
+  "_type": "EVALUATION",
+  "name": {
+    "_type": "DV_TEXT",
+    "value": "customer_review"
+  },
+  "encoding": {
+    "_type": "CODE_PHRASE",
+    "terminology_id": {
+      "_type": "TERMINOLOGY_ID",
+      "value": "IANA_character-sets"
+    },
+    "code_string": "UTF-8"
+  },
+  "language": {
+    "_type": "CODE_PHRASE",
+    "terminology_id": {
+      "_type": "TERMINOLOGY_ID",
+      "value": "ISO_639-1"
+    },
+    "code_string": "en"
+  },
+  "subject": {
+    "_type": "PARTY_SELF"
+  },
+  "protocol": {
+      ...
+  },
+  "data": {
+      ...
+  },
+  "archetype_details": {
+    "archetype_id": {
+      "value": "openEHR-EHR-EVALUATION.customer_review.v0"
+    },
+    "rm_version": "1.1.0"
+  },
+  "archetype_node_id": "openEHR-EHR-EVALUATION.customer_review.v0"
+}</code></pre>
+
+<hr>
+
+<h4>Steg 7.2 – Legge dataelementer til <code>protocol</code> og <code>data</code></h4>
+
+<p>
+  Både inne i <code>data</code> og <code>protocol</code> organiseres informasjonen som et <strong><code>ITEM_TREE</code></strong> bestående av individuelle <strong><code>ELEMENT</code></strong>-noder.
+</p>
+
+<p>
+  Legg merke til hvordan hvert dataelement benytter en tilpasset <strong>Data Value (DV)</strong>-klasse. Slik ser feltene for vår kundeanmeldelse ut:
+</p>
+
+<div class="table-responsive">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Feltnavn</th>
+        <th>Archetype Node ID</th>
+        <th>RM Data Value-klasse</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Tilfredshetsskår (Satisfaction Rating)</strong></td>
+        <td><code>at0005</code></td>
+        <td><code>DV_COUNT</code><br><em>(Heltall)</em></td>
+      </tr>
+      <tr>
+        <td><strong>Anbefale til en venn? (Recommend to a Friend?)</strong></td>
+        <td><code>at0006</code></td>
+        <td><code>DV_BOOLEAN</code><br><em>(Sant / Usant)</em></td>
+      </tr>
+      <tr>
+        <td><strong>Kundetilbakemelding (Customer Feedback)</strong></td>
+        <td><code>at0007</code></td>
+        <td><code>DV_TEXT</code><br><em>(Fritekststreng)</em></td>
+      </tr>
+      <tr>
+        <td><strong>Order ID</strong> (i Protocol)</td>
+        <td><code>at0002</code></td>
+        <td><code>DV_IDENTIFIER</code><br><em>(Virksomhetsnøkkel / UUID)</em></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<p>Med dette kan vi bygge JSON-strukturen med utfylte verdier for <code>data</code> og <code>protocol</code>:</p>
+
+<pre><code class="language-json">...
+"protocol": {
+  "_type": "ITEM_TREE",
+  "name": {
+    "_type": "DV_TEXT",
+    "value": "Item tree"
+  },
+  "archetype_node_id": "at0001",
+  "items": [
+    {
+      "_type": "ELEMENT",
+      "name": {
+        "_type": "DV_TEXT",
+        "value": "Order ID"
+      },
+      "value": {
+        "_type": "DV_IDENTIFIER",
+        "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+      },
+      "archetype_node_id": "at0002"
+    }
+  ]
+},
+"data": {
+  "_type": "ITEM_TREE",
+  "name": {
+    "_type": "DV_TEXT",
+    "value": "Item tree"
+  },
+  "archetype_node_id": "at0003",
+  "items": [
+    {
+      "_type": "ELEMENT",
+      "name": {
+        "_type": "DV_TEXT",
+        "value": "Satisfaction Rating"
+      },
+      "value": {
+        "_type": "DV_COUNT",
+        "magnitude": 4
+      },
+      "archetype_node_id": "at0005"
+    },
+    {
+      "_type": "ELEMENT",
+      "name": {
+        "_type": "DV_TEXT",
+        "value": "Recommend to a Friend?"
+      },
+      "value": {
+        "_type": "DV_BOOLEAN",
+        "value": true
+      },
+      "archetype_node_id": "at0006"
+    },
+    {
+      "_type": "ELEMENT",
+      "name": {
+        "_type": "DV_TEXT",
+        "value": "Customer Feedback"
+      },
+      "value": {
+        "_type": "DV_TEXT",
+        "value": "Crust was crispy and arrived piping hot!"
+      },
+      "archetype_node_id": "at0007"
+    }
+  ]
+}
+...</code></pre>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Step 9 The Full Assembled Composition -->
+<!-- ============================================================ -->
+<h3>Steg 8 – Det fullstendige sammensatte JSON-dokumentet</h3>
+
+<p>
+  Når vi setter sammen alle disse komponentene, har vi en komplett og fullt gyldig canonical openEHR-komposisjon:
+</p>
+
+<pre><code class="language-json">{
+  "_type": "COMPOSITION",
+  "name": {
+    "_type": "DV_TEXT",
+    "value": "Customer_Review_v0"
+  },
+  "archetype_details": {
+    "_type": "ARCHETYPED",
+    "archetype_id": {
+      "_type": "ARCHETYPE_ID",
+      "value": "openEHR-EHR-COMPOSITION.example_base.v0"
+    },
+    "template_id": {
+      "_type": "TEMPLATE_ID",
+      "value": "Customer_Review_v0"
+    },
+    "rm_version": "1.1.0"
+  },
+  "language": {
+    "_type": "CODE_PHRASE",
+    "terminology_id": {
+      "_type": "TERMINOLOGY_ID",
+      "value": "ISO_639-1"
+    },
+    "code_string": "en"
+  },
+  "territory": {
+    "_type": "CODE_PHRASE",
+    "terminology_id": {
+      "_type": "TERMINOLOGY_ID",
+      "value": "ISO_3166-1"
+    },
+    "code_string": "ES"
+  },
+  "category": {
+    "_type": "DV_CODED_TEXT",
+    "value": "event",
+    "defining_code": {
+      "_type": "CODE_PHRASE",
+      "terminology_id": {
+        "_type": "TERMINOLOGY_ID",
+        "value": "openehr"
+      },
+      "code_string": "433"
+    }
+  },
+  "composer": {
+    "_type": "PARTY_IDENTIFIED",
+    "name": "Max Mustermann"
+  },
+  "content": [
+    {
+      "_type": "EVALUATION",
+      "name": {
+        "_type": "DV_TEXT",
+        "value": "customer_review"
+      },
+      "encoding": {
+        "_type": "CODE_PHRASE",
+        "terminology_id": {
+          "_type": "TERMINOLOGY_ID",
+          "value": "IANA_character-sets"
+        },
+        "code_string": "UTF-8"
+      },
+      "language": {
+        "_type": "CODE_PHRASE",
+        "terminology_id": {
+          "_type": "TERMINOLOGY_ID",
+          "value": "ISO_639-1"
+        },
+        "code_string": "en"
+      },
+      "subject": {
+        "_type": "PARTY_SELF"
+      },
+      "protocol": {
+        "_type": "ITEM_TREE",
+        "name": {
+          "_type": "DV_TEXT",
+          "value": "Item tree"
+        },
+        "archetype_node_id": "at0001",
+        "items": [
+          {
+            "_type": "ELEMENT",
+            "name": {
+              "_type": "DV_TEXT",
+              "value": "Order ID"
+            },
+            "value": {
+              "_type": "DV_IDENTIFIER",
+              "id": "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+            },
+            "archetype_node_id": "at0002"
+          }
+        ]
+      },
+      "data": {
+        "_type": "ITEM_TREE",
+        "name": {
+          "_type": "DV_TEXT",
+          "value": "Item tree"
+        },
+        "archetype_node_id": "at0003",
+        "items": [
+          {
+            "_type": "ELEMENT",
+            "name": {
+              "_type": "DV_TEXT",
+              "value": "Satisfaction Rating"
+            },
+            "value": {
+              "_type": "DV_COUNT",
+              "magnitude": 4
+            },
+            "archetype_node_id": "at0005"
+          },
+          {
+            "_type": "ELEMENT",
+            "name": {
+              "_type": "DV_TEXT",
+              "value": "Recommend to a Friend?"
+            },
+            "value": {
+              "_type": "DV_BOOLEAN",
+              "value": true
+            },
+            "archetype_node_id": "at0006"
+          },
+          {
+            "_type": "ELEMENT",
+            "name": {
+              "_type": "DV_TEXT",
+              "value": "Customer Feedback"
+            },
+            "value": {
+              "_type": "DV_TEXT",
+              "value": "Crust was crispy and arrived piping hot!"
+            },
+            "archetype_node_id": "at0007"
+          }
+        ]
+      },
+      "archetype_details": {
+        "archetype_id": {
+          "value": "openEHR-EHR-EVALUATION.customer_review.v0"
+        },
+        "rm_version": "1.1.0"
+      },
+      "archetype_node_id": "openEHR-EHR-EVALUATION.customer_review.v0"
+    }
+  ],
+  "archetype_node_id": "openEHR-EHR-COMPOSITION.example_base.v0"
+}</code></pre>
+
+<hr>
+
+<h3>Eksempelfiler klare til bruk</h3>
+<p>Du kan inspisere eller laste ned JSON-strukturene for alle tre arbeidsflyttemplatene:</p>
+<ul>
+  <li><a href="docs/Customer_Review_v0_COMPOSITION_EXAMPLE.json" download>Customer_Review_v0_COMPOSITION_EXAMPLE.json</a></li>
+  <li><a href="docs/Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json" download>Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json</a></li>
+  <li><a href="docs/Kitchen_And_Delivery_Tracker_v0_COMPOSITION_EXAMPLE.json" download>Kitchen_And_Delivery_Tracker_v0_COMPOSITION_EXAMPLE.json</a></li>
+</ul>
+
+<hr>
+
+<h2>Lagre (persistere) en komposisjon i CDR-et</h2>
+
+<p>
+  For å lagre en komposisjon sender vi en HTTP-<code>POST</code>-forespørsel rettet mot pasientens spesifikke <code>ehr_id</code>-endepunkt:
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>POST</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
+  <tr><td><strong>Parametere (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code></td></tr>
+  <tr><td><strong>Body</strong></td><td>Den fullstendige komposisjonen i Canonical JSON.</td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>201 Created</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Den lagrede komposisjonen inkludert dens tildelte, versjonerte <code>uid</code>.</td></tr>
+</table>
+
+<div class="callout note">
+  <strong>Forstå komposisjons-UID:</strong> I openEHR tildeles komposisjoner en <code>OBJECT_VERSION_ID</code> på formatet <code>{UUID}::{system_id}::{version}</code> (for eksempel: <code>c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code>).
+</div>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026135957.png" alt="Lagrer en komposisjon i Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.14: Vellykket opprettelse av komposisjonen med retur av versjon 1.</p>
+</div>
+
+<hr>
+
+<h2>Hente en komposisjon via dens ID</h2>
+
+<p>
+  Når du kjenner pasientens <code>ehr_id</code> og komposisjonens <code>composition_id</code>, kan du hente hele dokumentet med en HTTP-<code>GET</code>-forespørsel:
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
+  <tr><td><strong>Parametere (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Den nyeste versjonen av den lagrede komposisjonen.</td></tr>
+</table>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026141946.png" alt="Henter en komposisjon via ID" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.15: Henter en eksisterende komposisjon fra datalageret.</p>
+</div>
+
+<h2>Oppdatere en eksisterende komposisjon</h2>
+
+<p>
+  openEHR-datalagre opprettholder en permanent og sporbar versjonshistorikk: Komposisjoner overskrives aldri direkte på stedet. Når vi oppdaterer en oppføring, sender vi en HTTP-<code>PUT</code>-forespørsel og angir gjeldende versjons-ID i <code>If-Match</code>-headeren for å unngå skrivekonflikter ved samtidige oppdateringer (optimistisk låsing):
+</p>
+
+<table class="data-table">
+  <tr><td><strong>Metode</strong></td><td><code>PUT</code></td></tr>
+  <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
+  <tr><td><strong>Headere (Headers)</strong></td><td><code>If-Match: c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code><br><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
+  <tr><td><strong>Parametere (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
+  <tr><td><strong>Body</strong></td><td>Den oppdaterte komposisjonen i JSON.</td></tr>
+  <tr><td><strong>Forventet status</strong></td><td><code>200 OK</code></td></tr>
+  <tr><td><strong>Response-body</strong></td><td>Den oppdaterte oppføringen, med versjonsnummer oppdatert til <code>::2</code>.</td></tr>
+</table>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261026143522.png" alt="Oppdaterer en komposisjon med PUT" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figur 3.16: Oppdaterer en komposisjon og observerer at versjonen øker til ::2.</p>
+</div>
+
+<hr>
+
+<h2>AQL – Målrettet uthenting av kliniske data</h2>
+
+<p>
+  I de foregående stegene lagret vi data i CDR-et og så hvordan vi kan hente et helt dokument via API når vi kjenner identifikatoren. I praktiske kliniske applikasjoner kjenner man imidlertid sjelden denne ID-en på forhånd, eller man trenger bare spesifikke datafelter (f.eks. kun navnet på pizzaen, eller det systoliske blodtrykket) på tvers av mange pasientmøter. Til dette formålet tilbyr openEHR <strong>Archetype Query Language (AQL)</strong>.
+</p>
+
+<p>
+  AQL er standardisert i de offisielle spesifikasjonene: 
+  <a href="https://specifications.openehr.org/releases/QUERY/latest/AQL.html" target="_blank" rel="noopener noreferrer">openEHR AQL-spesifikasjoner</a>.
+</p>
+
+<p>
+  I denne seksjonen går vi gjennom praktiske eksempler som gir deg et intuitivt og direkte møte med AQL.
+</p>
+
+<h3>Kjøre en AQL-spørring via REST-API</h3>
+
+<p>AQL-spørringer sendes til EHRbase via en HTTP-<code>POST</code>-forespørsel til spørringsendepunktet:</p>
+
+<table class="data-table">
+  <tr>
+    <td><strong>Metode</strong></td>
+    <td><code>POST</code></td>
+  </tr>
+  <tr>
+    <td><strong>URL</strong></td>
+    <td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql</code></td>
+  </tr>
+  <tr>
+    <td><strong>Headere (Headers)</strong></td>
+    <td><code>Content-Type: application/json</code></td>
+  </tr>
+  <tr>
+    <td><strong>Body</strong></td>
+    <td>Nyttelast: AQL-spørringsomslaget i JSON-format.</td>
+  </tr>
+  <tr>
+    <td><strong>Forventet status</strong></td>
+    <td><code>200 OK</code></td>
+  </tr>
+  <tr>
+    <td><strong>Response-body</strong></td>
+    <td>Kolonner og rader med spørringsresultatet i JSON.</td>
+  </tr>
+</table>
+
+<p>JSON-kroppen som sendes inn følger denne oppbygningen:</p>
+
+<pre><code class="language-json">{
+  "q": "SELECT ...",
+  "offset": 0,
+  "fetch": 100,
+  "query_parameters": {}
+}</code></pre>
+
+<ul>
+  <li><code>q</code>: Selve AQL-spørreteksten (obligatorisk).</li>
+  <li><code>offset</code>: Antall rader som hoppes over i starten (svært nyttig for paginering).</li>
+  <li><code>fetch</code>: Maksimalt antall rader som returneres (kan også angis i spørringen via <code>LIMIT</code>).</li>
+  <li><code>query_parameters</code>: En samling nøkkel-verdi-parametre som erstatter variabler deklarert i spørringen (med prefikset <code>$</code>).</li>
+</ul>
+
+<p>
+  Standard AQL-spørringer i JSON må formateres på en enkelt linje. For å inspisere, formatere og dokumentere flerlinjers spørringer på en oversiktlig måte, kan du benytte det åpne verktøyet <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a>.
+</p>
+
+<hr>
+
+<h3>Anatomien til en AQL-spørring</h3>
+
+<p>
+  I grove trekk formulerer en AQL-spørring følgende overfor CDR-et: <em>«Vennligst returner et sett med dataelementer basert på spesifikke arketypestier og utvalgskriterier.»</em>
+</p>
+
+<p>La oss sammenligne et spørsmål på vanlig norsk med tilsvarende AQL-setning (anvendt på pizza-eksempelet vårt):</p>
+
+<div class="callout note">
+  <strong>Formål:</strong> Hvilke kunder har lagt inn en bestilling?
+</div>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Spørsmål i vanlig tekst</th>
+      <th>AQL-klausul</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>«Vis meg alle EHR-ID-er...»</td>
+      <td><code>SELECT e/ehr_id/value</code></td>
+    </tr>
+    <tr>
+      <td>«...fra journaler som inneholder komposisjoner...»</td>
+      <td><code>FROM EHR e CONTAINS COMPOSITION c</code></td>
+    </tr>
+    <tr>
+      <td>«...basert på templatet 'Online_Customer_Order_v0'.»</td>
+      <td><code>WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Satt sammen til en fullstendig spørring:</p>
+
+<pre><code class="language-sql">SELECT e/ehr_id/value 
+FROM EHR e 
+CONTAINS COMPOSITION c 
+WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></pre>
+
+<hr>
+
+<h3>Testdatasett</h3>
+
+<p>
+  For å teste disse spørringene ble det registrert tre eksempelbestillinger i vår testjournal (<code>ehr_id: 7fab0168-e79f-456f-b271-02050dabaa43</code>). Siden offentlige sandkasser nullstilles med jevne mellomrom, kan du laste ned hele settet med testkomposisjoner og sende dem inn på nytt dersom det er nødvendig:
+</p>
+
+<p>
+  <a href="docs/A_beginners_guide_compositions_for_AQL.zip" class="btn-download" download>Last ned komposisjoner for AQL (.zip)</a>
+</p>
+
+<p>
+  Følgende bestillinger ble sendt inn:
+</p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Felt</th>
+      <th>Bestilling 1</th>
+      <th>Bestilling 2</th>
+      <th>Bestilling 3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>UUID</strong></td>
+      <td><code>3b463d4c-1613-410f-b271-3e81a7743549</code></td>
+      <td><code>9fefb720-b44a-44a8-bc7b-919ed084981d</code></td>
+      <td><code>afe5aa51-0f11-4f57-a7c8-60936cc99776</code></td>
+    </tr>
+    <tr>
+      <td><strong>Kundenavn</strong></td>
+      <td>Jordi</td>
+      <td>Marta</td>
+      <td>Julia</td>
+    </tr>
+    <tr>
+      <td><strong>Leveringsadresse</strong></td>
+      <td>Carrer Major 234, 3r 2a, 08008 Barcelona</td>
+      <td>Carrer Major 234, 3r 2a, 08008 Barcelona</td>
+      <td>Carrer Major 234, 3r 2a, 08008 Barcelona</td>
+    </tr>
+    <tr>
+      <td><strong>Kontakttelefon</strong></td>
+      <td>+34 612 345 678</td>
+      <td>+34 698 765 432</td>
+      <td>+34 655 555 555</td>
+    </tr>
+    <tr>
+      <td><strong>Pizzanavn</strong></td>
+      <td>Semantic Quattro (<code>at0012</code>)</td>
+      <td>Archetype Supreme (<code>at0011</code>)</td>
+      <td>Archetype Supreme (<code>at0011</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Størrelse</strong></td>
+      <td>Large (<code>at0010</code>)</td>
+      <td>Medium (<code>at0009</code>)</td>
+      <td>Large (<code>at0010</code>)</td>
+    </tr>
+    <tr>
+      <td><strong>Kjøkkenmerknader</strong></td>
+      <td>Glutenfri</td>
+      <td>Ingen</td>
+      <td>Ingen ekstra!</td>
+    </tr>
+    <tr>
+      <td><strong>Ekstra fyll</strong></td>
+      <td>Sopp (<code>at0006</code>)</td>
+      <td>Jalapeños (<code>at0008</code>)</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td><strong>Mengde</strong></td>
+      <td>Dobbel (<code>2|at0004</code>)</td>
+      <td>Normal (<code>1|at0003</code>)</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Da disse registreringene ble opprettet, ble de versjonerte UID-ene fra bestillingene notert og sendt med som <code>Order ID</code> inn i de påfølgende sporings- og vurderingskomposisjonene.
+</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- AQL 1 -->
+<!-- ============================================================ -->
+<h3>AQL 1 – Liste ut alle bestillinger for en kunde</h3>
+
+<p>
+  Målet vårt er å finne alle bestillingene kunden vår har lagt inn, og returnere den unike UUID-en til hver komposisjon basert på <code>Online_Customer_Order_v0</code>.
+</p>
+
+<p>Vi starter med basisstrukturen for containment:</p>
+
+<pre><code class="language-sql">SELECT ... FROM EHR e CONTAINS COMPOSITION c ...</code></pre>
+
+<p>
+  I openEHRs referansemodell ligger komposisjonens versjonerte identifikator i attributtet <code>uid</code>. Hvis vi velger <code>c/uid</code> direkte, returnerer CDR-et hele <code>OBJECT_VERSION_ID</code>-objektet:
+</p>
+
+<pre><code class="language-json">{
+  "_type": "OBJECT_VERSION_ID",
+  "value": "3b463d4c-1613-410f-b271-3e81a7743549::local.ehrbase.org::1"
+}</code></pre>
+
+<p>
+  Dersom klientapplikasjonen vår kun trenger selve tekststrengen, kan vi peke direkte til <code>c/uid/value</code>.
+</p>
+
+<div class="callout tip">
+  <strong>Bør du velge hele objektet eller bare verdien?</strong> Å velge hele objektet bevarer metadata (som datatyper og terminologiidentifikatorer). Å peke direkte til <code>/value</code> gir derimot en renere datapakke og minimerer databehandling på klientsiden. I disse eksemplene henter vi de enkle verdiene direkte.
+</div>
+
+<p>Deretter avgrenser vi spørringen til vår bestemte kunde ved hjelp av vedkommendes EHR-ID (som finnes i <code>ehr_id/value</code> på EHR-et):</p>
+
+<pre><code class="language-sql">SELECT c/uid/value 
+FROM EHR e 
+CONTAINS COMPOSITION c 
+WHERE e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43'</code></pre>
+
+<p>
+  Til slutt filtrerer vi spesifikt på templat-ID (som ligger under <code>archetype_details/template_id/value</code> på komposisjonen) for å unngå å treffe andre dokumenter (som anmeldelser eller sporingsnotater):
+</p>
+
+<pre><code class="language-sql">SELECT c/uid/value 
+FROM EHR e 
+CONTAINS COMPOSITION c 
+WHERE 
+    e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43' 
+    AND 
+    c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></pre>
+
+<p>Når vi kjører denne spørringen i Postman, returneres de tre innsendte bestillingene:</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027115836.png" alt="Svar på AQL 1 i Postman" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.17: Resultat av AQL 1 som returnerer de tre komposisjons-UID-ene.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- AQL 2 -->
+<!-- ============================================================ -->
+<h3>AQL 2 – Kontrollere tilberedningsstatus for bestillingene</h3>
+
+<p>
+  I dette eksempelet ønsker vi å sjekke tilberedningsstatusen for bestillingene våre. Denne informasjonen er lagret i komposisjoner basert på templatet <code>Kitchen_And_Delivery_Tracker_v0</code>.
+</p>
+
+<p>
+  For å finne de eksakte AQL-stiene til disse dataelementene, slår vi opp i <strong>openEHR Archetype Designer</strong>. Under nodedetaljene finner vi den oppløste stien for <strong>Order ID</strong>:
+</p>
+
+<pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]</code></pre>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027120325.png" alt="Oppløst sti for Order ID i Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.18: Undersøker den oppløste stien for Order ID i Archetype Designer.</p>
+</div>
+
+<p>
+  På samme måte lokaliserer vi stien for handlingens ISM-tilstand (tilberedningsstatusen):
+</p>
+
+<pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition</code></pre>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027120403.png" alt="Oppløst sti for ISM-transition i Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.19: Finner stien for ISM-prosesstilstanden.</p>
+</div>
+
+<p>Vi setter sammen den fullstendige AQL-setningen:</p>
+
+<pre><code class="language-sql">SELECT 
+  c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]/value/id, 
+  c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition/current_state/value 
+FROM EHR e 
+CONTAINS COMPOSITION c 
+WHERE 
+    e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43' 
+    AND 
+    c/archetype_details/template_id/value = 'Kitchen_And_Delivery_Tracker_v0'</code></pre>
+
+<p>
+  Å skrive faste verdier direkte inn i lange AQL-strenger kan fort føre til feil. Ved å erstatte statiske verdier med parametere (som <code>$ehr_id</code> og <code>$template_id</code>), gjør vi spørringen ren, dynamisk og gjenbrukbar:
+</p>
+
+<pre><code class="language-json">{
+  "q": "SELECT c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]/value/id, c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition/current_state/value FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
+  "offset": 0,
+  "fetch": 100,
+  "query_parameters": {
+    "ehr_id": "7fab0168-e79f-456f-b271-02050dabaa43",
+    "template_id": "Kitchen_And_Delivery_Tracker_v0"
+  }
+}</code></pre>
+
+<p>Kjøring av denne forespørselen returnerer bestillings-ID-en sammen med gjeldende status:</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027121236.png" alt="AQL 2-resultater som viser Order ID og status" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.20: Hentede bestillings-ID-er koblet sammen med deres aktuelle tilberedningsstatus.</p>
+</div>
+
+<p>
+  Fordi det kan være krevende å formatere lange enlinjers AQL-spørringer, lar den uoffisielle <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a> deg bygge, teste og dokumentere spørringene dine visuelt:
+</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027121542.png" alt="Grensesnittet i openEHR AQL Manager" class="guide-img" width="906px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.21: Formatering og validering av flerlinjers AQL-spørringer i openEHR AQL Manager.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- AQL 3 -->
+<!-- ============================================================ -->
+<h3>AQL 3 – Evaluere tilbakemeldinger sortert på pizzanavn</h3>
+
+<p>
+  Til slutt vil vi finne ut hvilken pizza som fikk den høyeste tilfredshetsskåren fra kunden vår.
+</p>
+
+<p>
+  Her møter vi en klassisk modelleringssituasjon i openEHR: Pizzanavnet ble registrert ved bestilling i <code>Online_Customer_Order_v0</code>, mens vurderingsskåren ble sendt inn senere i <code>Customer_Review_v0</code>. Selv om avanserte AQL-teknikker kan koble relaterte oppføringer, er det i produksjonsmiljøer ofte ryddigere og mer effektivt å kjøre to fokuserte spørringer og sammenstille dem via deres felles identifikator (<strong>Order ID</strong>):
+</p>
+
+<ol>
+  <li><strong>Spørring 1:</strong> Hente ut pizzanavn for hver Order ID.</li>
+  <li><strong>Spørring 2:</strong> Hente ut kundevurdering for hver Order ID.</li>
+</ol>
+
+<h4>Spørring 1: Hente pizzanavn per Order ID</h4>
+
+<pre><code class="language-json">{
+  "q": "SELECT c/uid/value AS order_id, c/content[openEHR-EHR-INSTRUCTION.pizza_order.v0]/activities[at0001]/description[at0002]/items[at0004]/value/value AS pizza_name FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
+  "offset": 0,
+  "fetch": 100,
+  "query_parameters": {
+    "ehr_id": "7fab0168-e79f-456f-b271-02050dabaa43",
+    "template_id": "Online_Customer_Order_v0"
+  }
+}</code></pre>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027122531.png" alt="AQL-resultat som kobler Order ID med pizzanavn" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.22: Resultat som kobler bestillings-ID-er til spesifikke pizzanavn.</p>
+</div>
+
+<h4>Spørring 2: Hente vurderinger per Order ID</h4>
+
+<pre><code class="language-json">{
+  "q": "SELECT c/content[openEHR-EHR-EVALUATION.customer_review.v0]/protocol[at0001]/items[at0002]/value/id AS order_id, c/content[openEHR-EHR-EVALUATION.customer_review.v0]/data[at0003]/items[at0005]/value/magnitude AS rating FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
+  "offset": 0,
+  "fetch": 100,
+  "query_parameters": {
+    "ehr_id": "7fab0168-e79f-456f-b271-02050dabaa43",
+    "template_id": "Customer_Review_v0"
+  }
+}</code></pre>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261027123305.png" alt="AQL-resultat som kobler Order ID med vurderinger" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figur 3.23: Resultat som knytter bestillings-ID-er til numeriske tilfredshetsskårer.</p>
+</div>
+
+<p>
+  Ved å koble sammen resultatene på <code>order_id</code>, ser vi at <strong>«Archetype Supreme»</strong> var kundens klare favoritt, med en perfekt toppskår på <strong>5</strong>!
+</p>
+
+<hr>
+
+<!-- ============================================================ -->
+<!-- Postman Collection Section -->
+<!-- ============================================================ -->
+<h2>Klar-til-bruk Postman-samling</h2>
+
+<p>
+  For å spare deg for å taste inn lange URL-er, komplekse stier og headere for hånd, er alle forespørslene som er demonstrert i Del 3 samlet i en ferdig konfigurert Postman Collection:
+</p>
+
+<p>
+  <a href="docs/Beginner_Postman_examples.postman_collection.json" class="btn-download" download>
+    <strong>Last ned Beginner_Postman_examples.postman_collection.json</strong>
+  </a>
+</p>
+
+<h3>Hvordan importere samlingen i Postman</h3>
+
+<h4>Metode A: Dra og slipp (Raskest)</h4>
+<ol>
+  <li>Åpne Postman på datamaskinen din.</li>
+  <li>Dra den nedlastede filen <code>openEHR_Pizza_Tutorial.postman_collection.json</code> rett inn i Postman-vinduet.</li>
+  <li>Klikk på <strong>Import</strong> når du blir bedt om det.</li>
+</ol>
+
+<h4>Metode B: Import-knappen</h4>
+<ol>
+  <li>Klikk på <strong>Import</strong>-knappen øverst til venstre i verktøylinjen i Postman.</li>
+  <li>Velg <strong>Files</strong> og naviger frem til den nedlastede samlingsfilen.</li>
+  <li>Bekreft ved å klikke på <strong>Import</strong>.</li>
+</ol>
+
+<p>
+  Når den er importert, vises samlingen i venstre sidemeny med alle forespørsler lagt opp i en logisk rekkefølge – klar for at du kan utforske, teste og kjøre dem mot EHRbase!
+</p>
+
+</section>

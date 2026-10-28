@@ -1,0 +1,182 @@
+<section>
+<h1>Neste steg</h1>
+
+<h2>Gratulerer!</h2>
+
+<p>
+  Hvis du har fulgt veiledningen fra Del 1 til Del 3, har du oppnådd det mange synes virker skremmende: Du har laget kliniske arketyper, satt dem sammen i et Operational Template (OPT), lastet dem opp til et åpent CDR (EHRbase), lagret kliniske (vel... pizzarelaterte) komposisjoner via REST-API-er, og hentet ut spesifikke datafelter ved hjelp av AQL.
+</p>
+
+<h2>Hva nå?</h2>
+
+<p>
+  Å gå fra vår enkle sandkasse til et produksjonsklart helseinformatikksystem bringer med seg nye utfordringer.
+  Hva er så de neste områdene du bør se nærmere på?
+</p>
+
+<h3>Utforsk eksisterende templat og lær vanlige mønstre for inkludering av arketyper</h3>
+
+<p>
+  Du trenger ikke å finne opp hjulet på nytt når du lager nye templat. Reelle templat gjenbruker ofte klassiske strukturelle mønstre, som å koble et <em>utstyrs-</em> eller <em>anatomisk lokalisasjons-</em>cluster inn i en observasjon, eller legge inn <em>risiko for overfølsomhetsreaksjon</em> i et innkomstnotat. Ved å utforske publiserte templat og analysere <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a> vil du forstå hvordan erfarne modellerere organiserer clustere i luker (slots) og strukturerer kliniske seksjoner.
+</p>
+
+<h3>Eksperimenter med multiplisitet: Existence vs. Occurrences vs. Cardinality</h3>
+
+<p>
+  I openEHR skrives alle tre begrensningene med samme intervallnotasjon (som <code>[0..1]</code>, <code>[1..1]</code> eller <code>[1..*]</code>), noe som ofte skaper forvirring. De styrer imidlertid helt ulike nivåer i modellen:
+</p>
+
+<ul>
+  <li>
+    <strong>Existence (Objektattributter):</strong> Definerer om et attributt i en klasse i Referansemodellen er obligatorisk eller valgfritt når en komposisjon settes sammen. Det kan kun være <code>[0..1]</code> (valgfritt) eller <code>[1..1]</code> (obligatorisk). Dette er definert av selve Referansemodellen og ikke av modellereren – i en <code>DV_QUANTITY</code> er for eksempel <em>magnitude</em> og <em>units</em> obligatoriske (<code>[1..1]</code>), mens <em>precision</em> er valgfri (<code>[0..1]</code>).
+  </li>
+  <li>
+    <strong>Occurrences (Knodeinstanser):</strong> Definerer hvor mange kopier av et bestemt modellert dataelement eller en luke som kan forekomme (f.eks. <code>0..1</code>, <code>1..1</code>, <code>0..*</code>). Dette er det du som modellerer oftest konfigurerer i arketyper og templat (f.eks. kun tillate 1 hoveddiagnose mot flere bidiagnoser eller symptomer).
+  </li>
+  <li>
+    <strong>Cardinality (Listebeholdere):</strong> Definerer det totale antallet elementer som er tillatt i et listeattributt (som <code>items</code>, <code>events</code> eller <code>participations</code>). Den beholdes vanligvis på openEHRs standardinnstilling (<code>[0..*]</code> eller <code>[1..*]</code>). Dersom en innsendt komposisjon har færre eller flere elementer enn det listen tillater, avviser CDR-et den med en <em>Unprocessable Entity (Attribute does not match cardinality)</em>-feil.
+  </li>
+</ul>
+
+<h3>Utover ad hoc-spørringer: Lagrede AQL-spørringer (Stored AQLs)</h3>
+
+<p>
+  I Del 3 sendte vi AQL-spørringene våre direkte inne i HTTP-kroppen på en <code>POST /query/aql</code>-forespørsel. Selv om ad hoc-spørringer er glimrende til testing og utforsking, er det å sende rå AQL-strenger fra brukergrensesnitt (som journalskjermer eller pasientportaler) i produksjon en dårlig praksis.
+</p>
+<p>
+  I stedet benytter produksjons-CDR-er <strong>Stored AQLs</strong>: versjonsstyrte spørringsdefinisjoner som er registrert på tjeneren under et kvalifisert navn (f.eks. <code>org.openehr::pizza_orders/1.0.0</code>). Fagsystemene kaller simpelthen dette endepunktet med parametere som <code>$ehr_id</code>. Dette holder interne arketypestier skjult og sikre, sikrer optimaliserte eksekveringsplaner og sentraliserer den kliniske logikken.
+</p>
+
+<h3>Avanserte AQL-konsepter å utforske videre</h3>
+
+<p>
+  Når du er fortrolig med grunnleggende <code>SELECT ... FROM ... WHERE</code>-spørringer, bør du utforske mer avanserte muligheter i AQL:
+</p>
+<ul>
+  <li>Aggregeringsfunksjoner (<code>COUNT</code>, <code>AVG</code> osv.)</li>
+  <li>Tilordning av alias/variabelnavn til uthentede dataelementer ved hjelp av <code>AS</code></li>
+  <li>Sortering og paginering med <code>LIMIT</code>, <code>OFFSET</code> og <code>ORDER BY</code></li>
+  <li>Terminologifiltrering med <code>matches</code></li>
+  <li>Korrelerte spørringer: Knytte sammen relaterte komposisjoner på tvers av separate oppføringer ved hjelp av faglige nøkler/identifikatorer.</li>
+</ul>
+
+<h3>Bruk av internasjonale CKM</h3>
+
+<p>
+  <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a> er det globale samarbeidsbiblioteket der internasjonale fageksperter kvalitetssikrer og standardiserer arketyper. Den gylne regelen for openEHR-modellering er: <em>Søk alltid i CKM før du oppretter en ny arketype fra bunnen av</em>.
+</p>
+<p>Utforsk og gjør deg kjent med mulighetene i det internasjonale CKM-et.</p>
+
+<h3>Forstå openEHRs rammer og begrensninger</h3>
+
+<p>
+  openEHR er en fantastisk teknologi for strukturert og livslang lagring av helsedata, men løser ikke alene alle behov i et helsefaglig forløp. Det er lurt å undersøke hvordan openEHR integreres med:
+</p>
+<ul>
+  <li><strong>Arbeidsflyt- og prosessmotorer (BPMN):</strong> openEHR dokumenterer den kliniske tilstanden til en handling (via ISM-tilstandsoverganger), men er ikke en prosessmotor som styrer oppgaveflyten på et sykehus.</li>
+  <li><strong>Tilgangsstyring og autorisasjon:</strong> Rollebasert tilgangskontroll (RBAC) og brukerautentisering (OAuth2 / OpenID Connect) håndteres i applikasjonsportalen eller identitetshåndtereren, ikke inne i arketypen.</li>
+  <li><strong>UI-rendering (skjermvisning):</strong> Arketyper beskriver klinisk semantikk – ikke hvorvidt et felt skal vises som en radioknapp, nedtrekksmeny eller glidebryter.</li>
+</ul>
+
+<h3>Koble til eksterne terminologier: Term Mapping vs. Term Binding</h3>
+
+<p>
+  openEHR-arketyper har sine egne interne kodesett (som <code>at0001</code>, <code>at0005</code>), men fagsystemer må kobles til globale (eller lokale) terminologier som SNOMED CT, LOINC eller ICD-10. Det er verdt å sette seg godt inn i <strong>term bindings</strong> og <strong>term mapping</strong>.
+</p>
+  
+<p>
+  Etter hvert som modellene dine modnes, må de kobles mot internasjonale standarder. Det er avgjørende å skille mellom tre begreper som ofte blandes sammen: <strong>Term Definitions</strong> gir menneskelesbare navn og beskrivelser til arketypens interne koder (<code>atnnnn</code>) på flere språk; <strong>Term Bindings</strong> knytter disse interne nodene direkte til eksterne standarder på <em>designtidspunktet</em> (i arketypen eller templatet); og <strong>Term Mappings</strong> fanger opp eksterne terminologikoblinger på de faktiske kliniske verdiene i en pasientkomposisjon ved <em>kjøretid</em>.
+</p>
+
+<h3>Oversettelser og visningsnavn for dataelementer</h3>
+
+<p>
+  Arketyper er i sin natur flerspråklige: Den samme node-ID-en (f.eks. <code>at0005</code>) kan inneholde språkdefinisjoner på katalansk, spansk, engelsk og tysk inne i selve arketypen. I tillegg er det viktig å merke seg forskjellen mellom:
+</p>
+<ul>
+  <li><strong>Templat-navnet (label):</strong> Det omforente navnet som kunnskapsmodellererne ble enige om under utformingen av templatet.</li>
+  <li><strong>UI-visningsnavnet:</strong> Den kontekstspesifikke benevnelsen som vises til klinikeren på en bestemt skjermflate (f.eks. «BT» på en intensivovervåkingsskjerm vs. «Blodtrykkskontroll» på et nettbrett for pasienter).</li>
+</ul>
+
+<p>
+  Som vi har sett, har bruk av flerspråklige templat praktiske utfordringer. Det kreves forvaltningsrutiner utenfor openEHR-templatene som styrer oversettelser og visningsnavn i grensesnittene. Siden det ennå ikke finnes én standardisert måte å løse dette på, krever det videre utforsking.
+</p>
+
+<h3>Oversettelse mellom FHIR og openEHR (via FHIRConnect)</h3>
+
+<p>
+  En moderne digital helsearkitektur tvinges sjelden til å velge enten openEHR eller HL7 FHIR; den bruker ofte begge deler. openEHR utgjør det strukturerte, versjonerte og livslange kjernekildearkivet (CDR), mens FHIR fungerer som meldings- og utvekslingsstandard for API-er og ekstern kommunikasjon. Ofte vil det være nødvendig å oversette innkommende FHIR-ressurser til openEHR for varig lagring i CDR-et.
+</p>
+<p>
+  Ved hjelp av deklarative mappingmotorer som <strong>FHIRConnect</strong> kan du definere toveis koblinger mellom openEHR-templat og FHIR-ressurser (som <code>Observation</code>, <code>Condition</code> eller <code>CarePlan</code>).
+</p>
+
+<h3>Ta kontakt</h3>
+
+<p>Bli med i det globale openEHR-fellesskapet på <a href="https://discourse.openehr.org/" target="_blank" rel="noopener noreferrer">discourse.openehr.org</a> for å stille spørsmål, delta i arketypehøringer og dele dine erfaringer!</p>
+
+<!-- ============================================================ -->
+<!-- 5. Recommended Ecosystem Tools -->
+<!-- ============================================================ -->
+<h2>Oversikt over essensielle verktøy i kunnskapsmodellererens verktøykasse</h2>
+
+<p>Her finner du en samlet oversikt over verktøyene og spesifikasjonene vi har vist til gjennom denne veiledningen:</p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Verktøy</th>
+      <th>Formål</th>
+      <th>Lenke</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>openEHR-spesifikasjoner</strong></td>
+      <td>Offisielle arkitektur- og referansemodellspesifikasjoner for openEHR.</td>
+      <td><a href="https://specifications.openehr.org/" target="_blank" rel="noopener noreferrer">openEHR-spesifikasjoner</a></td>
+    </tr>
+    <tr>
+      <td><strong>NeoEHR openEHR-spesifikasjoner (UML)</strong></td>
+      <td>Interaktive, visuelle openEHR-spesifikasjoner representert som UML-klassediagrammer.</td>
+      <td><a href="https://neoehr.com/openehr/uml" target="_blank" rel="noopener noreferrer">openEHR i UML-diagrammer</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Archetype Designer</strong></td>
+      <td>Nettleserbasert forfatterverktøy for arketyper, templat (OPT) og webtemplat.</td>
+      <td><a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">Archetype Designer</a></td>
+    </tr>
+    <tr>
+      <td><strong>Clinical Knowledge Manager (CKM)</strong></td>
+      <td>Det internasjonale biblioteket for fagfellevurderte og omforente kliniske arketyper.</td>
+      <td><a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">openEHR CKM</a></td>
+    </tr>
+    <tr>
+      <td><strong>The Archetype Companion</strong></td>
+      <td>Uoffisiell, rask søkemotor for arketyper i internasjonale openEHR CKM.</td>
+      <td><a href="https://martinkochdesign.github.io/archetype_companion/" target="_blank" rel="noopener noreferrer">The Archetype Companion</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR AQL Manager</strong></td>
+      <td>Visuelt verktøy for å skrive, formatere og dokumentere flerlinjers AQL-spørringer.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">AQL Manager</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Reference Model Browser</strong></td>
+      <td>Interaktiv utforsker for å navigere i Referansemodellens klasser, datatyper og attributter.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">RM Browser</a></td>
+    </tr>
+    <tr>
+      <td><strong>Archetype Inclusion Patterns</strong></td>
+      <td>Interaktiv utforsker for å se vanlige mønstre for inkludering av arketyper i publiserte templat.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a></td>
+    </tr>
+    <tr>
+      <td><strong>EHRbase-dokumentasjon</strong></td>
+      <td>Offisielle veiledninger for installasjon, konfigurasjon og REST-API for EHRbase.</td>
+      <td><a href="https://docs.ehrbase.org/" target="_blank" rel="noopener noreferrer">docs.ehrbase.org</a></td>
+    </tr>
+  </tbody>
+</table>
+
+</section>

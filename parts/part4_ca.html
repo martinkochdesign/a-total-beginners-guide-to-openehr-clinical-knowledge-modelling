@@ -1,0 +1,182 @@
+<section>
+<h1>Passos següents</h1>
+
+<h2>Felicitats!</h2>
+
+<p>
+  Si heu seguit la guia des de la Part 1 fins a la Part 3, heu assolit el que a molta gent li fa respecte: heu creat arquetips clínics, els heu combinat en una Plantilla Operativa (OPT), els heu pujat a un CDR de codi obert (EHRbase), heu persistit composicions clíniques (bé... relacionades amb pizzes) mitjançant APIs REST i heu consultat dades específiques amb AQL.
+</p>
+
+<h2>I ara, què?</h2>
+
+<p>
+  Passar del nostre petit entorn de proves a un sistema de salut en producció planteja nous reptes.
+  Així doncs, quins són els temes següents que convé explorar?
+</p>
+
+<h3>Exploreu plantilles existents i apreneu patrons comuns d'inclusió d'arquetips</h3>
+
+<p>
+  No cal reinventar la roda a l'hora de crear noves plantilles. Les plantilles reals reutilitzen sovint patrons estructurals clàssics, com ara encabir un clúster de <em>dispositiu</em> o de <em>localització anatòmica</em> dins d'una observació, o incloure el <em>risc de reacció adversa</em> dins d'un informe d'ingrés. Explorar plantilles publicades i analitzar <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a> us ajudarà a comprendre com els modeladors experimentats organitzen els clústers dins de les ranures (slots) i estructuren les seccions clíniques.
+</p>
+
+<h3>Jugueu amb la multiplicitat: Existence vs. Occurrences vs. Cardinality</h3>
+
+<p>
+  A openEHR, totes tres restriccions s'escriuen amb la mateixa notació d'intervals (com ara <code>[0..1]</code>, <code>[1..1]</code> o <code>[1..*]</code>), fet que sovint genera confusió. Tanmateix, governen nivells completament diferents del model:
+</p>
+
+<ul>
+  <li>
+    <strong>Existence (Atributs d'un objecte):</strong> Defineix si un atribut d'una classe del Model de Referència és obligatori o opcional a l'hora de construir una composició. Només pot ser <code>[0..1]</code> (opcional) o <code>[1..1]</code> (obligatori). Ve determinat pel mateix Model de Referència i no pas pel modelador —per exemple, a <code>DV_QUANTITY</code>, <em>magnitude</em> i <em>units</em> són obligatoris (<code>[1..1]</code>), mentre que <em>precision</em> és opcional (<code>[0..1]</code>).
+  </li>
+  <li>
+    <strong>Occurrences (Instàncies d'un node):</strong> Defineix quantes còpies d'un element de dades o ranura modelada poden existir (p. ex., <code>0..1</code>, <code>1..1</code>, <code>0..*</code>). Això és el que configureu més sovint com a modeladors en arquetips i plantilles (p. ex., permetre només 1 diagnòstic principal davant de múltiples símptomes secundaris).
+  </li>
+  <li>
+    <strong>Cardinality (Contenidors de llista):</strong> Defineix el nombre total d'elements admesos dins d'un atribut contenidor de tipus llista (com ara <code>items</code>, <code>events</code> o <code>participations</code>). Normalment es manté amb el valor estàndard per defecte d'openEHR (<code>[0..*]</code> o <code>[1..*]</code>). Si una composició enviada té menys o més elements dels permesos en aquesta llista, el CDR la rebutja amb un error de tipus <em>Unprocessable Entity (Attribute does not match cardinality)</em>.
+  </li>
+</ul>
+
+<h3>Més enllà de les consultes ad hoc: Stored AQLs (AQLs emmagatzemades)</h3>
+
+<p>
+  A la Part 3 hem enviat les sentències AQL directament dins del cos HTTP d'una petició <code>POST /query/aql</code>. Tot i que les consultes ad hoc són ideals per fer proves i exploració, enviar consultes en text pla directament des dels frontals clínics (com ara pantalles d'història clínica o portals de pacients) en entorns de producció és una mala pràctica.
+</p>
+<p>
+  En lloc d'això, els CDR en producció utilitzen <strong>Stored AQLs</strong>: definicions de consulta amb control de versions registrades al servidor sota un nom qualificat (p. ex., <code>org.openehr::pizza_orders/1.0.0</code>). Els frontals simplement criden aquest punt d'accés passant paràmetres com ara <code>$ehr_id</code>, mantenint segures les rutes internes dels arquetips, optimitzant els plans d'execució i centralitzant la lògica clínica.
+</p>
+
+<h3>Conceptes avançats d'AQL per explorar a continuació</h3>
+
+<p>
+  Un cop us sentiu còmodes amb les sentències bàsiques <code>SELECT ... FROM ... WHERE</code>, voldreu aprofundir en funcionalitats més expressives d'AQL, com ara:
+</p>
+<ul>
+  <li>Funcions d'agregació (<code>COUNT</code>, <code>AVG</code>, etc.)</li>
+  <li>Assignació d'àlies o noms de variables als elements seleccionats mitjançant <code>AS</code></li>
+  <li>Ordenació i paginació amb <code>LIMIT</code>, <code>OFFSET</code> i <code>ORDER BY</code></li>
+  <li>Filtratge terminològic amb <code>matches</code></li>
+  <li>Consultes correlacionades: enllaçar composicions relacionades mitjançant identificadors de negoci a través d'entrades independents.</li>
+</ul>
+
+<h3>Ús del CKM internacional</h3>
+
+<p>
+  El <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a> és la biblioteca col·laborativa global on experts clínics internacionals revisen i estandarditzen arquetips. La regla d'or del modelatge a openEHR és: <em>cercar sempre al CKM abans de crear un arquetip des de zero</em>.
+</p>
+<p>Exploreu i familiaritzeu-vos amb les funcionalitats del CKM internacional.</p>
+
+<h3>Comprendre els límits i restriccions d'openEHR</h3>
+
+<p>
+  openEHR és una tecnologia excepcional per a la persistència de dades clíniques, però no cobreix per si sola totes les necessitats d'un flux de treball assistencial. És molt recomanable explorar com integrar l'ús d'openEHR amb:
+</p>
+<ul>
+  <li><strong>Motors de fluxos de treball i processos de negoci (BPMN):</strong> openEHR documenta l'estat clínic d'una acció (mitjançant transicions ISM), però no és un motor de processos encarregat de coordinar les tasques de l'hospital.</li>
+  <li><strong>Control d'accés i autorització d'usuaris:</strong> El control d'accés basat en rols (RBAC) i l'autenticació d'usuaris (OAuth2 / OpenID Connect) resideixen a la passarel·la d'aplicacions o al proveïdor d'identitat, mai dins de l'arquetip.</li>
+  <li><strong>Renderització d'interfícies d'usuari:</strong> Els arquetips descriuen semàntica clínica, no pas si un camp s'ha de dibuixar com un botó d'opció (radio), un selector desplegable o una barra lliscant.</li>
+</ul>
+
+<h3>Enllaçar amb terminologies externes: Term Mapping vs. Term Binding</h3>
+
+<p>
+  Els arquetips d'openEHR disposen dels seus propis conjunts de codis interns (com <code>at0001</code>, <code>at0005</code>), però els sistemes reals necessiten connectar-se a terminologies globals (o locals) com SNOMED CT, LOINC o CIE-10. Us convindrà aprofundir en els conceptes de <strong>term bindings</strong> i <strong>term mapping</strong>.
+</p>
+  
+<p>
+  A mesura que els vostres models madurin, caldrà vincular-los a estàndards clínics internacionals. És essencial distingir tres conceptes que sovint es confonen: les <strong>Term Definitions</strong> donen noms i descripcions comprensibles als codis interns de l'arquetip (<code>atnnnn</code>) en diversos idiomes; els <strong>Term Bindings</strong> vinculen aquests nodes interns directament a estàndards externs en <em>temps de disseny</em> (a l'arquetip o plantilla); i els <strong>Term Mappings</strong> registren equivalències terminològiques externes directament sobre els valors clínics d'una composició del pacient en <em>temps d'execució</em>.
+</p>
+
+<h3>Traduccions i etiquetes dels elements de dades</h3>
+
+<p>
+  Els arquetips són multilingües per naturalesa: el mateix identificador de node (p. ex., <code>at0005</code>) pot contenir definicions idiomàtiques en català, castellà, anglès i alemany dins del mateix arquetip. A més a més, és clau remarcar la diferència entre:
+</p>
+<ul>
+  <li><strong>L'etiqueta de la plantilla:</strong> El nom consensuat pels modeladors del coneixement clínic durant l'elaboració de la plantilla.</li>
+  <li><strong>L'etiqueta de visualització a la interfície (UI):</strong> L'àlies contextualitzat que es mostra a l'especialista en una pantalla concreta (p. ex., «PA» en un panell de cures intensives davant de «Control de pressió arterial» en una tauleta per a pacients).</li>
+</ul>
+
+<p>
+  Com hem vist, l'ús de plantilles multilingües comporta certes limitacions pràctiques. Cal establir una governança externa a les plantilles d'openEHR que determini les traduccions i les etiquetes de visualització a les interfícies. Encara no existeix una via única estandarditzada per resoldre-ho, per la qual cosa requereix continuar explorant i aprenent.
+</p>
+
+<h3>Traducció entre FHIR i openEHR (mitjançant FHIRConnect)</h3>
+
+<p>
+  Una arquitectura de salut digital moderna rarament ha d'escollir de manera excloent entre openEHR i HL7 FHIR; sovint utilitza tots dos. openEHR proporciona el repositori central (CDR) estructurat, versionat i longitudinal, mentre que FHIR actua com a estàndard d'intercanvi per a APIs i comunicacions externes. En moltes ocasions serà necessari convertir missatges entrants en FHIR a openEHR per persistir-los correctament al CDR.
+</p>
+<p>
+  Mitjançant motors de mapeig declaratius com ara <strong>FHIRConnect</strong>, podeu definir correspondències bidireccionals entre plantilles d'openEHR i recursos FHIR (com ara <code>Observation</code>, <code>Condition</code> o <code>CarePlan</code>).
+</p>
+
+<h3>Poseu-vos en contacte</h3>
+
+<p>Uniu-vos a la comunitat global d'openEHR a <a href="https://discourse.openehr.org/" target="_blank" rel="noopener noreferrer">discourse.openehr.org</a> per formular preguntes, participar en revisions d'arquetips i compartir les vostres experiències!</p>
+
+<!-- ============================================================ -->
+<!-- 5. Recommended Ecosystem Tools -->
+<!-- ============================================================ -->
+<h2>Resum d'eines essencials per al kit del modelador clínic</h2>
+
+<p>Tot seguit trobareu un recull de les eines i especificacions que hem anat enllaçant al llarg d'aquesta guia:</p>
+
+<table class="data-table">
+  <thead>
+    <tr>
+      <th>Eina</th>
+      <th>Finalitat</th>
+      <th>Enllaç</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Especificacions d'openEHR</strong></td>
+      <td>Especificacions oficials de l'arquitectura i el Model de Referència d'openEHR.</td>
+      <td><a href="https://specifications.openehr.org/" target="_blank" rel="noopener noreferrer">Especificacions d'openEHR</a></td>
+    </tr>
+    <tr>
+      <td><strong>Especificacions openEHR de NeoEHR (UML)</strong></td>
+      <td>Especificacions visuals interactives d'openEHR representades com a diagrames de classes UML.</td>
+      <td><a href="https://neoehr.com/openehr/uml" target="_blank" rel="noopener noreferrer">openEHR en diagrames UML</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Archetype Designer</strong></td>
+      <td>Eina web d'autoria per a arquetips, plantilles (OPT) i plantilles web.</td>
+      <td><a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">Archetype Designer</a></td>
+    </tr>
+    <tr>
+      <td><strong>Clinical Knowledge Manager (CKM)</strong></td>
+      <td>Repositori internacional d'arquetips clínics consensuats i revisats.</td>
+      <td><a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener noreferrer">openEHR CKM</a></td>
+    </tr>
+    <tr>
+      <td><strong>The Archetype Companion</strong></td>
+      <td>Cercador ràpid no oficial d'arquetips del CKM internacional d'openEHR.</td>
+      <td><a href="https://martinkochdesign.github.io/archetype_companion/" target="_blank" rel="noopener noreferrer">The Archetype Companion</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR AQL Manager</strong></td>
+      <td>Eina visual per redactar, formatar i documentar consultes AQL multilínia.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">AQL Manager</a></td>
+    </tr>
+    <tr>
+      <td><strong>openEHR Reference Model Browser</strong></td>
+      <td>Explorador interactiu per navegar per les classes, tipus de dades i atributs del Model de Referència.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">RM Browser</a></td>
+    </tr>
+    <tr>
+      <td><strong>Archetype Inclusion Patterns</strong></td>
+      <td>Explorador interactiu per visualitzar patrons comuns d'inclusió d'arquetips en plantilles publicades.</td>
+      <td><a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">Archetype Inclusion Patterns</a></td>
+    </tr>
+    <tr>
+      <td><strong>Documentació d'EHRbase</strong></td>
+      <td>Guies oficials de desplegament, configuració i API REST d'EHRbase.</td>
+      <td><a href="https://docs.ehrbase.org/" target="_blank" rel="noopener noreferrer">docs.ehrbase.org</a></td>
+    </tr>
+  </tbody>
+</table>
+
+</section>

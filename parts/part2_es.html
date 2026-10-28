@@ -1,0 +1,324 @@
+<section>
+
+<h1>Modelar un proceso con arquetipos y plantillas</h1>
+
+<p>Como hemos aprendido, openEHR modela los datos clínicos en dos capas claramente diferenciadas: conceptos clínicos (arquetipos) y contexto clínico (plantillas).</p>
+<p>Para empezar a modelar en la práctica, utilizaremos una analogía con un flujo de trabajo clínico que abarca las distintas clases de arquetipos.</p>
+<p>Siguiendo con las analogías gastronómicas, modelaremos el proceso de <strong>pedido y entrega de una pizza</strong>.</p>
+<p>Utilizamos la analogía de la pizza para centrarnos en la mecánica del modelado sin distraernos con debates clínicos reales.</p>
+<p>Para ello, modelaremos el siguiente flujo de trabajo:</p>
+<ul>
+  <li>El cliente envía un pedido a la pizzería a través de un formulario online. Se genera un Order ID (identificador de pedido) para vincular toda la documentación posterior con este pedido concreto.</li>
+  <li>La cocina prepara la pizza y realiza el seguimiento hasta su entrega. Cada paso de este seguimiento queda documentado.</li>
+  <li>Tras recibir y disfrutar de la pizza, el cliente completa un formulario de satisfacción.</li>
+</ul>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261023112056.png" alt="Proceso de la pizza" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.1: El proceso de entrega de la pizza y las tres documentaciones que se derivan de él.</p>
+</div>
+
+<h2>Estructurar el proceso</h2>
+<p>Las plantillas y arquetipos que desarrollaremos para este flujo de trabajo son:</p>
+<ul>
+  <li><strong>Plantilla 1: "Pedido online del cliente" (Online Customer Checkout)</strong></li>
+  <li><strong>Plantilla 2: "Seguimiento de cocina y repartidor" (Kitchen and Courier Tracker)</strong></li>
+  <li><strong>Plantilla 3: "Reseña del cliente" (Customer Review)</strong></li>
+</ul>
+
+<p>En los siguientes apartados definiremos qué plantillas deben contener qué arquetipos y qué elementos de datos modelaremos dentro de cada arquetipo.</p>
+
+<h3>Arquetipo base</h3>
+<p>Para mantener las cosas simples, basaremos todas nuestras plantillas en un único arquetipo: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. En la práctica clínica real, seleccionarías o crearías un arquetipo de composición específico según el propósito previsto, como modelar un contacto asistencial (encounter), una lista persistente o un informe.</p>
+<p>
+  Esta composición base se construye creando un nuevo arquetipo de tipo COMPOSITION con el ID <code>openEHR-EHR-COMPOSITION.example_base.v0</code> y guardándolo. No requiere ninguna modificación adicional.
+</p>
+
+<h3>Plantilla 1: Pedido online del cliente</h3>
+<ul>
+  <li><strong>Arquetipo:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
+    <ul>
+      <li>Elemento de datos: <strong>Nombre del cliente</strong> — Tipo: <code>DV_TEXT</code></li>
+      <li>Elemento de datos: <strong>Calle y número de entrega</strong> — Tipo: <code>DV_TEXT</code></li>
+      <li>Elemento de datos: <strong>Teléfono de contacto</strong> — Tipo: <code>DV_TEXT</code></li>
+    </ul>
+  </li>
+  <li><strong>Arquetipo:</strong> <code>INSTRUCTION.pizza_order.v0</code>
+    <ul>
+      <li>Elemento de datos: <strong>Nombre de la pizza</strong> — Tipo: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
+      <li>Elemento de datos: <strong>Tamaño</strong> — Tipo: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
+      <li>Elemento de datos: <strong>Notas especiales para la cocina</strong> — Tipo: <code>DV_TEXT</code> (p. ej., "Muy hecha, por favor")</li>
+      <li>Ranura (slot): <strong>Ingredientes adicionales</strong> (incluye <code>CLUSTER.pizza_topping.v0</code> a continuación)</li>
+    </ul>
+  </li>
+  <li><strong>Arquetipo:</strong> <code>CLUSTER.pizza_topping.v0</code> (insertado en <code>INSTRUCTION.pizza_order.v0</code>)
+    <ul>
+      <li>Elemento de datos: <strong>Nombre del ingrediente</strong> — Tipo: <code>DV_CODED_TEXT</code> (p. ej., Champiñones, Extra de mozzarella, Jalapeños)</li>
+      <li>Elemento de datos: <strong>Cantidad</strong> — Tipo: <code>DV_ORDINAL</code> (1: Regular, 2: Doble, 3: Triple)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Plantilla 2: Seguimiento de cocina y repartidor</h3>
+<ul>
+  <li><strong>Arquetipo:</strong> <code>ACTION.pizza_preparation.v0</code>
+    <ul>
+      <li>Elemento de datos: <strong>Order ID</strong> — Tipo: <code>DV_IDENTIFIER</code> (UUID del pedido)</li>
+      <li>Elemento de datos: <strong>Estado del ciclo de vida ISM</strong> — Tipo: <code>ISM_TRANSITION</code> (Planificado → En el horno → Enviado → Entregado, o Cancelado)</li>
+      <li>Elemento de datos: <strong>Temperatura de horneado</strong> — Tipo: <code>DV_QUANTITY</code> (p. ej., 320 °C)</li>
+      <li>Elemento de datos: <strong>Notas</strong> — Tipo: <code>DV_TEXT</code> (p. ej., "Entregado al cliente en la puerta principal")</li>
+      <li>Ranura (slot): <strong>Ingredientes verificados</strong> (reutiliza <code>CLUSTER.pizza_topping.v0</code> para contrastar qué se horneó realmente)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Plantilla 3: Reseña del cliente</h3>
+<ul>
+  <li><strong>Arquetipo:</strong> <code>EVALUATION.customer_review.v0</code>
+    <ul>
+      <li>Elemento de datos: <strong>Order ID</strong> — Tipo: <code>DV_IDENTIFIER</code> (UUID del pedido)</li>
+      <li>Elemento de datos: <strong>Puntuación de satisfacción</strong> — Tipo: <code>DV_COUNT</code> (restringido entre 1 y 5)</li>
+      <li>Elemento de datos: <strong>¿Recomendarías a un amigo?</strong> — Tipo: <code>DV_BOOLEAN</code> (Verdadero / Falso)</li>
+      <li>Elemento de datos: <strong>Comentarios del cliente</strong> — Tipo: <code>DV_TEXT</code> (Comentarios en texto libre)</li>
+    </ul>
+  </li>
+</ul>
+
+<h2>Comencemos a modelar arquetipos</h2>
+<p>Ahora que tenemos un plan, podemos crear los arquetipos. Los clics exactos dependerán ligeramente de la herramienta utilizada. En estos ejemplos emplearemos el <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, desarrollado por Better).</p>
+
+<h3>Modelar COMPOSITION.example_base.v0</h3>
+<p>Como base para todas nuestras plantillas necesitamos un arquetipo COMPOSITION. Para mantener la estructura limpia y minimalista, creamos una COMPOSITION y la guardamos sin añadir ningún elemento personalizado.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151218.png" alt="Modelado de COMPOSITION.example_base.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.2: Creación del arquetipo de composición base.</p>
+</div>
+
+<h3>Modelar ADMIN_ENTRY.delivery_address.v0</h3>
+<p>Creamos un arquetipo de tipo ADMIN_ENTRY y añadimos 3 elementos <code>DV_TEXT</code> bajo el atributo <code>data</code>.</p>
+
+<div class="img-container">
+  <img src="images/Pasted image 20261020135043.png" alt="Modelado de ADMIN_ENTRY.delivery_address.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.3: Estructura del arquetipo para la dirección de entrega.</p>
+</div>
+
+<p>Ten en cuenta que aquí estamos almacenando datos de contacto del cliente para la entrega de la pizza. En implementaciones reales de openEHR en salud, <strong>nunca persistimos datos identificativos directos del paciente</strong> dentro de la historia clínica.</p>
+
+<h3>Modelar INSTRUCTION.pizza_order.v0</h3>
+<p>Creamos un arquetipo INSTRUCTION y renombramos "Current Activity" como "Order".</p>
+<p>Bajo <code>description</code>, añadimos un <code>DV_CODED_TEXT</code> para el nombre de la pizza y para el tamaño, un <code>DV_TEXT</code> para notas especiales de cocina y una ranura (slot) de CLUSTER para los ingredientes adicionales.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135237.png" alt="Modelado de INSTRUCTION.pizza_order.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.4: Estructura de la instrucción de pedido de pizza.</p>
+</div>
+
+<p>Al seleccionar <strong>Pizza Name</strong>, configuramos términos codificados internos para nuestras tres opciones de pizza:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135603.png" alt="Códigos para el nombre de la pizza" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.5: Configuración de los valores para las pizzas.</p>
+</div>
+<p>Observa que se genera automáticamente un código interno (que comienza por <code>at</code>) para cada opción.</p>
+
+<p>De manera análoga, añadimos las opciones para los tamaños:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135750.png" alt="Opciones para los tamaños" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.6: Opciones de tamaño de la pizza.</p>
+</div>
+
+<p>En la ranura de clúster para ingredientes adicionales podemos especificar qué arquetipos se aceptan. Simplemente usamos un patrón comodín abierto (<code>.*</code>), permitiendo insertar cualquier arquetipo CLUSTER a nivel de plantilla.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020135901.png" alt="Ranura de clúster para ingredientes adicionales" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.7: Definición de la ranura de clúster.</p>
+</div>
+<p>Observa que las ocurrencias de esta ranura de clúster se establecen en <code>0..*</code>. Esto garantiza que los clientes puedan añadir múltiples ingredientes adicionales diferentes.</p>
+
+<h3>Modelar CLUSTER.pizza_topping.v0</h3>
+<p>Creamos un arquetipo CLUSTER. Directamente en el nivel raíz, añadimos un <code>DV_CODED_TEXT</code> para el nombre del ingrediente y un <code>DV_ORDINAL</code> para la cantidad del ingrediente.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020143746.png" alt="Modelado de CLUSTER.pizza_topping.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.8: Estructura del clúster de ingredientes.</p>
+</div>
+
+<p>Al seleccionar <strong>Topping Name</strong>, añadimos códigos internos para nuestras 3 opciones de ingredientes:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144047.png" alt="Códigos de ingredientes" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.9: Códigos internos para los ingredientes.</p>
+</div>
+
+<p>En el ordinal <strong>Amount</strong>, añadimos pares de valor-texto para cada nivel de cantidad. Ten en cuenta que los ordinales requieren números enteros para su valor numérico (p. ej., 1 = Regular, 2 = Doble, 3 = Triple):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144107.png" alt="Configuración del ordinal de cantidad" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.10: Valores del ordinal de cantidad.</p>
+</div>
+
+<h3>Modelar ACTION.pizza_preparation.v0</h3>
+<p>Creamos un arquetipo ACTION para hacer el seguimiento del ciclo de vida de la preparación desde el estado planificado hasta el completado mediante <code>ism_transition</code>.</p>
+<p>Bajo <code>description</code>, añadimos un <code>DV_QUANTITY</code> para la temperatura de horneado, especificando <code>Cel</code> como la única unidad permitida.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144924.png" alt="Temperatura de horneado en ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.11: Atributo DV_QUANTITY para la temperatura.</p>
+</div>
+
+<p>Añadimos un <code>DV_TEXT</code> para las notas:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144904.png" alt="Notas en ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.12: Atributo DV_TEXT para notas.</p>
+</div>
+
+<p>A continuación, añadimos una ranura de CLUSTER para "Toppings verified", manteniendo abierta la ranura de inclusión:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144848.png" alt="Ranura de clúster para ingredientes verificados" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.13: Ranura para la verificación de ingredientes.</p>
+</div>
+
+<p>Bajo <code>protocol</code>, añadimos un <code>DV_IDENTIFIER</code> para el <strong>Order ID</strong>. Aquí es donde almacenaremos el UID de la composición original del pedido, lo que nos permite enlazar la acción con su instrucción de origen:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144831.png" alt="Order ID en el protocolo" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.14: DV_IDENTIFIER para el Order ID.</p>
+</div>
+
+<p>En <code>ism_transition</code>, definimos 5 estados operativos. Aunque podemos nombrar los estados con nuestra propia terminología funcional, cada uno debe mapearse a un código de estado oficial de openEHR. Por ejemplo, nuestro estado "Planned" se mapea al código 526 de openEHR (<code>planned</code>):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020144720.png" alt="Estados de transición ISM" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.15: Configuración de estados en ism_transition.</p>
+</div>
+
+<p>Los códigos para nuestros 5 estados son:</p>
+<ul>
+  <li>Planificado — <code>526::planned</code></li>
+  <li>En el horno — <code>524::initial</code></li>
+  <li>Enviado — <code>245::active</code></li>
+  <li>Entregado — <code>531::completed</code></li>
+  <li>Cancelado — <code>528::cancelled</code></li>
+</ul>
+<p>El catálogo estándar completo de códigos de estado para instrucciones y acciones puede consultarse en la <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">especificación de terminología de soporte de openEHR</a>.</p>
+
+<h3>Modelar EVALUATION.customer_review.v0</h3>
+<p>Como arquetipo final, creamos la evaluación para la reseña del cliente:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150118.png" alt="Modelado de EVALUATION.customer_review.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.16: Creación del arquetipo EVALUATION para la reseña.</p>
+</div>
+
+<p>Bajo <code>data</code>, añadimos un <code>DV_COUNT</code> para la <strong>Puntuación de satisfacción</strong>. Restringimos el rango permitido definiendo:</p>
+<ul>
+  <li>Mínimo: <code>&gt;=0</code></li>
+  <li>Máximo: <code>&lt;=5</code></li>
+</ul>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150242.png" alt="Restricción del rango de puntuación" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.17: Restricción del rango numérico.</p>
+</div>
+
+<p>Añadimos un <code>DV_BOOLEAN</code> para indicar si recomendaría la pizza a un amigo (<code>true</code> o <code>false</code>):</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150310.png" alt="Elemento booleano de recomendación" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.18: Elemento booleano para la recomendación.</p>
+</div>
+
+<p>Finalmente, añadimos un elemento de texto libre <code>DV_TEXT</code> para los <strong>Comentarios del cliente</strong>:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150329.png" alt="Comentarios del cliente en texto libre" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.19: Elemento DV_TEXT para comentarios.</p>
+</div>
+
+<p>Bajo <code>protocol</code>, añadimos un <code>DV_IDENTIFIER</code> para el <strong>Order ID</strong> para que esta reseña pueda vincularse con el pedido original:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020150345.png" alt="Order ID en el protocolo de la reseña" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.20: DV_IDENTIFIER para trazar la reseña con el pedido.</p>
+</div>
+
+<h2>Modelar nuestras 3 plantillas</h2>
+<p>Ahora que todos nuestros arquetipos están definidos, podemos ensamblarlos en nuestras 3 plantillas.</p>
+
+<h3>Modelar la Plantilla 1: "Pedido online del cliente" (Online Customer Checkout)</h3>
+<p>Basándote en <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, crea la plantilla <code>Online_Customer_Order_v0</code>.</p>
+<p>Bajo <code>content</code>, añade:</p>
+<ul>
+  <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
+  <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
+</ul>
+<p>Selecciona la ranura de CLUSTER <strong>Extra Toppings</strong> dentro de la instrucción e inserta <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151744.png" alt="Estructura de la Plantilla 1" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.21: Montaje de la Plantilla 1 en el Archetype Designer.</p>
+</div>
+<p>¡Listo! Pasemos a la siguiente plantilla.</p>
+
+<h3>Modelar la Plantilla 2: "Seguimiento de cocina y repartidor" (Kitchen and Courier Tracker)</h3>
+<p>Siguiendo el mismo enfoque con <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, crea la plantilla <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
+<p>Bajo <code>content</code>, añade:</p>
+<ul>
+  <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
+</ul>
+<p>Selecciona la ranura de CLUSTER <strong>Toppings Verified</strong> e inserta <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151841.png" alt="Estructura de la Plantilla 2" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.22: Montaje de la Plantilla 2.</p>
+</div>
+
+<h3>Modelar la Plantilla 3: "Reseña del cliente" (Customer Review)</h3>
+<p>Y ahora nuestra plantilla final: basándote de nuevo en <code>openEHR-EHR-COMPOSITION.example_base.v0</code>, crea <code>Customer_Review_v0</code>.</p>
+<p>Bajo <code>content</code>, añade:</p>
+<ul>
+  <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
+</ul>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151821.png" alt="Estructura de la Plantilla 3" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.23: Montaje de la Plantilla 3.</p>
+</div>
+<p>¡Y ya está! Hemos planificado y modelado con éxito un conjunto completo de arquetipos y plantillas para nuestro flujo de trabajo.</p>
+
+<h2>Archivos de ejemplo</h2>
+<p>Puedes descargar el conjunto completo de archivos de ejemplo aquí:</p>
+<p><a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Guía para principiantes - Archivos de ejemplo.zip</a></p>
+
+<h2>¡Un momento, aún hay más! Restringir arquetipos en las plantillas</h2>
+<p>Como hemos visto en nuestro ejemplo, ha sido relativamente sencillo ensamblar una plantilla a partir de arquetipos existentes. Se asemeja a unir bloques de construcción reutilizables para levantar una estructura. Esta es una analogía muy habitual cuando se habla de openEHR.</p>
+<p>En la práctica, esto no es toda la verdad. Los arquetipos se crean con una gran cantidad de elementos y opciones que no se necesitan o que deben modificarse en la plantilla. Esto significa que no nos limitamos a ensamblar bloques de construcción: los modificamos durante el ensamblaje. Por eso, en mi empeño por vincularlo todo a la comida, introduje la idea de «hornear» la plantilla, donde los «ingredientes» (arquetipos) se transforman en el proceso.</p>
+<p>Esta modificación puede adoptar diferentes formas, entre ellas:</p>
+<ul>
+  <li>Cambiar el nombre de los elementos</li>
+  <li>Clonar elementos</li>
+  <li>Clonar arquetipos</li>
+  <li>Restringir opciones</li>
+  <li>Limitar el número de instancias</li>
+</ul>
+<p>Ten muy presente que cualquier modificación conlleva el riesgo de alterar el significado clínico del elemento de datos o del arquetipo, y puede generar dificultades técnicas más adelante.</p>
+
+<h3>Cambiar el nombre de los elementos</h3>
+<p>Puedes cambiar fácilmente el nombre de un elemento de datos o de un arquetipo. Ten cuidado de no modificar el nombre hacia algo que contradiga el uso clínico previsto de dicho elemento.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021083407.png" alt="Cambio de nombre de un elemento" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.24: Modificación del nombre de un nodo en la plantilla.</p>
+</div>
+
+<h3>Clonar elementos</h3>
+<p>Si la «ocurrencia» de un elemento de datos permite la existencia de múltiples instancias, este elemento de datos se puede clonar.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021101127.png" alt="Clonación de elementos" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.25: Clonación de un elemento de datos en la plantilla.</p>
+</div>
+
+<h3>Clonar arquetipos</h3>
+<p>Si la «ocurrencia» de un arquetipo permite la existencia de múltiples instancias, este arquetipo se puede clonar.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021093844.png" alt="Clonación de arquetipos" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.26: Clonación de un arquetipo completo.</p>
+</div>
+
+<h3>Restringir opciones</h3>
+<p>Cuando el arquetipo proporciona una lista de códigos internos, en la plantilla podemos «desmarcar» opciones. Esto siempre es restrictivo: nunca podemos añadir una opción a una selección codificada desde la plantilla.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021083213.png" alt="Restricción de opciones codificadas" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.27: Restricción de opciones en la lista de selección.</p>
+</div>
+
+<h3>Limitar el número de instancias</h3>
+<p>Si la ocurrencia de un arquetipo o elemento de datos es «abierta», permitiendo múltiples instancias, podemos limitarla.</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261021082906.png" alt="Limitación de ocurrencias" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 2.28: Restricción del número de ocurrencias en la plantilla.</p>
+</div>
+<p>Esta restricción de las ocurrencias solo puede ser «restrictiva», yendo de más a menos. No es posible «abrir» las ocurrencias cambiando, por ejemplo, de <code>0..1</code> (opcional, pero como máximo 1 ocurrencia) a <code>0..*</code> (opcional, con infinitas ocurrencias permitidas).</p>
+</section>

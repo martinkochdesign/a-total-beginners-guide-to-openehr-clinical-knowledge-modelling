@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Total Beginner's Guide to openEHR Clinical Knowledge Modelling — Martin Koch</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="preconnect" href="<redacted URL>">
+  <link rel="preconnect" href="<redacted URL>" crossorigin>
+  <link href="<redacted URL>" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="sidebarToggle" class="icon-btn" title="Toggle Table of Contents" aria-label="Toggle Table of Contents">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="brand">
+        <span class="brand-badge">openEHR</span>
+        <span class="brand-title">A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</span>
+      </div>
+    </div>
+
+    <div class="topbar-search">
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search headings and text (e.g., AQL, OPT)..." autocomplete="off">
+        <span id="searchClear" class="search-clear hidden">&times;</span>
+      </div>
+      <div id="searchResults" class="search-dropdown hidden"></div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Language Switcher -->
+      <div class="lang-selector" >
+        <label for="langSelect" class="sr-only">Language</label>
+        <select id="langSelect" class="select-input">
+          <option value="en" selected>English</option>
+          <option value="ca">Català</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="nb">Bokmål</option>
+        </select>
+      </div>
+
+      <!-- About Modal Trigger -->
+      <button id="aboutBtn" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        About
+      </button>
+
+      <!-- Print / PDF Button -->
+      <button id="printBtn" class="btn btn-primary" title="Print or save as PDF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Download PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Multi-Panel Layout -->
+  <div class="layout-container">
+
+    <!-- Collapsible Sidebar: Table of Contents & Part Switcher -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Table of Contents</span>
+        <button id="sidebarCloseBtn" class="icon-btn mobile-only" aria-label="Close sidebar">&times;</button>
+      </div>
+
+      <!-- Parts Navigation (Allows selecting individual parts or reading All) -->
+      <div class="parts-nav">
+        <div class="parts-nav-label">GUIDE PARTS</div>
+        <button class="part-pill active" data-part="all">All Parts (Full Guide)</button>
+        <button class="part-pill" data-part="part0">Part 0: About this document</button>
+        <button class="part-pill" data-part="part1">Part 1: Introduction to basic concepts</button>
+        <button class="part-pill" data-part="part2">Part 2: Practical modelling</button>
+        <button class="part-pill" data-part="part3">Part 3: Storing and querying data in the CDR</button>
+        <button class="part-pill" data-part="part4">Part 4: Next Steps</button>
+      </div>
+
+      <!-- Automatically Populated Heading Tree -->
+      <nav id="tocNav" class="toc-nav" aria-label="Table of Contents">
+        <!-- Generated on the fly by app.js -->
+      </nav>
+    </aside>
+
+    <!-- Content Stage -->
+    <main id="mainContent" class="main-content">
+      <div class="content-wrapper">
+        <div id="contentStage">
+          <div class="loading-state">Loading guide parts...</div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- About / License Modal Dialog -->
+  <div id="aboutModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle">About This Guide</h2>
+        <button id="modalCloseBtn" class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="author-badge">
+          <div class="author-avatar">MK</div>
+          <div>
+            <h3 class="author-name">Dr. Martin Andreas Koch</h3>
+            <p class="author-bio">PhD in Biomedical Engineering &middot; Clinical Knowledge Modeller</p>
+          </div>
+        </div>
+
+        <p class="modal-text">
+          <strong>A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</strong> was written to provide an intuitive, pragmatic, and approachable entry point into health informatics and semantic data modelling without getting lost in technical jargon or specifications.
+        </p>
+
+        <hr class="modal-divider">
+
+        <h4 class="license-title">Context & Standards</h4>
+        <ul class="specs-list">
+          <li><strong>Release Date:</strong> October 2026</li>
+          <li><strong>openEHR Reference Model (RM):</strong> Version 1.1.0</li>
+          <li><strong>openEHR Archetype Designer:</strong> Version 1.25.14</li>
+          <li><strong>Clinical Knowledge Manager (CKM):</strong> Version 1.21.0</li>
+        </ul>
+
+        <h4 class="license-title">License & Open Sharing</h4>
+        <p class="modal-text">
+          This educational guide is distributed under the <strong><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License, Version 2.0</a></strong>. You are free to use, reproduce, modify, translate, and distribute this material for personal, academic, institutional, or commercial purposes, subject to the terms and conditions of the license.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="modalDoneBtn" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="assets/app.js"></script>
+</body>
+</html>

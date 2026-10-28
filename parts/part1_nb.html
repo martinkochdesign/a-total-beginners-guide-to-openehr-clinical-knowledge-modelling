@@ -1,0 +1,670 @@
+<section>
+  <h1>Hvorfor modellere kliniske data?</h1>
+  <p>For å forstå openEHR må vi først ta et steg tilbake og se på det grunnleggende problemet innen helseinformatikk: <strong>Hva skjer med klinisk informasjon etter at den er generert?</strong></p>
+
+  <p>Forestill deg et dagligdags scenario: En pasient besøker en poliklinikk, det tas en blodprøve, og laboratoriet analyserer prøveresultatet.</p>
+
+  <p>Fra det øyeblikket legger dataene ut på en kritisk reise:</p>
+  <ol>
+    <li><strong>Generering:</strong> Dataene produseres (f.eks. et laboratoriesvar, en blodtrykksmåling eller en patologirapport).</li>
+    <li><strong>Persistering (lagring):</strong> Dataene lagres i et elektronisk fagsystem.</li>
+    <li><strong>Overføring:</strong> De overføres på tvers av avdelinger, sykehus eller primærhelsetjenesten.</li>
+    <li><strong>Tolkning:</strong> En kliniker i en helt annen setting leser og tolker dataene.</li>
+    <li><strong>Handling:</strong> Klinikeren tar en behandlingsbeslutning basert på denne tolkningen.</li>
+  </ol>
+
+  <p>Det er av avgjørende betydning at ingen kliniske data forvrenges eller går tapt under denne overføringen.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928120847.png" alt="Klinisk datalivssyklus" class="guide-img" width="450px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.1: Den kliniske datalivssyklusen fra generering til klinisk handling.</p>
+  </div>
+
+  <p>Når hvert sykehus, hver avdeling eller hver programvareleverandør finner opp sine egne databasetabeller og formater, går oversettelsen mellom systemene ut over datakvaliteten. Et felt ment for «systolisk blodtrykk» i System A kan bli presset inn i et generisk felt for «observasjonsverdi» i System B, noe som fjerner viktig kontekst som pasientleie, mansjettstørrelse eller fysisk anstrengelse.</p>
+
+  <p>For å forhindre tap av mening og datakorrupsjon trenger vi omforente datamodeller. Dersom alle bruker den samme modellen, kreves det ingen oversettelse mellom systemene, og full samhandlingsevne (interoperabilitet) oppnås.</p>
+
+  <p>For at en datamodell skal lykkes i praktisk helsevesen, må den:</p>
+  <ul>
+    <li><strong>Bruke gjenbrukbare strukturer:</strong> Unngå å finne opp hjulet på nytt. Én helhetlig modell for observasjonen «Blodtrykk» bør kunne gjenbrukes i primærhelsetjenesten, på intensivavdelingen, i forskning og ved hjemmeoppfølging.</li>
+    <li><strong>Være leverandørnøytral:</strong> Modellen må ikke tilhøre eller være avhengig av en enkelt programvareleverandør eller en proprietær database. Enhver utvikler av helseapplikasjoner må kunne bygge videre på den.</li>
+    <li><strong>Være fremtidsrettet og tilpasningsdyktig:</strong> Medisinsk praksis utvikler seg, retningslinjer endres og teknologien går fremover. Modellen må være fleksibel nok til å romme nye kliniske behov uten å ødelegge eksisterende systemer eller gjøre historiske data ugyldige.</li>
+  </ul>
+
+  <h1>Hvorfor openEHR kan være det rette valget for klinisk kunnskapsmodellering</h1>
+
+  <p>Som åpen kildekode tilbyr openEHR leverandørnøytrale, fritt tilgjengelige spesifikasjoner for håndtering, lagring, spørring og utveksling av elektroniske pasientjournaldata (EHR). Det er nettopp dette openEHR står for: åpne spesifikasjoner (<strong>open</strong>) for pasientjournaler (<strong>EHR</strong>).</p>
+
+  <p>Dette gjør det mulig å skape samhandlende datamodeller som kan deles og forbedres i et fellesskap av utviklere og klinikere.</p>
+
+  <h2>Den grunnleggende openEHR-arkitekturen</h2>
+
+  <p>openEHR benytter en flerlagsarkitektur som skiller tekniske spesifikasjoner strengt fra klinisk kunnskap. Dette omfatter en referansemodell (RM) på det tekniske nivået, arketyper og templat på det kliniske kunnskapsnivået, samt til en viss grad komposisjoner. I de neste avsnittene ser vi nærmere på disse nivåene.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928122912.png" alt="Flerlagsarkitektur" class="guide-img" width="400px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.2: Flerlagsarkitekturen i openEHR som skiller tekniske modeller fra kliniske konsepter.</p>
+  </div>
+
+  <h3>Referansemodellen (Reference Model, RM)</h3>
+
+  <p>I bunnen av openEHR ligger de grunnleggende definisjonene av hvordan data kan lagres, og hvilke funksjoner applikasjoner må tilby for å transformere eller hente ut informasjon om dataene. Dette er <strong>Referansemodellen</strong> (RM), som er avgjørende for programvareutviklere som bygger applikasjoner, databaser og tjenester. Den er frikoblet fra den kliniske konteksten, slik at programkoden slipper å endres hver gang det kommer en ny klinisk prosedyre eller retningslinje.</p>
+
+  <p>Du finner den tekniske referansemodellen for openEHR her: <a href="https://specifications.openehr.org/" target="_blank" rel="noopener">https://specifications.openehr.org/</a></p>
+
+  <h3>De kliniske komponentene i openEHR-modellering</h3>
+
+  <p>Atskilt fra det tekniske laget (Referansemodellen) jobber kliniske kunnskapsmodellerere i det kliniske kunnskapslaget.</p>
+
+  <p>Nedenfor gir vi en kort oversikt over kjernekomponentene: arketyper, templat og komposisjoner. Fortvil ikke, vi går grundigere til verks i de påfølgende kapitlene.</p>
+
+  <h4>Arketyper (Archetypes)</h4>
+
+  <p>En arketype er en universell, granulær og gjenbrukbar byggestein som representerer et avgrenset klinisk konsept (f.eks. Blodtrykk, Vekt, Høyde). For å bygge en arketype bruker vi <strong>datatyper</strong> definert i Referansemodellen til å strukturere de enkelte kliniske dataelementene som utgjør konseptet.</p>
+
+  <h4>Templat (Templates)</h4>
+  <p>Et openEHR-templat representerer en spesifikk klinisk kontekst, skreddersydd av kunnskapsmodellereren for en konkret arbeidsprosess, et dokument eller et skjema (f.eks. Epikrise, Akuttmottakstriage eller Pakkeforløp for kreft). De består av en struktur av arketyper.</p>
+
+  <p>Mens arketyper definerer de universelle kliniske konseptene, er det templatene som definerer hvordan kliniske data faktisk valideres og lagres i et openEHR-system.</p>
+
+  <p>For en klinisk kunnskapsmodellerer er templatet det endelige leveranseproduktet (selv om mye arbeid legges ned i å utforme perfekte arketyper!).</p>
+
+  <h4>Komposisjoner (Compositions)</h4>
+
+  <p>Når helsepersonell registrerer data i et journalsystem, genererer applikasjonen Komposisjoner som følger reglene definert i et templat og Referansemodellen til punkt og prikke. Det er disse dokumentene som faktisk lagrer pasientens data i det kliniske datalageret (Clinical Data Repository, CDR).</p>
+
+  <p>I teorien faller komposisjoner utenfor det daglige ansvaret til en kunnskapsmodellerer; det er programvareutviklerne som har ansvaret for at applikasjonene genererer komposisjoner basert på templatene.</p>
+
+  <p>Likevel må modellerere – som vi skal se senere – følge nøye med på dette for å sikre at dataene som faktisk lagres, er en tro representasjon av den tiltenkte kliniske modellen.</p>
+
+  <h1>Grunnleggende byggesteiner i openEHR</h1>
+
+  <p>Nå som vi har sett på openEHRs overordnede arkitektur og kjenner nøkkelkomponentene, skal vi gå mer i dybden.</p>
+
+  <h2>Data Value-klasser (Datatypeklasser)</h2>
+
+  <p>Før vi dykker ned i arketyper, må vi forstå hvordan individuelle dataelementer representeres i openEHR. Som man kan forvente, kan ikke en klinisk måling, en dato og en leges fritekstkommentar håndteres eller lagres på samme måte.</p>
+
+  <p>I openEHR representeres kliniske elementer ved hjelp av Data Value-klasser (alle har prefikset <code>DV_</code>). Det er avgjørende å forstå at dette ikke bare er primitive datatyper som heltall (integers), desimaltall (reals) eller tekststrenger fra programmeringsspråk. I stedet er de sammensatte strukturer designet for å ivareta mest mulig kontekstinformasjon om et dataelement.</p>
+
+  <p>openEHR definerer et omfattende sett med Data Value-klasser som vi kan dele inn i hovedområder:</p>
+  <ul>
+    <li><strong>Tekst og kodet tekst</strong> (fritekst, terminologibundne verdier)</li>
+    <li><strong>Mengder og målinger</strong> (tall med enheter, proporsjoner, skalaer)</li>
+    <li><strong>Dato og tid</strong> (datoer, klokkeslett, varigheter og tidsstempler)</li>
+    <li><strong>Identifikatorer og referanser</strong> (URI-er, objekt-ID-er)</li>
+    <li><strong>Innkapslede data</strong> (multimedia, parsbare formater)</li>
+    <li><strong>Bolske verdier og tilstander</strong> (flagg, tilstandsmaskinverdier)</li>
+    <li><strong>Intervaller</strong> (spenn over mengder, datoer eller tellinger)</li>
+  </ul>
+
+  <div class="img-container">
+    <img src="images/Data Value Types.png" alt="Tabell over Data Value-typer" class="guide-img" width="650px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.3: Oversikt over Data Value-typer i openEHR.</p>
+  </div>
+
+  <p>Som klinisk kunnskapsmodellerer er en av dine viktigste oppgaver å avgjøre hvordan hvert enkelt klinisk dataelement skal representeres.</p>
+
+  <p>Når du modellerer et dataelement, må du velge riktig Data Value-type fra openEHRs referansemodell (RM).</p>
+
+  <p>La oss se på et praktisk eksempel ved å undersøke klassen <code>DV_QUANTITY</code>. For å lese spesifikasjonene finnes det flere gode kilder, avhengig av hva du foretrekker:</p>
+  <ul>
+    <li><strong><a href="https://specifications.openehr.org/releases/RM/development/data_types.html#_dv_quantity_class" target="_blank" rel="noopener">Offisiell openEHR-spesifikasjon for datatyper</a>:</strong> Den formelle og autoritative definisjonen av Referansemodellen.</li>
+    <li><strong><a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener">Interaktiv openEHR RM Browser</a>:</strong> Et søkbart verktøy for å utforske RM-klasser, hierarkier og egenskaper på en enkel måte.</li>
+    <li><strong><a href="https://neoehr.com/openehr/uml/rm110/c/dv-quantity" target="blank" rel="noopener">NeoEHR UML-diagrammer</a>:</strong> En visuell UML-fremstilling som viser arverekken og strukturen for DV_QUANTITY.</li>
+  </ul>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928153556.png" alt="DV_QUANTITY UML" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.4: Referansemodellens struktur for DV_QUANTITY.</p>
+  </div>
+
+  <p>Ved første øyekast virker en kvantitativ klinisk måling enkel: bare et tall koblet til en måleenhet.
+    <ul>
+      <li>Vekt: <code>82 kg</code></li>
+      <li>Blodtrykk: <code>120 mmHg</code></li>
+      <li>Kroppstemperatur: <code>36.7 °C</code></li>
+    </ul>
+  </p>
+
+  <p>Hvis vi ser på Referansemodellen som definerer <code>DV_QUANTITY</code>, ser vi at dette stemmer: Den krever obligatorisk et <code>magnitude</code>-attributt som lagrer et desimaltall og et <code>units</code>-attributt som lagrer en tekststreng.</p>
+
+  <p>
+    Men Referansemodellen gir også rom for en rekke nyttige, valgfrie attributter:
+    <ul>
+      <li><code>normal_range</code></li>
+      <li><code>other_reference_ranges</code></li>
+      <li><code>precision</code></li>
+      <li><code>units_display_name</code></li>
+      <li><code>units_system</code></li>
+      <li><code>accuracy</code> (arvet fra <code>DV_AMOUNT</code>)</li>
+      <li><code>accuracy_is_percent</code> (arvet fra <code>DV_AMOUNT</code>)</li>
+      <li><code>magnitude_status</code> (arvet fra <code>DV_QUANTIFIED</code>)</li>
+      <li><code>normal_status</code> (arvet fra <code>DV_ORDERED</code>)</li>
+    </ul>
+
+    Som du ser, er det lagt ned mye omtanke i å gjøre attributtene så allsidige som overhodet mulig.
+  </p>
+
+  <h4>Familietreet til Data Values</h4>
+
+  <p>I praksis er ikke Data Value-klassene isolerte kategorier. De utgjør et gjennomtenkt arvehierarki som forgrener seg fra en felles basisklasse (<code>DATA_VALUE</code>).</p>
+
+  <p>
+    Dersom du er nysgjerrig på hvordan disse klassene henger sammen og arver egenskaper gjennom Referansemodellen, ser du det komplette «familietreet» her:
+  </p>
+
+  <div class="img-container">
+    <img src="images/DATA_VALUE.png" alt="DATA_VALUE Familietre" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.5: Arvetre med utgangspunkt i basisklassen DATA_VALUE.</p>
+  </div>
+
+  <h2>Arketyper</h2>
+
+  <p>Nå som vi kjenner til datatypene, kan vi enkelt forestille oss hvordan vi bruker dem til å bygge et komplett klinisk konsept.</p>
+
+  <p>Ta blodtrykk som eksempel: Vi kan lage en enkel arketype ved å sette sammen to <code>DV_QUANTITY</code> – én for diastolisk og én for systolisk trykk. Kanskje bør vi også legge til en <code>DV_TEXT</code> for kommentarer... et felt for måleapparatet som ble brukt... pasientens tilstand... og så videre.</p>
+
+  <p>Som du ser, blir konseptet «blodtrykk» raskt sammensatt, fordi vi ønsker å gjøre det bredt nok til å passe inn i mange ulike kliniske situasjoner. Det er derfor vi sier at arketyper er <strong>maksimale</strong>. Senere, når vi setter dem inn i en kontekst (dvs. et templat), kan vi begrense bort alt som ikke er relevant for den spesifikke bruken (og som er modellert som valgfritt i arketypen). Dette gjør arketypene gjenbrukbare, som er et av hovedmålene med openEHR.</p>
+
+  <p>Her er en representasjon av arketypen for blodtrykksmåling. Ser du hvor mange kliniske parametere den omfatter?</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929122300.png" alt="Blodtrykksarketypen i CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.6: Representasjon av blodtrykksarketypen i internasjonale CKM. <a href="https://ckm.openehr.org/ckm/archetypes/1013.1.3574" target="_blank" rel="noopener">Se blodtrykksarketypen i internasjonale CKM</a></p>
+  </div>
+
+  <h3>Flerspråklige arketyper</h3>
+  <p>
+    Arketyper er flerspråklige i sin natur, noe som betyr at de bærer offisielle oversettelser innebygd i selve modellen. Dette er en stor fordel for kunnskapsmodellerere som ofte jobber i miljøer med flere offisielle språk.
+  </p>
+  <p>
+    Samtidig betyr dette at <strong>kun arketyper som deler samme språk</strong> kan settes sammen til templat. Derfor kan det være nødvendig å legge til en oversettelse i en arketype før du kan ta den i bruk lokalt. Det anbefales å starte arketyper på engelsk, slik at de enkelt kan deles og vurderes i det internasjonale CKM-fellesskapet.
+  </p>
+
+  <h3>Kan man lese en arketypefil direkte?</h3>
+  <p>Arketyper skrives i et menneskelesbart format kalt <strong>ADL</strong> (Archetype Definition Language). Det betyr at vi kan åpne <code>.adl</code>-filen og lese innholdet direkte. Strukturen er imidlertid relativt kompleks, med flere distinkte seksjoner og syntakser. Heldigvis slipper vi som kunnskapsmodellerere å kode disse filene for hånd, takket være moderne visuelle verktøy.</p>
+
+  <p>Du finner mer informasjon om arketypenes oppbygning her: <a href="https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl" target="_blank" rel="noopener">https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl</a></p>
+
+  <h3>Anatomien til en Archetype ID</h3>
+
+  <p>Med tusenvis av arketyper delt på tvers av globale biblioteker, hvordan skiller systemene dem fra hverandre uten misforståelser?</p>
+
+  <p>De støtter seg på en standardisert <strong>Archetype ID</strong>. I stedet for å gi modellene tilfeldige navn, bruker openEHR en strukturert identifikator som viser formål, klasse og versjon ved første øyekast.</p>
+
+  <p>Hver arketype følger denne konvensjonen. La oss se på et eksempel:</p>
+
+  <pre><code>openEHR-EHR-OBSERVATION.blood_pressure.v2</code></pre>
+  <ul>
+    <li><code>openEHR</code> &rarr; Standard / utsteder</li>
+    <li><code>EHR</code> &rarr; Referansemodell-pakke (pasientjournal)</li>
+    <li><code>OBSERVATION</code> &rarr; Arketypeklasse</li>
+    <li><code>blood_pressure</code> &rarr; Navn på klinisk konsept</li>
+    <li><code>v2</code> &rarr; Hovedversjon (Major version)</li>
+  </ul>
+
+  <h3>Hvor kommer arketypene fra? Noen ord om internasjonale CKM</h3>
+
+  <p>Før du i det hele tatt vurderer å lage en arketype fra bunnen av: <strong>Ikke finn opp hjulet på nytt!</strong> <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener">Clinical Knowledge Manager (CKM)</a> er det globale biblioteket og forvaltningssenteret for openEHR-arketyper.</p>
+
+  <strong>Hvorfor delta i CKM?</strong>
+  <ul>
+    <li>
+      <strong>Klinisk konsensus:</strong> Arketyper i CKM lages ikke isolert av en enkelt utvikler eller ett sykehus. De gjennomgår grundige, flertrinns fagfellevurderinger med klinikere, terminologer og modellerere fra hele verden.
+    </li>
+    <li>
+      <strong>Global samhandlingsevne:</strong> Når et sykehus i Barcelona, en klinikk i Norge og et helseteknologiselskap i Australia bruker samme <code>blood_pressure</code>-arketype fra CKM, er dataene deres umiddelbart semantisk kompatible på tvers av landegrenser.
+    </li>
+    <li>
+      <strong>Du har en stemme:</strong> Medisin har regionale nyanser. Ved å delta i CKM-høringer, bidra med oversettelser eller gi tilbakemeldinger på utkast, sikrer du at globale helsedatastandarder reflekterer den kliniske hverdagen i din region.
+    </li>
+  </ul>
+
+  <p>
+    Den gylne regelen for modellerere er: <strong>Søk først i CKM, gjenbruk det som finnes, og bidra med forbedringer tilbake</strong>.
+  </p>
+
+  <p class="callout note">
+    <em>(For ordens skyld: Du kan lage egne modeller og bruke dem lokalt uten å publisere dem i internasjonale CKM, men da går du glipp av erfaringen og kvalitetssikringen fra mange dyktige eksperter!)</em>
+  </p>
+
+  <h3>Arketype-varianter – de ulike klassene</h3>
+
+  <p>En arketype er ikke bare en samling dataelementer som representerer et medisinsk begrep. Den har en bestemt plass i det kliniske arbeidsforløpet. En legemiddelforordning er ikke det samme som en administrert medisin, og de krever derfor helt ulike attributter for å dokumenteres riktig.</p>
+
+  <p>Overordnet deler vi arketyper inn i tre grupper:
+  <br><br>
+  <strong>Strukturelle klasser</strong>
+  <ul>
+    <li>COMPOSITION - Dokumentramme og beholder.</li>
+    <li>SECTION - Innholdsorganisator i en COMPOSITION.</li>
+    <li>CLUSTER - Gjenbrukbar gruppe av dataelementer (kan ses på som en modulær utvidelse).</li>
+  </ul>
+  <strong>Entry-klasser (oppføringsklasser)</strong>
+  <ul>
+    <li>ACTION - For handlinger og tiltak som faktisk er utført.</li>
+    <li>EVALUATION - For kliniske vurderinger, diagnoser eller oppsummeringer.</li>
+    <li>INSTRUCTION - For fremtidige handlinger, bestillinger og forordninger.</li>
+    <li>OBSERVATION - For direkte observerte og målte data.</li>
+  </ul>
+  <strong>Administrativ Entry-klasse</strong>
+  <ul>
+    <li>ADMIN_ENTRY - For rent administrative data.</li>
+  </ul>
+  </p>
+
+  <h3>Hva er spesielt med de ulike arketypeklassene?</h3>
+
+  <p>
+  De ulike klassene har spesifikke egenskaper som gjør dem egnet til sitt formål.
+  Attributtene fylles ut enten under redigeringen av selve arketypen eller når arketypen tas inn i et templat.
+  For å skille mellom disse to fasene merker vi dem i beskrivelsene nedenfor med <strong>i arketypen</strong> eller <strong>i templatet</strong>.
+  </p>
+
+  <em>Vær oppmerksom på at vi her kun ser på elementene som konfigureres av kunnskapsmodellereren. Referansemodellen definerer i tillegg mye mer informasjon som automatisk legges til i den endelige komposisjonen.</em>
+
+  <h4>Strukturelle arketyper</h4>
+
+  <h5><code>COMPOSITION</code> - Basisarketypen</h5>
+  <p>En <code>COMPOSITION</code> har attributtene <code>context</code> og <code>content</code>:</p>
+  <ul>
+    <li>
+      I <code>context</code> gir en luke (slot) for <code>other_context</code> mulighet for å legge til dataelementer eller cluster-luker (<strong>i arketypen</strong>). Hvis en cluster-luke er lagt til, kan en CLUSTER-arketype settes inn (<strong>i templatet</strong>).
+    </li>
+    <li>
+      I <code>content</code> setter du inn listen over arketyper som utgjør det kliniske innholdet i dokumentet (<strong>i templatet</strong>).
+    </li>
+  </ul>
+
+  <h5><code>SECTION</code> - Den strukturerende arketypen</h5>
+  <p>
+    <code>SECTION</code>-arketypen har attributtet <code>items</code>. I <code>items</code> kan du sette inn en liste over arketyper (<strong>i templatet</strong>).
+  </p>
+
+  <h5><code>CLUSTER</code> - Den gjenbrukbare samlingen av dataelementer</h5>
+  <p>
+    <code>CLUSTER</code>-arketypen er fleksibel: Du kan legge til dataelementer direkte fra rotnivå (<strong>i arketypen</strong>). Dersom den inneholder en cluster-luke, kan en annen CLUSTER-arketype kobles på (<strong>i templatet</strong>).
+  </p>
+
+  <h4>Entry-arketyper (oppføringsklasser)</h4>
+
+  <h5><code>ACTION</code> - Dokumentasjon av utført handling</h5>
+  <p>En <code>ACTION</code>-arketype har tre spesifikke seksjoner – <code>description</code>, <code>protocol</code> og <code>ism_transition</code>:</p>
+  <ul>
+    <li>I <code>description</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>I <code>protocol</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>
+      I <code>ism_transition</code>-seksjonen defineres en liste over ordinale dataelementer (<strong>i arketypen</strong>). Disse ordinalverdiene tilsvarer openEHRs standardiserte statuskoder for handlingsforløp (f.eks. <code>"526::planlagt"</code>, <code>"245::aktiv"</code> eller <code>"532::fullført"</code>).
+    </li>
+    <li>
+      Dersom en cluster-luke er lagt til (i <code>description</code> eller <code>protocol</code>), kan en CLUSTER-arketype kobles til (<strong>i templatet</strong>).
+    </li>
+  </ul>
+
+  <h5><code>EVALUATION</code> - Vurderinger og sammendrag</h5>
+  <p>En <code>EVALUATION</code>-arketype har to spesifikke seksjoner: <code>data</code> og <code>protocol</code>:</p>
+  <ul>
+    <li>I <code>data</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>I <code>protocol</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>
+      Dersom en cluster-luke er lagt til (i <code>data</code> eller <code>protocol</code>), kan en CLUSTER-arketype kobles til (<strong>i templatet</strong>).
+    </li>
+  </ul>
+
+  <h5><code>INSTRUCTION</code> - Hva som skal gjøres i fremtiden</h5>
+  <p>En <code>INSTRUCTION</code>-arketype har to spesifikke seksjoner – <code>activities</code> og <code>protocol</code>:</p>
+  <ul>
+    <li>I <code>protocol</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>
+      I <code>activities</code> finnes en «Gjeldende aktivitet» (Current Activity). Du kan gi denne et nytt navn (for eksempel «Forordning»), og det anbefales å sette forekomst (occurrences) til <code>0..*</code> når arketypen opprettes, slik at man kan registrere flere planlagte aktiviteter (<strong>i templatet</strong>). Aktiviteten har en <code>description</code>-seksjon der Data Value-elementer legges til (<strong>i arketypen</strong>).
+    </li>
+    <li>
+      Dersom en cluster-luke er lagt til i aktivitetsbeskrivelsen, kan en CLUSTER-arketype kobles til (<strong>i templatet</strong>).
+    </li>
+  </ul>
+
+  <h5><code>OBSERVATION</code> - Målinger og skåringer</h5>
+  <p>En <code>OBSERVATION</code>-arketype har to spesifikke seksjoner: <code>data</code> og <code>protocol</code>:</p>
+  <ul>
+    <li>
+      I <code>data</code> defineres punkthendelser (point events), intervallhendelser eller vilkårlige hendelser (<strong>i arketypen</strong>). Den første hendelsen inneholder en <code>data</code>-seksjon der Data Value-elementer legges til. Når du legger til etterfølgende hendelser, trenger du ikke opprette elementene på nytt; de arves automatisk fra den opprinnelige hendelsesdefinisjonen.
+    </li>
+    <li>I <code>protocol</code> kan ethvert Data Value-element legges til (<strong>i arketypen</strong>).</li>
+    <li>
+      Dersom en cluster-luke er lagt til (i <code>data</code> eller <code>protocol</code>), kan en CLUSTER-arketype kobles til (<strong>i templatet</strong>).
+    </li>
+  </ul>
+
+  <h4>Administrative arketyper</h4>
+
+  <h5><code>ADMIN_ENTRY</code></h5>
+  <p>
+    I <code>data</code>-seksjonen kan ethvert administrativt Data Value-element legges til (<strong>i arketypen</strong>).
+  </p>
+
+  <h3>Cluster vs. Cluster vs. Cluster</h3>
+
+  <p>
+    Vi har nevnt <code>CLUSTER</code>-arketypen tidligere, og du har sikkert støtt på ordet «cluster» (klynge) i andre sammenhenger. I vårt eget modelleringsarbeid har denne navnelikheten skapt mer enn én misforståelse! Det er veldig viktig å være bevisst på hvilken type cluster vi snakker om. I openEHR opptrer «cluster» i tre distinkte former:
+  </p>
+
+  <ol>
+    <li>
+      <strong>Som en <code>CLUSTER</code>-arketype:</strong> En selvstendig, gjenbrukbar arketypeklasse (f.eks. <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>).
+    </li>
+    <li>
+      <strong>Som et internt <code>CLUSTER</code> av dataelementer:</strong> En samlende beholder av felter modellert direkte inne i en arketype for å gruppere beslektede elementer.
+    </li>
+    <li>
+      <strong>Som en <code>CLUSTER</code>-luke (slot):</strong> En tilkoblingsluke (<code>allow_archetype</code>) definert inne i en arketype, spesifikt beregnet på å koble til eksterne cluster-arketyper når et templat settes sammen.
+    </li>
+  </ol>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261023081154.png" alt="Tre betydninger av Cluster i openEHR" style="width:400px; height: auto;cursor:pointer;" onclick="openImg(this)">
+    <p class="img-caption">
+      <em>Figur 1.7: Et cluster kan referere til (1) en arketypeklasse, (2) et internt cluster som grupperer felter inne i en arketype, eller (3) en luke i en arketype for å koble til cluster-arketyper under templatbygging.</em>
+    </p>
+  </div>
+
+  <h2>Templat (Templates)</h2>
+  <p>
+    Så langt har vi sett på arketyper som gjenbrukbare, universelt avstemte kliniske konsepter. For å faktisk ta dem i bruk i en klinisk applikasjon må vi sette dem sammen i <strong>templat</strong>.
+  </p>
+
+  <p>
+  I et templat gjør vi i hovedsak to ting:
+  <ol>
+    <li>Plasserer arketypene i funksjonelle hierarkiske strukturer.</li>
+    <li>Begrenser de maksimale arketypene ned til applikasjonens nøyaktige behov.</li>
+  </ol>
+  </p>
+
+  <h3>Et templat – en struktur av arketyper</h3>
+
+  <p>For å lage et templat settes ulike arketyper sammen i hverandre, alltid med en COMPOSITION-arketype som grunnmur.</p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929115414.png" alt="International Patient Summary i CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.8: Eksempel på en templatstruktur sammensatt av ulike arketyper (basert på <a href="https://ckm.openehr.org/ckm/templates/1013.26.376" target="_blank" rel="noopener">International Patient Summary i internasjonale CKM</a>).</p>
+  </div>
+
+  <p>Ikke alle arketypevarianter kan kobles fritt sammen:
+    <ul>
+      <li>En <code>COMPOSITION</code> kan inneholde <code>CLUSTER</code>-arketyper (hvis en luke er modellert i <code>other_context</code>), <code>ENTRY</code>- og <code>SECTION</code>-arketyper.</li>
+      <li>En <code>SECTION</code> kan inneholde en liste over <code>ENTRY</code>-arketyper og andre nøstede <code>SECTION</code>-arketyper.</li>
+      <li>En <code>ENTRY</code>-arketype kan inneholde <code>CLUSTER</code>-arketyper dersom det er definert en luke i arketypen.</li>
+      <li>En <code>CLUSTER</code>-arketype kan inneholde andre nøstede <code>CLUSTER</code>-arketyper hvis luker er definert.</li>
+    </ul>
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260929115611.png" alt="Koblinger mellom arketypeklasser" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.9: Gyldige innsettinger av arketypeklasser i hverandre.</p>
+  </div>
+
+  <p>
+    Lær mer om vanlige mønstre for inkludering av arketyper:
+    <br>
+    <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener">https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/</a>
+  </p>
+
+  <p>
+    <em>
+      Vær oppmerksom på at templatstrukturen ikke bare reflekterer klinisk logikk, men også bestemmer søkestolpene (query paths) som senere brukes til å finne og hente ut data fra komposisjoner.
+    </em>
+  </p>
+
+  <p>
+  Det kan virke intuitivt å bygge en struktur som speiler det kliniske arbeidsforløpet nøyaktig slik et skjema fylles ut på skjermen. Som kunnskapsmodellerere må vi imidlertid passe på effektiviteten ved lagring og datauttrekk, og balansere nøye mellom arbeidsflyt og datalagringslogikk.
+  </p>
+
+  <p>
+  Et annet viktig poeng: Vi kunne i teorien laget ett enormt templat som samler all informasjon i et helt pasientforløp (alle forordninger, handlinger, målinger osv.). Ulempen er at hver gang én enkelt opplysning legges til eller endres, lagrer systemet hele komposisjonen på nytt, noe som skaper unødvendig dataduplisering. Det er derfor god praksis å lage modulære templat for de ulike delene av et behandlingsforløp.
+  </p>
+
+  <h3>Begrensning (constraining) av arketyper og dataelementer</h3>
+
+  <p>Som nevnt modelleres arketyper <strong>maksimale</strong> for å passe i flest mulig sammenhenger. Det betyr at i en spesifikk arbeidsprosess trenger man sjelden alle de modellerte elementene. Derfor må arketypene begrenses i templatet.</p>
+
+  <p>De vanligste begrensningene som legges på arketyper i et templat er:</p>
+  <ul>
+    <li>
+      <strong>Fjerne unødvendige dataelementer:</strong> Skjule eller sette forekomst (occurrences) til <code>0</code> for datafelter du ikke samler inn i din arbeidsflyt (f.eks. fjerne mansjettstørrelse eller pasientleie ved en rutinemessig poliklinisk blodtrykksmåling).
+    </li>
+    <li>
+      <strong>Begrense verdisett:</strong> Begrense tillatte enheter eller valgmuligheter (f.eks. begrense temperatur til kun <code>Cel</code>, eller innsnevre en nedtrekksmeny til relevante SNOMED CT-koder).
+    </li>
+    <li>
+      <strong>Gi nytt navn til noder (rename):</strong> Tilpasse visningsnavn til lokalt fagspråk uten å endre den underliggende arketypens identitet.
+    </li>
+    <li>
+      <strong>Klone noder:</strong> Duplisere et generisk felt for å registrere flere strukturerte oppføringer (f.eks. klone en symptomseksjon til «Hovedsymptom» og «Bisymptom»).
+    </li>
+    <li>
+      <strong>Gjøre elementer obligatoriske:</strong> Stramme inn kardinaliteter fra valgfritt (<code>0..1</code>) til påkrevd (<code>1..1</code>) for å sikre at kritisk informasjon aldri utelates.
+    </li>
+  </ul>
+
+  <p>Dermed skaper vi et templat som representerer en konkret klinisk kontekst og oppfyller kravene til fagsystemet eller skjemaet.</p>
+
+  <h3>Tekniske formater: OET vs. OPT (Cupcake-analogien)</h3>
+
+  <p>I praktisk arbeid med openEHR-templat møter vi to ulike filformater:</p>
+  <ul>
+    <li><strong>openEHR Template (<code>.oet</code>):</strong> Det redigerbare forfatterformatet som opprettes og lagres av modelleringsverktøy (som openEHR Archetype Designer).</li>
+    <li><strong>Operational Template (<code>.opt</code>):</strong> Det kompilerte, frittstående artefaktet som genereres fra <code>.oet</code>-filen og dens underliggende arketyper.</li>
+  </ul>
+
+  <p>
+  En god måte å forstå sammensetningen av arketyper til templat og rollene til OET og OPT på, er å tenke på det som å bake en cupcake (der den ferdige cupcaken er openEHR-templatet vårt).
+  </p>
+
+  <p>
+  Vi har ingrediensene til cupcaken vi vil bake. Ingrediensene er klart definerte, akkurat som arketyper. Definisjonen av en arketype manifesterer seg i <code>.adl</code>-filen for hver enkelt arketype.
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20260928123744.png" alt="Templatformater" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.10: Cupcake-analogien for å forstå templatformater.</p>
+  </div>
+
+  <p>
+  <strong>Ingrediensene: Arketypene.</strong> Akkurat som du har mel, sukker, egg og blåbær stående i spiskammerset, er arketyper våre universelle standardingredienser. Hver arketype er et frittstående, veldefinert klinisk konsept i sin reneste og mest gjenbrukbare form. Alene utgjør de verken et fullverdig måltid eller et ferdig journaldokument; de er de modulære byggesteinene som venter på å bli kombinert.
+  </p>
+
+  <p>
+  Når vi skal blande ingrediensene for å bake cupcaken, trenger vi en oppskrift. I openEHR er denne oppskriften en fil med instruksjoner om hvilke arketyper som skal inkluderes, og hvilke justeringer som skal gjøres på dem. Når arketyper settes inn i et templat, kan mye endres: variabelnavn, forekomster (felter kan forsvinne helt!) og begrensninger i tillatte svarkoder.
+  </p>
+
+  <p>
+  <strong>Oppskriften: OET-filen.</strong> Oppskriften for å bygge templatet er OET-filen. Den er den offisielle byggeanvisningen og kan redigeres underveis i utviklingen. Arketyper kan byttes ut med nyere versjoner, og begrensninger kan strammes inn eller løsnes på. I denne formen peker templatet utvetydig til den nøyaktige revisjonen av hver arketype som benyttes. Den er uunnværlig for utviklingsprosessen og dokumentasjonen. Vi må huske at <em>et templat er mer enn bare summen av sine arketyper</em>.
+  </p>
+
+  <p>
+  <strong>Den stekte cupcaken: OPT-filen.</strong> Med oppskriften i hånden baker vi cupcaken – og etterpå kan ikke ingrediensene endres lenger. Den resulterende OPT-filen er det ferdige templatet som lastes opp til det kliniske datalageret (CDR). Den inneholder ikke lenger de opprinnelige arketypene separat, men i sin ferdigbakte form med alle endringer og begrensninger bakt inn. Det er ikke lenger mulig å spore den nøyaktige revisjonen av de opprinnelige arketypene fra den alene; den er den uforanderlige produksjonsversjonen av templatet.
+  </p>
+
+  <p>
+  ⚠️ Vær oppmerksom! <strong>OET</strong>-formatet er ikke kanonisk i spesifikasjonene, men det er avgjørende i praksis:
+  <ol>
+    <li>Det er det eneste templatformatet som kan importeres til CKM (Clinical Knowledge Manager).</li>
+    <li>Det er det eneste formatet som bevarer den eksplisitte koblingen mellom de spesifikke arketyperevisjonene og templatet.</li>
+  </ol>
+
+  La oss se hvorfor dette betyr noe:
+  <br><br>
+
+  Tenk deg et «Vitale tegn»-templat som inneholder arketypen for «Kroppsmasseindeks» (BMI). En arketype identifiseres unikt av tre ting: ID, revisjon og hash (kontrollsum). For eksempel:
+  <br>
+  <ul>
+    <li>ID: <code>openEHR-EHR-OBSERVATION.body_mass_index.v2</code></li>
+    <li>Revisjon: <code>2.1.0</code></li>
+    <li>Integritetshash: <code>MD5-CAM-1.0.1 = 45CDA8C2180DDA3CAB6EBB6AF603493D</code></li>
+  </ul>
+
+  Arketyper utvikler seg over tid, og ulike templat er ofte avhengige av helt spesifikke revisjoner.
+  <br><br>
+
+  <strong>OET-filen</strong> inneholder en integritetssjekk på slutten som identifiserer den nøyaktige revisjonen basert på både ID og hash.
+  <br><br>
+
+  <strong>OPT-filen</strong> identifiserer derimot bare arketypen ved dens ID. Det betyr at dersom du kun sitter med OPT-filen, er det umulig å vite med sikkerhet hvilken nøyaktig arketyperevisjon som ble brukt da templatet ble kompilert.
+  </p>
+
+  <h3>Et ord om flerspråklige templat</h3>
+
+  <p>Som nevnt er arketyper flerspråklige, noe som betyr at de kan inneholde oversettelser av begreper og dataelementer i tillegg til hovedspråket. Når vi bygger templat, har vi kun lov til å kombinere arketyper som deler de samme språkene.</p>
+
+  <p>
+  I teorien kan templatet i seg selv inneholde oversettelsene for de ulike dataelementene. I praksis har vi erfart utfordringer med dette, fordi det ofte kun er den første forekomsten av en arketype som bevarer oversettelsene i templatet. Hvis du har flere forekomster av samme arketype, mangler oversettelsen ofte i den genererte OPT-filen.
+  </p>
+  <p>
+  En annen utfordring er at OET-filen ofte ikke spesifiserer oversettelsesspråkene fullt ut. CKM, som kun godtar OET-filer for opplasting av templat, viser templatet utelukkende på hovedspråket og tillater ofte kun nedlasting av OPT-filen på ett språk.
+  </p>
+
+  <p>Derfor anbefales det ikke å basere seg på templat med komplekse innebygde oversettelser. Den beste løsningen i dag er å forvalte templatet på dets hovedspråk og holde offisielle oversettelser i en separat fil som fagsystemene kan slå opp i. Hvordan dette standardiseres best, er foreløpig ikke fastlagt og er et godt diskusjonstema i openEHR-fellesskapet.</p>
+
+  <h2>Komposisjoner (Compositions)</h2>
+
+  <p>
+  Når en klinisk kontekst er definert i et Operational Template (OPT), lastes dette opp til det kliniske datalageret (CDR). CDR-et er ikke bare stedet der vi oppbevarer templatene, men fremfor alt databasen der pasientens kliniske data lagres. Når data registreres i et fagsystem, pakkes de inn i en <strong>Komposisjon</strong> i henhold til reglene i templatet. For å unngå forvirring: Det finnes også en arketypeklasse kalt «COMPOSITION» som danner rotnoden i dette dokumentet.
+  </p>
+  <p>
+  En Komposisjon er det faktiske kliniske dokumentet eller journaloppføringen (f.eks. et triagenotat, et laboratoriesvar eller en epikrise). Hver komposisjon er bundet til og valideres mot et spesifikt templat, og kan inneholde dataelementer definert av Referansemodellen.
+  </p>
+  <p>
+  Som kliniske kunnskapsmodellerere er vi ikke direkte involvert i den tekniske genereringen av komposisjonen – dette er programvareutviklernes ansvar.
+  <strong>Likevel</strong> må vi ofte veilede utviklerne om dataelementer fra Referansemodellen som kan lagres på steder som ikke er eksplisitt modellert i templatet.
+  </p>
+  <p>
+  Komposisjonen skrives vanligvis i JSON-format. Dette er en stor fordel, ettersom hvem som helst kan åpne filen og inspisere innholdet. Igjen: Som modellerere skal vi ikke drukne i programkode, men det er nødvendig å forstå strukturen til informasjonen vi har modellert.
+  </p>
+
+  <h2>Bidrag (Contributions)</h2>
+
+  <p>
+  Når vi sier at vi sender pasientens data i et <strong>komposisjonsdokument</strong>, forenkler vi prosessen en smule.
+  </p>
+  <p>
+  Vi må nemlig formidle til CDR-et hva denne <strong>komposisjonen</strong> innebærer: Er det et helt nytt sett med data, er det en retting av eksisterende data, eller ønsker vi å sette dokumentstatusen til f.eks. «utgått»?
+  </p>
+  <p>
+  For å overføre dette til CDR-et, sender vi komposisjonen som et versjonert dokument (slik at vi vet hvilken versjon vi oppretter eller endrer) inne i en <strong>Contribution</strong> (et bidrag). Det er som å legge det utfylte pasientskjemaet i en konvolutt som angir versjonen, og deretter legge denne konvolutten i en ytre konvolutt (Contribution) før den sendes til datalageret.
+  </p>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261019143814.png" alt="Contributions" class="guide-img" width="200px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Figur 1.11: En komposisjon identifiseres alltid som en versjon av et dokument og oversendes i en contribution.</p>
+  </div>
+
+  <p>Det geniale med contributions er at de kan inneholde flere komposisjoner med ulike formål samtidig. For eksempel kan du sende inn helt nye registreringer sammen med oppdateringer av tidligere dokumenter i én og samme atomære sending, i stedet for å måtte sende dem enkeltvis.</p>
+
+  <p>I mange tilfeller vil klientbiblioteker og API-funksjoner pakke komposisjonen inn i en contribution helt automatisk, uten at avsenderen trenger å bygge den ytre konvolutten manuelt.</p>
+
+  <h1>Modelleringsmiljøet for klinisk kunnskap</h1>
+
+  <p>
+  I klinisk kunnskapsforvaltning må vi designe, forvalte og produksjonssette openEHR-templat. Til dette bruker vi tre spesialiserte miljøer:
+  </p>
+
+  <ol>
+    <li>Et miljø for å <strong>designe og redigere</strong> arketyper og templat.</li>
+    <li>Et miljø for å <strong>forvalte, kvalitetssikre og publisere</strong> modellene som lages.</li>
+    <li>Et miljø for å <strong>lagre</strong> templatene og <strong>persistere</strong> komposisjonene som bygger på dem.</li>
+  </ol>
+
+  <p>I praksis benytter vi:</p>
+
+  <ul>
+    <li>
+      <strong>Modellering og forfatterskap:</strong> <a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">openEHR Archetype Designer</a> levert av Better, som er gratis og nettleserbasert.
+    </li>
+    <li>
+      <strong>Forvaltning og publisering:</strong> En lokal eller nasjonal <a href="https://ckm.salut.gencat.cat/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a>.
+    </li>
+    <li>
+      <strong>Produksjon og datalagring:</strong> Et klinisk datalager (CDR), i vårt tilfelle basert på HIP EHRbase fra vitagroup. For læring og testing kan du benytte den åpne <a href="https://sandkiste.ehrbase.org/" target="_blank" rel="noopener noreferrer">EHRbase-sandkassen</a>.
+    </li>
+  </ul>
+
+  <figure class="figure">
+    <img src="images/Pasted image 20261019145141.png" alt="Typisk økosystem for kliniske kunnskapsmodellerere i openEHR" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Figur 1.12: Det typiske arbeidsøkosystemet for kliniske kunnskapsmodellerere i openEHR med de viktigste byggesteinene.</em>
+    </figcaption>
+  </figure>
+
+  <h2>Et raskt blikk inn i CDR-et</h2>
+
+  <p>Det kliniske datalageret (CDR) utgjør selve hjertet i informasjonsflyten. Det er her vi lagrer de kliniske dataene og templatene. CDR-et håndterer også tilgangskontroll og styrer mottak og utlevering av data via standardiserte API-er.</p>
+
+  <p><strong>Et avgjørende prinsipp:</strong>
+  Når helsepersonell bruker en applikasjon for å se pasientopplysninger, kan dataene stamme fra helt ulike kilder – som et dokumentsenter, en terminologitjener eller det sentrale pasientregisteret (Master Patient Index, MPI).</p>
+
+  <p>Som kunnskapsmodellerere må vi være svært bevisste på grensene: Kun de faktiske kliniske dataene skal modelleres i openEHR-CDR-et. Direkte pasientidentifiserende opplysninger (som navn og folkeregistrert adresse) lagres ikke i openEHR-CDR-et, men refereres fra pasientregisteret.
+  </p>
+
+  <figure class="figure">
+    <img src="images/Pasted image 20261019145220.png" alt="Hva klinikeren ser" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Figur 1.13: Det er viktig å ikke modellere all informasjon som vises på skjermen i openEHR. Enkelte opplysninger hentes fra andre kilder.</em>
+    </figcaption>
+  </figure>
+
+  <h2>Organisering i CDR-et (EHR, komposisjoner, templat osv.)</h2>
+
+  <p>I starten kan det være vrient å skille templat, komposisjoner og contributions fra hverandre. En enkel analogi gjør det lettere å forstå.</p>
+
+  <p>Vi kan forestille oss openEHR-CDR-et som et stort arkivskap. Hovedoppgaven er å oppbevare data trygt og gjøre det enkelt å finne dem igjen.</p>
+
+  <figure class="figure">
+    <img src="images/cdr_drawer_analogy.png" alt="CDR som arkivskap" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+    <figcaption>
+      <em>Figur 1.14: CDR-et som et arkivskap: En analogi som hjelper til med å forstå håndteringen av EHR, komposisjoner og templat.</em>
+    </figcaption>
+  </figure>
+
+  <p>En pasients journaldata samles i CDR-et i en <strong>Electronic Health Record (EHR)</strong>. Hver pasient har nøyaktig én livslang pasientjournal. Tenk på denne journalen som pasientens personlige hovedmappe i det digitale arkivskapet. Den identifiseres med en unik, pseudonym identifikator (<code>ehr_id</code>), som holder helseopplysningene adskilt fra direkte demografiske personopplysninger. Alle komposisjoner og bidrag som registreres gjennom hele pasientens levetid, legges i denne ene felles EHR-mappen.</p>
+
+  <p>Ved siden av pasientmappene oppbevarer arkivskapet <strong>templatene</strong>. Hvert templat er et regelsett for hvordan en bestemt journaloppføring skal bygges opp (f.eks. en førstegangskonsultasjon, et laboratoriesvar eller et pasientrapportert spørreskjema). Templatet fylles aldri ut og endres aldri under drift; det oppbevares separat fra pasientdataene som en ren strukturell mal.</p>
+
+  <p>
+  Når en behandler dokumenterer helsehjelp for pasienten, opprettes et dokument i tråd med templatets regler. Dette dokumentet kalles en <strong>komposisjon</strong> og tilsvarer et utfylt skjema som sendes til CDR-et for arkivering.</p>
+
+  <p>Når det sendes inn, registreres versjonen. Denne versjoneringen sikrer at vi kan opprette, korrigere eller endre status på dokumenter uten at historiske data noen gang overskrives eller slettes.</p>
+
+  <p>For å plassere den versjonerte komposisjonen i pasientens journal, pakkes den inn i en konvolutt kalt en <strong>contribution</strong>. Denne fungerer som den transaksjonelle enheten: Den kan inneholde én eller flere komposisjoner, slik at et sett med relaterte oppføringer lagres samlet i én udelt handling.</p>
+
+  <p>Dataene som er lagret i komposisjonene kan hentes ut ved hjelp av <strong>Archetype Query Language (AQL)</strong>. Dette kan gjøres gjennom ad hoc-spørringer eller via forhåndsdefinerte AQL-spørringer som er lagret direkte i CDR-et. I produksjonsmiljøer er det best praksis å styre forhåndsdefinerte, testede og godkjente AQL-er fremfor å tillate fri kjøring av vilkårlige spørringer.</p>
+
+  <h1>AQL-spørringer – hent dataene dine tilbake</h1>
+
+  <p>Når en komposisjon er lagret i CDR-et, melder spørsmålet seg: Hvordan henter vi ut dataene igjen? Én mulighet er å hente ut hele komposisjonen, men det forutsetter at du kjenner dens nøyaktige, unike identifikator.</p>
+
+  <p>Dersom vi ikke kjenner identifikatoren, eller ønsker å søke etter spesifikke kliniske verdier på tvers av mange komposisjoner, bruker vi et eget spørrespråk: <strong>Archetype Query Language</strong> (AQL). AQL ligner mye på SQL, som du kanskje kjenner fra relasjonsdatabaser.</p>
+
+  <p>
+  Uten å gå for dypt inn i teknikken her, gir <strong>AQL</strong> oss muligheten til å hente ut presise kliniske data fra CDR-et med høy semantisk nøyaktighet. For eksempel:
+  </p>
+
+  <h3>For en enkeltpasient:</h3>
+  <ul>
+    <li>Gi meg en liste over alle komposisjoner som er lagret for pasienten.</li>
+    <li>Gi meg alle blodtrykksmålinger for pasienten, kronologisk sortert.</li>
+    <li>Gi meg en oversikt over pasientens aktive allergier.</li>
+  </ul>
+
+  <h3>For en pasientpopulasjon:</h3>
+  <ul>
+    <li>
+      Gi meg alle blodtrykksmålinger for mannlige pasienter over 50 år med en KMI (BMI) høyere enn 26,2 kg/m².
+    </li>
+  </ul>
+
+  <p>
+  Mens enkle spørringer på én pasient går lynraskt, krever spørringer på tvers av store populasjoner betydelig med regnekraft. Det er nettopp derfor vi som kliniske kunnskapsmodellerere må forstå AQL: Vi må designe modellene våre slik at data ikke bare lagres strukturert, men også kan gjenfinnes og hentes ut raskt og effektivt.
+  </p>
+
+</section>

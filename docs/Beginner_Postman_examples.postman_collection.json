@@ -1,0 +1,479 @@
+{
+  "info": {
+    "_postman_id": "f6ddd7d3-5c0b-4a86-9a36-3451d57de7b2",
+    "name": "Beginner Postman examples",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "27091878"
+  },
+  "item": [
+    {
+      "name": "Get server info",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/status",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get list of stored templates",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "definition",
+            "template",
+            "adl1.4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send OPT template",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Prefer",
+            "value": "return=representation"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\r\n<template xmlns=\"http://schemas.openehr.org/v1\">\r\n    <language>\r\n        <terminology_id>\r\n            <value>ISO_639-1</value>\r\n        </terminology_id>\r\n        <code_string>en</code_string>\r\n    </language>\r\n    <description>\r\n        <original_author id=\"date\">2026-10-20</original_author>\r\n        <lifecycle_state>unmanaged</lifecycle_state>\r\n        <other_details id=\"licence\"></other_details>\r\n        <other_details id=\"custodian_organisation\"></other_details>\r\n        <other_details id=\"original_namespace\"></other_details>\r\n        <other_details id=\"original_publisher\"></other_details>\r\n        <other_details id=\"custodian_namespace\"></other_details>\r\n        <other_details id=\"sem_ver\">0.1.1</other_details>\r\n        <other_details id=\"build_uid\"></other_details>\r\n        <other_details id=\"MD5-CAM-1.0.1\">8d778509e0ec5758d0cd586d01d39347</other_details>\r\n        <other_details id=\"PARENT:MD5-CAM-1.0.1\">6480464245e4bbce0fbaef715ee2e022</other_details>\r\n        <details>\r\n            <language>\r\n                <terminology_id>\r\n                    <value>ISO_639-1</value>\r\n                </terminology_id>\r\n                <code_string>en</code_string>\r\n            </language>\r\n            <purpose>Not Specified</purpose>\r\n        </details>\r\n    </description>\r\n    <uid>\r\n        <value>265383e5-bbd7-4eb0-bcfe-88bc00fd5a67</value>\r\n    </uid>\r\n    <template_id>\r\n        <value>Kitchen_And_Delivery_Tracker_v0</value>\r\n    </template_id>\r\n    <concept>Kitchen_And_Delivery_Tracker_v0</concept>\r\n    <definition>\r\n        <rm_type_name>COMPOSITION</rm_type_name>\r\n        <occurrences>\r\n            <lower_included>true</lower_included>\r\n            <upper_included>true</upper_included>\r\n            <lower_unbounded>false</lower_unbounded>\r\n            <upper_unbounded>false</upper_unbounded>\r\n            <lower>1</lower>\r\n            <upper>1</upper>\r\n        </occurrences>\r\n        <node_id>at0000</node_id>\r\n        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n            <rm_attribute_name>category</rm_attribute_name>\r\n            <existence>\r\n                <lower_included>true</lower_included>\r\n                <upper_included>true</upper_included>\r\n                <lower_unbounded>false</lower_unbounded>\r\n                <upper_unbounded>false</upper_unbounded>\r\n                <lower>1</lower>\r\n                <upper>1</upper>\r\n            </existence>\r\n            <match_negated>false</match_negated>\r\n            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                <occurrences>\r\n                    <lower_included>true</lower_included>\r\n                    <upper_included>true</upper_included>\r\n                    <lower_unbounded>false</lower_unbounded>\r\n                    <upper_unbounded>false</upper_unbounded>\r\n                    <lower>1</lower>\r\n                    <upper>1</upper>\r\n                </occurrences>\r\n                <node_id></node_id>\r\n                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                    <existence>\r\n                        <lower_included>true</lower_included>\r\n                        <upper_included>true</upper_included>\r\n                        <lower_unbounded>false</lower_unbounded>\r\n                        <upper_unbounded>false</upper_unbounded>\r\n                        <lower>1</lower>\r\n                        <upper>1</upper>\r\n                    </existence>\r\n                    <match_negated>false</match_negated>\r\n                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <terminology_id>\r\n                            <value>openehr</value>\r\n                        </terminology_id>\r\n                        <code_list>433</code_list>\r\n                    </children>\r\n                </attributes>\r\n            </children>\r\n        </attributes>\r\n        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n            <rm_attribute_name>context</rm_attribute_name>\r\n            <existence>\r\n                <lower_included>true</lower_included>\r\n                <upper_included>true</upper_included>\r\n                <lower_unbounded>false</lower_unbounded>\r\n                <upper_unbounded>false</upper_unbounded>\r\n                <lower>0</lower>\r\n                <upper>1</upper>\r\n            </existence>\r\n            <match_negated>false</match_negated>\r\n            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                <rm_type_name>EVENT_CONTEXT</rm_type_name>\r\n                <occurrences>\r\n                    <lower_included>true</lower_included>\r\n                    <upper_included>true</upper_included>\r\n                    <lower_unbounded>false</lower_unbounded>\r\n                    <upper_unbounded>false</upper_unbounded>\r\n                    <lower>1</lower>\r\n                    <upper>1</upper>\r\n                </occurrences>\r\n                <node_id></node_id>\r\n            </children>\r\n        </attributes>\r\n        <attributes xsi:type=\"C_MULTIPLE_ATTRIBUTE\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\r\n            <rm_attribute_name>content</rm_attribute_name>\r\n            <existence>\r\n                <lower_included>true</lower_included>\r\n                <upper_included>true</upper_included>\r\n                <lower_unbounded>false</lower_unbounded>\r\n                <upper_unbounded>false</upper_unbounded>\r\n                <lower>0</lower>\r\n                <upper>1</upper>\r\n            </existence>\r\n            <match_negated>false</match_negated>\r\n            <children xsi:type=\"C_ARCHETYPE_ROOT\">\r\n                <rm_type_name>ACTION</rm_type_name>\r\n                <occurrences>\r\n                    <lower_included>true</lower_included>\r\n                    <upper_included>true</upper_included>\r\n                    <lower_unbounded>false</lower_unbounded>\r\n                    <upper_unbounded>false</upper_unbounded>\r\n                    <lower>0</lower>\r\n                    <upper>1</upper>\r\n                </occurrences>\r\n                <node_id>at0000</node_id>\r\n                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                    <rm_attribute_name>description</rm_attribute_name>\r\n                    <existence>\r\n                        <lower_included>true</lower_included>\r\n                        <upper_included>true</upper_included>\r\n                        <lower_unbounded>false</lower_unbounded>\r\n                        <upper_unbounded>false</upper_unbounded>\r\n                        <lower>1</lower>\r\n                        <upper>1</upper>\r\n                    </existence>\r\n                    <match_negated>false</match_negated>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ITEM_TREE</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id>at0007</node_id>\r\n                        <attributes xsi:type=\"C_MULTIPLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>items</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>ELEMENT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id>at0008</node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>value</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>0</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_DV_QUANTITY\">\r\n                                        <rm_type_name>DV_QUANTITY</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <property>\r\n                                            <terminology_id>\r\n                                                <value>openehr</value>\r\n                                            </terminology_id>\r\n                                            <code_string>127</code_string>\r\n                                        </property>\r\n                                        <list>\r\n                                            <units>Cel</units>\r\n                                        </list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>ELEMENT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id>at0009</node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>value</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>0</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                        <rm_type_name>DV_TEXT</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                            <children xsi:type=\"C_ARCHETYPE_ROOT\">\r\n                                <rm_type_name>CLUSTER</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id>at0000</node_id>\r\n                                <attributes xsi:type=\"C_MULTIPLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>items</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                        <rm_type_name>ELEMENT</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>0</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id>at0001</node_id>\r\n                                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                            <rm_attribute_name>value</rm_attribute_name>\r\n                                            <existence>\r\n                                                <lower_included>true</lower_included>\r\n                                                <upper_included>true</upper_included>\r\n                                                <lower_unbounded>false</lower_unbounded>\r\n                                                <upper_unbounded>false</upper_unbounded>\r\n                                                <lower>0</lower>\r\n                                                <upper>1</upper>\r\n                                            </existence>\r\n                                            <match_negated>false</match_negated>\r\n                                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                                <occurrences>\r\n                                                    <lower_included>true</lower_included>\r\n                                                    <upper_included>true</upper_included>\r\n                                                    <lower_unbounded>false</lower_unbounded>\r\n                                                    <upper_unbounded>false</upper_unbounded>\r\n                                                    <lower>1</lower>\r\n                                                    <upper>1</upper>\r\n                                                </occurrences>\r\n                                                <node_id></node_id>\r\n                                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                                    <existence>\r\n                                                        <lower_included>true</lower_included>\r\n                                                        <upper_included>true</upper_included>\r\n                                                        <lower_unbounded>false</lower_unbounded>\r\n                                                        <upper_unbounded>false</upper_unbounded>\r\n                                                        <lower>1</lower>\r\n                                                        <upper>1</upper>\r\n                                                    </existence>\r\n                                                    <match_negated>false</match_negated>\r\n                                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                                        <occurrences>\r\n                                                            <lower_included>true</lower_included>\r\n                                                            <upper_included>true</upper_included>\r\n                                                            <lower_unbounded>false</lower_unbounded>\r\n                                                            <upper_unbounded>false</upper_unbounded>\r\n                                                            <lower>1</lower>\r\n                                                            <upper>1</upper>\r\n                                                        </occurrences>\r\n                                                        <node_id></node_id>\r\n                                                        <terminology_id>\r\n                                                            <value>local</value>\r\n                                                        </terminology_id>\r\n                                                        <code_list>at0006</code_list>\r\n                                                        <code_list>at0007</code_list>\r\n                                                        <code_list>at0008</code_list>\r\n                                                    </children>\r\n                                                </attributes>\r\n                                            </children>\r\n                                        </attributes>\r\n                                    </children>\r\n                                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                        <rm_type_name>ELEMENT</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>0</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id>at0002</node_id>\r\n                                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                            <rm_attribute_name>value</rm_attribute_name>\r\n                                            <existence>\r\n                                                <lower_included>true</lower_included>\r\n                                                <upper_included>true</upper_included>\r\n                                                <lower_unbounded>false</lower_unbounded>\r\n                                                <upper_unbounded>false</upper_unbounded>\r\n                                                <lower>0</lower>\r\n                                                <upper>1</upper>\r\n                                            </existence>\r\n                                            <match_negated>false</match_negated>\r\n                                            <children xsi:type=\"C_DV_ORDINAL\">\r\n                                                <rm_type_name>DV_ORDINAL</rm_type_name>\r\n                                                <occurrences>\r\n                                                    <lower_included>true</lower_included>\r\n                                                    <upper_included>true</upper_included>\r\n                                                    <lower_unbounded>false</lower_unbounded>\r\n                                                    <upper_unbounded>false</upper_unbounded>\r\n                                                    <lower>1</lower>\r\n                                                    <upper>1</upper>\r\n                                                </occurrences>\r\n                                                <node_id></node_id>\r\n                                                <list>\r\n                                                    <value>1</value>\r\n                                                    <symbol>\r\n                                                        <defining_code>\r\n                                                            <terminology_id>\r\n                                                                <value>local</value>\r\n                                                            </terminology_id>\r\n                                                            <code_string>at0003</code_string>\r\n                                                        </defining_code>\r\n                                                    </symbol>\r\n                                                </list>\r\n                                                <list>\r\n                                                    <value>2</value>\r\n                                                    <symbol>\r\n                                                        <defining_code>\r\n                                                            <terminology_id>\r\n                                                                <value>local</value>\r\n                                                            </terminology_id>\r\n                                                            <code_string>at0004</code_string>\r\n                                                        </defining_code>\r\n                                                    </symbol>\r\n                                                </list>\r\n                                                <list>\r\n                                                    <value>3</value>\r\n                                                    <symbol>\r\n                                                        <defining_code>\r\n                                                            <terminology_id>\r\n                                                                <value>local</value>\r\n                                                            </terminology_id>\r\n                                                            <code_string>at0005</code_string>\r\n                                                        </defining_code>\r\n                                                    </symbol>\r\n                                                </list>\r\n                                            </children>\r\n                                        </attributes>\r\n                                    </children>\r\n                                    <cardinality>\r\n                                        <is_ordered>false</is_ordered>\r\n                                        <is_unique>false</is_unique>\r\n                                        <interval>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>false</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>true</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                        </interval>\r\n                                    </cardinality>\r\n                                </attributes>\r\n                                <archetype_id>\r\n                                    <value>openEHR-EHR-CLUSTER.pizza_topping.v0</value>\r\n                                </archetype_id>\r\n                                <term_definitions code=\"at0000\">\r\n                                    <items id=\"text\">pizza_topping</items>\r\n                                    <items id=\"description\">pizza_topping</items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0001\">\r\n                                    <items id=\"text\">Topping Name</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0002\">\r\n                                    <items id=\"text\">Amount</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0003\">\r\n                                    <items id=\"text\">Regular</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0004\">\r\n                                    <items id=\"text\">Double</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0005\">\r\n                                    <items id=\"text\">Triple</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0006\">\r\n                                    <items id=\"text\">Mushrooms</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0007\">\r\n                                    <items id=\"text\">Extra Mozzarella</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                                <term_definitions code=\"at0008\">\r\n                                    <items id=\"text\">Jalapeños</items>\r\n                                    <items id=\"description\"></items>\r\n                                </term_definitions>\r\n                            </children>\r\n                            <cardinality>\r\n                                <is_ordered>false</is_ordered>\r\n                                <is_unique>false</is_unique>\r\n                                <interval>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>false</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>true</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                </interval>\r\n                            </cardinality>\r\n                        </attributes>\r\n                    </children>\r\n                </attributes>\r\n                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                    <rm_attribute_name>protocol</rm_attribute_name>\r\n                    <existence>\r\n                        <lower_included>true</lower_included>\r\n                        <upper_included>true</upper_included>\r\n                        <lower_unbounded>false</lower_unbounded>\r\n                        <upper_unbounded>false</upper_unbounded>\r\n                        <lower>0</lower>\r\n                        <upper>1</upper>\r\n                    </existence>\r\n                    <match_negated>false</match_negated>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ITEM_TREE</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id>at0006</node_id>\r\n                        <attributes xsi:type=\"C_MULTIPLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>items</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>ELEMENT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id>at0011</node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>value</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>0</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                        <rm_type_name>DV_IDENTIFIER</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                            <cardinality>\r\n                                <is_ordered>false</is_ordered>\r\n                                <is_unique>false</is_unique>\r\n                                <interval>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>false</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>true</upper_unbounded>\r\n                                    <lower>0</lower>\r\n                                </interval>\r\n                            </cardinality>\r\n                        </attributes>\r\n                    </children>\r\n                </attributes>\r\n                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                    <rm_attribute_name>ism_transition</rm_attribute_name>\r\n                    <existence>\r\n                        <lower_included>true</lower_included>\r\n                        <upper_included>true</upper_included>\r\n                        <lower_unbounded>false</lower_unbounded>\r\n                        <upper_unbounded>false</upper_unbounded>\r\n                        <lower>1</lower>\r\n                        <upper>1</upper>\r\n                    </existence>\r\n                    <match_negated>false</match_negated>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ISM_TRANSITION</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>current_state</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>1</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>openehr</value>\r\n                                        </terminology_id>\r\n                                        <code_list>526</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>careflow_step</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>local</value>\r\n                                        </terminology_id>\r\n                                        <code_list>at0001</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                    </children>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ISM_TRANSITION</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>current_state</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>1</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>openehr</value>\r\n                                        </terminology_id>\r\n                                        <code_list>524</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>careflow_step</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>local</value>\r\n                                        </terminology_id>\r\n                                        <code_list>at0002</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                    </children>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ISM_TRANSITION</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>current_state</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>1</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>openehr</value>\r\n                                        </terminology_id>\r\n                                        <code_list>245</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>careflow_step</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>local</value>\r\n                                        </terminology_id>\r\n                                        <code_list>at0003</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                    </children>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ISM_TRANSITION</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>current_state</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>1</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>openehr</value>\r\n                                        </terminology_id>\r\n                                        <code_list>532</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>careflow_step</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>local</value>\r\n                                        </terminology_id>\r\n                                        <code_list>at0004</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                    </children>\r\n                    <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                        <rm_type_name>ISM_TRANSITION</rm_type_name>\r\n                        <occurrences>\r\n                            <lower_included>true</lower_included>\r\n                            <upper_included>true</upper_included>\r\n                            <lower_unbounded>false</lower_unbounded>\r\n                            <upper_unbounded>false</upper_unbounded>\r\n                            <lower>1</lower>\r\n                            <upper>1</upper>\r\n                        </occurrences>\r\n                        <node_id></node_id>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>current_state</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>1</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>openehr</value>\r\n                                        </terminology_id>\r\n                                        <code_list>528</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                        <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                            <rm_attribute_name>careflow_step</rm_attribute_name>\r\n                            <existence>\r\n                                <lower_included>true</lower_included>\r\n                                <upper_included>true</upper_included>\r\n                                <lower_unbounded>false</lower_unbounded>\r\n                                <upper_unbounded>false</upper_unbounded>\r\n                                <lower>0</lower>\r\n                                <upper>1</upper>\r\n                            </existence>\r\n                            <match_negated>false</match_negated>\r\n                            <children xsi:type=\"C_COMPLEX_OBJECT\">\r\n                                <rm_type_name>DV_CODED_TEXT</rm_type_name>\r\n                                <occurrences>\r\n                                    <lower_included>true</lower_included>\r\n                                    <upper_included>true</upper_included>\r\n                                    <lower_unbounded>false</lower_unbounded>\r\n                                    <upper_unbounded>false</upper_unbounded>\r\n                                    <lower>1</lower>\r\n                                    <upper>1</upper>\r\n                                </occurrences>\r\n                                <node_id></node_id>\r\n                                <attributes xsi:type=\"C_SINGLE_ATTRIBUTE\">\r\n                                    <rm_attribute_name>defining_code</rm_attribute_name>\r\n                                    <existence>\r\n                                        <lower_included>true</lower_included>\r\n                                        <upper_included>true</upper_included>\r\n                                        <lower_unbounded>false</lower_unbounded>\r\n                                        <upper_unbounded>false</upper_unbounded>\r\n                                        <lower>1</lower>\r\n                                        <upper>1</upper>\r\n                                    </existence>\r\n                                    <match_negated>false</match_negated>\r\n                                    <children xsi:type=\"C_CODE_PHRASE\">\r\n                                        <rm_type_name>CODE_PHRASE</rm_type_name>\r\n                                        <occurrences>\r\n                                            <lower_included>true</lower_included>\r\n                                            <upper_included>true</upper_included>\r\n                                            <lower_unbounded>false</lower_unbounded>\r\n                                            <upper_unbounded>false</upper_unbounded>\r\n                                            <lower>1</lower>\r\n                                            <upper>1</upper>\r\n                                        </occurrences>\r\n                                        <node_id></node_id>\r\n                                        <terminology_id>\r\n                                            <value>local</value>\r\n                                        </terminology_id>\r\n                                        <code_list>at0005</code_list>\r\n                                    </children>\r\n                                </attributes>\r\n                            </children>\r\n                        </attributes>\r\n                    </children>\r\n                </attributes>\r\n                <archetype_id>\r\n                    <value>openEHR-EHR-ACTION.pizza_preparation.v0</value>\r\n                </archetype_id>\r\n                <term_definitions code=\"at0000\">\r\n                    <items id=\"text\">pizza_preparation</items>\r\n                    <items id=\"description\">pizza_preparation</items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0001\">\r\n                    <items id=\"text\">Planned</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0002\">\r\n                    <items id=\"text\">In Oven</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0003\">\r\n                    <items id=\"text\">Dispatched</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0004\">\r\n                    <items id=\"text\">Delivered</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0005\">\r\n                    <items id=\"text\">Cancelled</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0006\">\r\n                    <items id=\"text\">Item tree</items>\r\n                    <items id=\"description\">@ internal @</items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0007\">\r\n                    <items id=\"text\">Item tree</items>\r\n                    <items id=\"description\">@ internal @</items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0008\">\r\n                    <items id=\"text\">Baking Temperature</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0009\">\r\n                    <items id=\"text\">Notes</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0010\">\r\n                    <items id=\"text\">Toppings Verified</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"at0011\">\r\n                    <items id=\"text\">Order ID</items>\r\n                    <items id=\"description\"></items>\r\n                </term_definitions>\r\n                <term_definitions code=\"Cel\">\r\n                    <items id=\"text\">°C</items>\r\n                    <items id=\"description\">degrees Celsius</items>\r\n                </term_definitions>\r\n            </children>\r\n            <cardinality>\r\n                <is_ordered>false</is_ordered>\r\n                <is_unique>false</is_unique>\r\n                <interval>\r\n                    <lower_included>true</lower_included>\r\n                    <upper_included>false</upper_included>\r\n                    <lower_unbounded>false</lower_unbounded>\r\n                    <upper_unbounded>true</upper_unbounded>\r\n                    <lower>1</lower>\r\n                </interval>\r\n            </cardinality>\r\n        </attributes>\r\n        <archetype_id>\r\n            <value>openEHR-EHR-COMPOSITION.example_base.v0</value>\r\n        </archetype_id>\r\n        <template_id>\r\n            <value>Kitchen_And_Delivery_Tracker_v0</value>\r\n        </template_id>\r\n        <term_definitions code=\"at0000\">\r\n            <items id=\"text\">Kitchen_And_Delivery_Tracker_v0</items>\r\n            <items id=\"description\">example_base</items>\r\n        </term_definitions>\r\n    </definition>\r\n</template>\r\n",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "definition",
+            "template",
+            "adl1.4"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get OPT template",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/xml"
+          }
+        ],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "definition",
+            "template",
+            "adl1.4",
+            ":template_id"
+          ],
+          "variable": [
+            {
+              "key": "template_id",
+              "value": "Vital Signs"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get example composition",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id/example?format=JSON",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "definition",
+            "template",
+            "adl1.4",
+            ":template_id",
+            "example"
+          ],
+          "query": [
+            {
+              "key": "format",
+              "value": "JSON"
+            }
+          ],
+          "variable": [
+            {
+              "key": "template_id",
+              "value": "Customer_Review_v0"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create an EHR",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Prefer",
+            "value": "return=representation"
+          }
+        ],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "ehr"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Send composition",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Prefer",
+            "value": "return=representation"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\"_type\": \"COMPOSITION\",\r\n\"name\": {\r\n\t\"_type\": \"DV_TEXT\",\r\n\t\"value\": \"vital_signs2\"\r\n},\r\n\"archetype_details\": {\r\n\t\"_type\": \"ARCHETYPED\",\r\n\t\"archetype_id\": {\r\n\t\t\"_type\": \"ARCHETYPE_ID\",\r\n\t\t\"value\": \"openEHR-EHR-COMPOSITION.encounter.v1\"\r\n\t},\r\n\t\"template_id\": {\r\n\t\t\"_type\": \"TEMPLATE_ID\",\r\n\t\t\"value\": \"Vital signs\"\r\n\t},\r\n\t\"rm_version\": \"1.1.0\"\r\n},\r\n\"language\": {\r\n\t\"_type\": \"CODE_PHRASE\",\r\n\t\"terminology_id\": {\r\n\t\t\"_type\": \"TERMINOLOGY_ID\",\r\n\t\t\"value\": \"ISO_639-1\"\r\n\t},\r\n\t\"code_string\": \"en\"\r\n},\r\n\"territory\": {\r\n\t\"_type\": \"CODE_PHRASE\",\r\n\t\"terminology_id\": {\r\n\t\t\"_type\": \"TERMINOLOGY_ID\",\r\n\t\t\"value\": \"ISO_3166-1\"\r\n\t},\r\n\t\"code_string\": \"ES\"\r\n},\r\n\"category\": {\r\n\t\"_type\": \"DV_CODED_TEXT\",\r\n\t\"value\": \"event\",\r\n\t\"defining_code\": {\r\n\t\t\"_type\": \"CODE_PHRASE\",\r\n\t\t\"terminology_id\": {\r\n\t\t\t\"_type\": \"TERMINOLOGY_ID\",\r\n\t\t\t\"value\": \"openehr\"\r\n\t\t},\r\n\t\t\"code_string\": \"433\"\r\n\t}\r\n},\r\n\"composer\": {\r\n\t\"_type\": \"PARTY_IDENTIFIED\",\r\n\t\"name\": \"Max Mustermann\"\r\n},\r\n\"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "ehr",
+            ":ehr_id",
+            "composition"
+          ],
+          "variable": [
+            {
+              "key": "ehr_id",
+              "value": "e0d20a46-98d8-450b-9c63-de45bda6fe5d"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get a composition by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "ehr",
+            ":ehr_id",
+            "composition",
+            ":composition_id"
+          ],
+          "variable": [
+            {
+              "key": "ehr_id",
+              "value": "e0d20a46-98d8-450b-9c63-de45bda6fe5d"
+            },
+            {
+              "key": "composition_id",
+              "value": "c9214ddc-97eb-4c19-821a-e0aee11d3043"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update existing composition",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "If-Match",
+            "value": "c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::2"
+          },
+          {
+            "key": "Prefer",
+            "value": "return=representation"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"_type\": \"COMPOSITION\",\r\n    \"name\": {\r\n        \"_type\": \"DV_TEXT\",\r\n        \"value\": \"vital_signs2\"\r\n    },\r\n    \"archetype_details\": {\r\n        \"archetype_id\": {\r\n            \"value\": \"openEHR-EHR-COMPOSITION.encounter.v1\"\r\n        },\r\n        \"template_id\": {\r\n            \"value\": \"Vital signs\"\r\n        },\r\n        \"rm_version\": \"1.1.0\"\r\n    },\r\n    \"language\": {\r\n        \"_type\": \"CODE_PHRASE\",\r\n        \"terminology_id\": {\r\n            \"_type\": \"TERMINOLOGY_ID\",\r\n            \"value\": \"ISO_639-1\"\r\n        },\r\n        \"code_string\": \"en\"\r\n    },\r\n    \"territory\": {\r\n        \"_type\": \"CODE_PHRASE\",\r\n        \"terminology_id\": {\r\n            \"_type\": \"TERMINOLOGY_ID\",\r\n            \"value\": \"ISO_3166-1\"\r\n        },\r\n        \"code_string\": \"ES\"\r\n    },\r\n    \"category\": {\r\n        \"_type\": \"DV_CODED_TEXT\",\r\n        \"value\": \"event\",\r\n        \"defining_code\": {\r\n            \"_type\": \"CODE_PHRASE\",\r\n            \"terminology_id\": {\r\n                \"_type\": \"TERMINOLOGY_ID\",\r\n                \"value\": \"openehr\"\r\n            },\r\n            \"code_string\": \"433\"\r\n        }\r\n    },\r\n    \"composer\": {\r\n        \"_type\": \"PARTY_IDENTIFIED\",\r\n        \"name\": \"Hello World\"\r\n    },\r\n    \"archetype_node_id\": \"openEHR-EHR-COMPOSITION.encounter.v1\",\r\n    \"uid\": {\r\n        \"_type\": \"OBJECT_VERSION_ID\",\r\n        \"value\": \"c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1\"\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "ehr",
+            ":ehr_id",
+            "composition",
+            ":composition_id"
+          ],
+          "variable": [
+            {
+              "key": "ehr_id",
+              "value": "e0d20a46-98d8-450b-9c63-de45bda6fe5d"
+            },
+            {
+              "key": "composition_id",
+              "value": "c9214ddc-97eb-4c19-821a-e0aee11d3043"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AQL1 List all orders",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"q\": \"SELECT c/uid/value FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value='7fab0168-e79f-456f-b271-02050dabaa43' AND c/archetype_details/template_id/value='Online_Customer_Order_v0'\" \r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "query",
+            "aql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AQL2 List all order status",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"q\": \"SELECT c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]/value/id, c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition/current_state/value FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id\",\r\n    \"offset\": 0,\r\n    \"fetch\": 100,\r\n    \"query_parameters\": {\r\n        \"ehr_id\": \"7fab0168-e79f-456f-b271-02050dabaa43\",\r\n        \"template_id\": \"Kitchen_And_Delivery_Tracker_v0\"\r\n    }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "query",
+            "aql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AQL3a Get order id and pizza names",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\r\n \"q\": \"SELECT c/uid/value AS order_id, c/content[openEHR-EHR-INSTRUCTION.pizza_order.v0]/activities[at0001]/description[at0002]/items[at0004]/value/value as pizza_name FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id\",\r\n \"offset\": 0,\r\n \"fetch\": 100,\r\n \"query_parameters\": {\r\n\t\t\"ehr_id\": \"7fab0168-e79f-456f-b271-02050dabaa43\",\r\n        \"template_id\": \"Online_Customer_Order_v0\"\r\n }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "query",
+            "aql"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AQL3b Get order id and rating",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n \"q\": \"SELECT c/content[openEHR-EHR-EVALUATION.customer_review.v0]/protocol[at0001]/items[at0002]/value/id AS order_id, c/content[openEHR-EHR-EVALUATION.customer_review.v0]/data[at0003]/items[at0005]/value/magnitude as rating FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id\",\r\n \"offset\": 0,\r\n \"fetch\": 100,\r\n \"query_parameters\": {\r\n\t\t\"ehr_id\": \"7fab0168-e79f-456f-b271-02050dabaa43\",\r\n        \"template_id\": \"Customer_Review_v0\"\r\n }\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql",
+          "protocol": "https",
+          "host": [
+            "sandkiste",
+            "ehrbase",
+            "org"
+          ],
+          "path": [
+            "ehrbase",
+            "rest",
+            "openehr",
+            "v1",
+            "query",
+            "aql"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
