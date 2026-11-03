@@ -75,7 +75,7 @@
   <p class="img-caption">Abbildung 3.1: Die grafische Benutzeroberfläche von Postman.</p>
 </div>
 
-<h3>Zentrale HTTP-Verben in openEHR</h3>
+<h3>Wichtige HTTP-Verben</h3>
 
 <p>Um dem CDR mitzuteilen, was mit der Anfrage bezweckt wird, stehen verschiedene HTTP-Verben zur Verfügung: GET, POST, PUT, DELETE, PATCH. Für all unsere Praxisbeispiele beschränken wir uns auf <code>GET</code>, <code>POST</code> und <code>PUT</code>. Den vollen Funktionsumfang entnehmen Sie bitte der EHRbase-Dokumentation.</p>
 
@@ -111,6 +111,19 @@
 <p>
   Als Basisprüfung, ob das CDR läuft und erreichbar ist, rufen wir den Status-Endpunkt des Servers auf. Die Antwort <code>200 OK</code> bestätigt die Betriebsbereitschaft.
 </p>
+
+<p>
+  Da wir das API-Werkzeug zum ersten Mal verwenden, um eine Anfrage zu senden, gehen wir die Schritte einmal gemeinsam durch:
+</p>
+<ol>
+  <li>Erstellen Sie eine Sammlung (Collection) in der linken Seitenleiste (falls noch nicht geschehen).</li>
+  <li>Fügen Sie Ihrer Sammlung eine neue Anfrage (Request) hinzu.</li>
+  <li>Wählen Sie im zentralen Request-Bereich <code>GET</code> aus dem Methoden-Dropdown links neben der URL-Eingabezeile aus.</li>
+  <li>Geben Sie in die URL-Zeile <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code> ein.</li>
+  <li>Klicken Sie durch die Reiter unter der URL-Zeile („Params“, „Headers“ und „Body“). Für diese Abfrage müssen wir hier nichts eintragen, aber es hilft, die Struktur zu sehen. Beachten Sie, dass unter „Headers“ Schlüssel-Wert-Paare (Key-Value) gepflegt werden, die wir in späteren Beispielen benötigen.</li>
+  <li>Klicken Sie rechts neben der URL-Zeile auf die Schaltfläche <strong>Send</strong>.</li>
+  <li>Nach einem kurzen Moment wird die Antwort des Servers im unteren Bereich der Benutzeroberfläche angezeigt.</li>
+</ol>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>

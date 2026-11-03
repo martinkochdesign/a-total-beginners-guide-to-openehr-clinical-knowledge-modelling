@@ -75,7 +75,7 @@
   <p class="img-caption">Figura 3.1: La interfaz gráfica de Postman.</p>
 </div>
 
-<h3>Verbos HTTP esenciales en openEHR</h3>
+<h3>Verbos HTTP esenciales</h3>
 
 <p>Para comunicarle al CDR qué acción deseas realizar con tu petición dispones de distintos «verbos»: GET, POST, PUT, DELETE, PATCH. En todos nuestros ejemplos prácticos utilizaremos exclusivamente <code>GET</code>, <code>POST</code> y <code>PUT</code>. Para consultar la totalidad de capacidades de la API de EHRbase, consulta su documentación oficial.</p>
 
@@ -111,6 +111,19 @@
 <p>
   Como verificación inicial para asegurar que el CDR está operativo y accesible, llamamos al endpoint de estado del servidor. Una respuesta de <code>200 OK</code> confirma que el servicio está activo.
 </p>
+
+<p>
+  Como es la primera vez que usamos la herramienta de API para enviar una petición, veamos el proceso paso a paso:
+</p>
+<ol>
+  <li>Crea una colección en la barra lateral izquierda (si aún no lo has hecho).</li>
+  <li>Añade una nueva petición a tu colección.</li>
+  <li>En el panel principal, selecciona <code>GET</code> en el menú desplegable del método (a la izquierda de la barra de URLs).</li>
+  <li>En la barra de direcciones URL, escribe <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code>.</li>
+  <li>Revisa las pestañas situadas bajo la barra de URL («Params», «Headers» y «Body»). No necesitamos añadir nada aquí todavía, pero conviene familiarizarse con ellas. Observa que en «Headers» dispones de pares clave-valor, los cuales utilizaremos en ejemplos posteriores.</li>
+  <li>Haz clic en el botón <strong>Send</strong> situado a la derecha de la barra de URL.</li>
+  <li>Tras una breve espera, la respuesta aparecerá en el panel inferior.</li>
+</ol>
 
 <table class="data-table">
   <tr><td><strong>Método</strong></td><td><code>GET</code></td></tr>

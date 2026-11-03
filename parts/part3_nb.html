@@ -75,7 +75,7 @@
   <p class="img-caption">Figur 3.1: Det grafiske brukergrensesnittet i Postman.</p>
 </div>
 
-<h3>Sentrale HTTP-verb i openEHR</h3>
+<h3>Sentrale HTTP-verb</h3>
 
 <p>For å formidle til CDR-et hva du vil oppnå med forespørselen din, finnes det ulike «verb»: GET, POST, PUT, DELETE, PATCH. I alle våre praktiske eksempler benytter vi utelukkende <code>GET</code>, <code>POST</code> og <code>PUT</code>. For en fullstendig oversikt over API-funksjonaliteten, se den offisielle EHRbase-dokumentasjonen.</p>
 
@@ -111,6 +111,19 @@
 <p>
   Som en innledende kontroll for å verifisere at CDR-et kjører og kan nås, kaller vi tjenerens statusendepunkt. Svaret <code>200 OK</code> bekrefter at tjenesten er operativ.
 </p>
+
+<p>
+  Siden dette er første gang vi bruker API-verktøyet til å sende en forespørsel, går vi gjennom prosessen steg for steg:
+</p>
+<ol>
+  <li>Opprett en samling (Collection) i venstre sidemeny (hvis du ikke allerede har gjort det).</li>
+  <li>Legg til en ny forespørsel (Request) i samlingen din.</li>
+  <li>I det midtre panelet velger du <code>GET</code> fra metode-nedtrekksmenyen til venstre for URL-feltet.</li>
+  <li>I URL-feltet taster du inn <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code>.</li>
+  <li>Klikk deg gjennom fanene under URL-feltet («Params», «Headers» og «Body»). Vi trenger ikke fylle ut noe her ennå, men det er nyttig å orientere seg. Legg merke til at «Headers» benytter nøkkel-verdi-par, som vi vil få bruk for i senere eksempler.</li>
+  <li>Trykk på <strong>Send</strong>-knappen til høyre for URL-feltet.</li>
+  <li>Etter et kort øyeblikk vises svaret i det nederste panelet.</li>
+</ol>
 
 <table class="data-table">
   <tr><td><strong>Metode</strong></td><td><code>GET</code></td></tr>

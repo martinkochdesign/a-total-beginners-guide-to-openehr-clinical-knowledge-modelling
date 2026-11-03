@@ -75,7 +75,7 @@
   <p class="img-caption">Figure 3.1: The GUI of Postman.</p>
 </div>
 
-<h3>Core HTTP Verbs in openEHR</h3>
+<h3>Core HTTP Verbs</h3>
 
 <p>To tell the CDR what you wan to achieve with your request you have different "verbs" that you can use: GET, POST, PUT, DELETE, PATCH.  For all of our hands-on examples, we will exclusively use <code>GET</code>, <code>POST</code>, and <code>PUT</code>. For the full API capabilities of EHRbase please refer to the API documentation.</p>
 
@@ -111,6 +111,19 @@
 <p>
   As a baseline verification to ensure the CDR is operational and reachable, we call the server's status endpoint. A response of <code>200 OK</code> confirms the service is up.
 </p>
+
+<p>
+  Because this is the first time we are using the API tool to send a request, let's go through it step by step:
+</p>
+<ol>
+  <li>Create a collection in the left-hand sidebar (if you haven't already).</li>
+  <li>Add a new request to your collection.</li>
+  <li>In the main request builder, select <code>GET</code> from the method dropdown to the left of the URL input bar.</li>
+  <li>In the URL input bar, enter <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code>.</li>
+  <li>Switch through the tabs under the URL bar ("Params", "Headers", and "Body"). We don't need to add anything here yet, but take a look around. Notice that "Headers" uses key-value pairs, which we will need in later examples.</li>
+  <li>Click the <strong>Send</strong> button to the right of the URL bar.</li>
+  <li>After a brief moment, the response will appear in the bottom panel.</li>
+</ol>
 
 <table class="data-table">
   <tr><td><strong>Method</strong></td><td><code>GET</code></td></tr>
