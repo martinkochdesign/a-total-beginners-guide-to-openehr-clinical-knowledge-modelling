@@ -649,14 +649,13 @@ For us to be able to transmit this to the CDR, we send the composition as a vers
   </li>
 </ul>
 
-<figure class="figure">
-  <img src="images/Pasted image 20261019145141.png" alt="The typical ecosystem for openEHR Clinical Knowledge Modellers" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
-  <figcaption>
-    <em>Figure 3.1: The typical ecosystem for openEHR Clinical Knowledge Modellers with the main fundamental building blocks.</em>
-  </figcaption>
-</figure>
 
-
+ <div class="img-container">
+    <img src="images/Pasted image 20261019145141.png" alt="The typical ecosystem for openEHR Clinical Knowledge Modellers" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
+  <p class="img-caption">
+  Figure 3.1: The typical ecosystem for openEHR Clinical Knowledge Modellers with the main fundamental building blocks.
+  </p>
+ </div>
 
   <h3>A brief look into the CDR</h3>
 
@@ -668,13 +667,12 @@ When a clinical professional uses and application to see data of a patient, the 
   <p>It is important to us as Clinical Knowledge Modellers to be concious about what we model in openEHR. Only the clinical data has to be modelled for the openEHR CDR. Identifying data of the patient, for example, is not stored in the openEHR CDR, but are referenced from the Master Patient Index.
   </p>
 
-  
-<figure class="figure">
-  <img src="images/Pasted image 20261019145220.png" alt="What the clinical professional sees" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
-  <figcaption>
-    <em>Figure 3.2: It is important not to model all information that the clinical professional wants to see in openEHR. Some information comes from several sources.</em>
-  </figcaption>
-</figure>
+ <div class="img-container">
+ <img src="images/Pasted image 20261019145220.png" alt="What the clinical professional sees" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+ <p class="img-caption">
+Figure 3.2: It is important not to model all information that the clinical professional wants to see in openEHR. Some information comes from several sources.
+ </p>
+ </div>
 
 <h3>Organization in the CDR (EHR, Compositions, Templates, etc.)</h3>
 
@@ -682,14 +680,15 @@ When a clinical professional uses and application to see data of a patient, the 
 
 <p>Our Clinical Data Repository (CDR) in openEHR acts as a filing cabinet. Its main functions are to store data and facilitate data retrieval.</p>
 
-<figure class="figure">
-  <img src="images/cdr_drawer_analogy.png" alt="The CDR filing cabinet" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
-  <figcaption>
-    <em>Figure 3.3: The CDR as a file cabinet. An analogy that helps to understand the management of EHR, compositions and templates.*</em>
-  </figcaption>
-</figure>
+ <div class="img-container">
+ <img src="images/cdr_drawer_analogy.png" alt="The CDR filing cabinet" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+ <p class="img-caption">
+Figure 3.3: The CDR as a file cabinet. An analogy that helps to understand the management of EHR, compositions and templates.
+ </p>
+ </div>
 
-<p>The data of a patient's clinical health record is stored in the CDR as an <strong>Electronic Health Record (EHR)</strong>. One patient has one EHR that stores all clinical information over the lifespan of the patient. Think of the EHR as the patient's individual, lifelong master folder in the repository's digital filing cabinet. It is identified by a unique, pseudonymous identifier (<code>ehr_id</code>), keeping clinical data decoupled from direct demographic identifiers. All compositions and contributions created for that patient throughout their lifetime are stored inside this single master EHR container.</p>
+<p>
+  The data of a patient's clinical health record is stored in the CDR as an <strong>Electronic Health Record (EHR)</strong>. One patient has one EHR that stores all clinical information over the lifespan of the patient. Think of the EHR as the patient's individual, lifelong master folder in the repository's digital filing cabinet. It is identified by a unique, pseudonymous identifier (<code>ehr_id</code>), keeping clinical data decoupled from direct demographic identifiers. All compositions and contributions created for that patient throughout their lifetime are stored inside this single master EHR container.</p>
 
 <p>Apart from the medical records, the CDR stores <strong>templates</strong>. Every template is a rule set for the creation of a specific health record, such as the data recorded in a first visit to a GP, a laboratory result, or a Patient Reported Outcome. The template is never changed or "filled out". It lives in the CDR separate from patient data, serving only as a structural blueprint.</p>
 
