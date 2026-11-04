@@ -1,83 +1,87 @@
 <section>
 
-<h1>Emmagatzematge i consulta de dades al CDR</h1>
+<h1>Capítol 7: Primers passos amb el CDR i les APIs REST</h1>
+
+<p class="chapter-intro">
+  Dissenyar models clínics al nostre entorn de treball és només el principi; la prova definitiva arriba quan aquests models han d'interactuar amb un servidor operatiu. En aquest capítol introduïm el Repositori de Dades Clíniques (RDC / CDR) com el motor de persistència central d'openEHR i ens connectem a l'entorn de proves públic d'EHRbase. Explorem l'estructura essencial de Postman, repassem els mètodes HTTP estàndard i executem la nostra primera comprovació d'estat per confirmar que el servidor està llest per rebre dades.
+</p>
 
 <p>
-  A la part anterior hem dissenyat un conjunt d'arquetips i els hem combinat en plantilles per representar un flux de treball. En aquesta part veurem pas a pas les operacions fonamentals per persistir (emmagatzemar) i recuperar dades clíniques mitjançant un Repositori de Dades Clíniques (CDR) d'openEHR. Ens centrarem en passos pràctics i directes utilitzant APIs REST estàndard.
+  En la part anterior vam dissenyar un conjunt d'arquetips i els vam acoblar en plantilles per representar un flux de treball complet. En aquesta part veurem les operacions essencials necessàries per persistir (desar) i recuperar dades clíniques mitjançant un Repositori de Dades Clíniques (RDC / CDR) d'openEHR. Ens centrarem en passos pràctics i aplicats utilitzant APIs REST estàndard.
 </p>
 
 <div class="callout warning">
-  <strong>Nota:</strong> Tot i que en els exemples següents no fem servir dades clíniques reals (mantenim l'analogia del lliurament de pizzes), tot el que s'explica aquí és directament transferible a un flux de treball clínic real.
+  <strong>Nota:</strong> Encara que en els exemples següents no fem servir dades clíniques reals (mantenim l'analogia de la comanda de pizzes), tot el que s'explica aquí és directament extrapolable a un circuit assistencial.
 </div>
 
-<h2>El Repositori de Dades Clíniques (CDR)</h2>
+<h2>7.1 El Repositori de Dades Clíniques (CDR / RDC)</h2>
 
 <p>
-  Com hem comentat anteriorment, el CDR és la base de dades que emmagatzema i gestiona les dades de salut. Com que totes les composicions emmagatzemades en un CDR d'openEHR estan estrictament governades per plantilles, el CDR ha de tenir carregades les plantilles pertinents <em>abans</em> de poder acceptar qualsevol composició basada en elles.
+  Com hem comentat anteriorment, l'RDC és la base de dades que emmagatzema i gestiona la informació de salut. Com que totes les composicions registrades en un RDC d'openEHR estan estrictament governades per plantilles, el repositori ha de tenir carregades les plantilles corresponents <em>abans</em> de poder acceptar qualsevol composició basada en elles.
 </p>
 
 <p>
-  En aquesta guia farem servir un CDR impulsat per <strong>EHRbase</strong>, una implementació d'openEHR de codi obert desenvolupada per vitagroup AG (<a href="https://www.vitagroup.ag/en/" target="_blank" rel="noopener noreferrer">vitagroup.ag</a>). Tot i que hi ha diverses implementacions de CDR disponibles al mercat, EHRbase ofereix un entorn de proves (sandbox) públic d'accés lliure que resulta ideal per a l'aprenentatge i les proves:
+  En aquesta guia farem servir un RDC basat en <strong>EHRbase</strong>, una implementació d'openEHR de codi obert desenvolupada per vitagroup AG (<a href="https://www.vitagroup.ag/en/" target="_blank" rel="noopener noreferrer">vitagroup.ag</a>). Tot i que hi ha diverses implementacions d'RDC al mercat, EHRbase ofereix un entorn de proves (sandbox) públic i gratuït que resulta idoni per aprendre i fer assajos:
 </p>
 
 <ul>
   <li>
-    <strong>URL de l'entorn de proves (sandbox):</strong> <a href="https://sandkiste.ehrbase.org" target="_blank" rel="noopener noreferrer">https://sandkiste.ehrbase.org</a>
+    <strong>URL de l'entorn de proves:</strong> <a href="https://sandkiste.ehrbase.org" target="_blank" rel="noopener noreferrer">https://sandkiste.ehrbase.org</a>
   </li>
   <li>
-    <strong>Documentació completa de l'API:</strong> <a href="https://docs.ehrbase.org/api/hip-ehrbase/openehr" target="_blank" rel="noopener noreferrer">Documentació de l'API REST openEHR d'EHRbase</a>
+    <strong>Documentació completa de l'API:</strong> <a href="https://docs.ehrbase.org/api/hip-ehrbase/openehr" target="_blank" rel="noopener noreferrer">Documentació de l'API REST d'openEHR a EHRbase</a>
   </li>
 </ul>
 
 <div class="callout warning">
-  <strong>Nota de seguretat:</strong> L'entorn de proves és un servei públic i compartit. No hi envieu mai dades de pacients reals, contrasenyes ni cap informació d'identificació personal.
+  <strong>Avís de seguretat:</strong> L'entorn de proves és un servei públic i compartit. No hi envieu mai dades reals de pacients, contrasenyes ni cap informació personal identificativa.
 </div>
 
-<h2>Eines de prova d'APIs</h2>
+<h2>7.2 Eines per a proves d'API</h2>
 
 <p>
-  Per enviar i recuperar dades dels punts d'accés (endpoints) d'EHRbase necessitem un client HTTP/REST. Entre les eines més populars hi ha Insomnia, Bruno i Postman. En aquest tutorial farem servir <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>, tot i que les peticions i els conceptes són exactament els mateixos per a qualsevol altra eina de proves d'API.
+  Per enviar i recuperar dades dels punts d'accés (endpoints) d'EHRbase necessitem un client HTTP/REST. Entre les eines més conegudes hi ha Insomnia, Bruno o Postman. En aquest tutorial farem servir <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>, tot i que les mateixes peticions i conceptes són exactament iguals per a qualsevol altre client d'APIs.
 </p>
 
-<h2>Una visita ràpida per Postman</h2>
+<h3>Un breu recorregut per Postman</h3>
 
 <p>
-  Quan obriu Postman per primer cop, no us deixeu intimidar per la quantitat d'opcions de la interfície. Per al nostre flux de treball amb openEHR només cal interactuar amb tres àrees principals:
+  Quan obriu Postman per primera vegada, no us deixeu aclaparat per la quantitat d'opcions de la interfície. Per al nostre flux de treball amb openEHR només cal conèixer tres zones principals:
 </p>
 
 <ol>
   <li>
-    <strong>Barra lateral esquerra (La vostra biblioteca):</strong> On es troben les peticions desades. La secció més important és <strong>Collections</strong>, on s'organitzen les peticions relacionades en carpetes. Podeu crear col·leccions fent clic al símbol "+" i seleccionant "Collection". Per afegir una petició dins d'una col·lecció, passeu el cursor per sobre de la col·lecció i feu clic al símbol "+" que hi apareix al costat.
+    <strong>Barra lateral esquerra (La vostra biblioteca):</strong> On es troben les peticions desades. La secció més important és <strong>Collections</strong> (col·leccions), on s'organitzen les peticions en carpetes temàtiques. Podeu crear col·leccions clicant al «+» i seleccionant «Collection». Per crear una petició dins d'una col·lecció, passeu el cursor per sobre de la col·lecció i feu clic al «+» que apareix al seu costat.
   </li>
   <li>
-    <strong>Panell superior / central (El constructor de peticions):</strong> On es configura la crida HTTP:
+    <strong>Panell superior / central (El constructor de peticions):</strong> On es defineix la crida HTTP:
     <ul>
-      <li><strong>Mètode HTTP:</strong> El menú desplegable del verb (<code>GET</code>, <code>POST</code>, <code>PUT</code>, etc.).</li>
-      <li><strong>Barra d'adreces URL:</strong> L'adreça de destinació del servidor CDR.</li>
-      <li><strong>Capçaleres (Headers):</strong> Metadades que descriuen el contingut enviat (p. ex., <code>Content-Type: application/json</code> o <code>Prefer: return=representation</code>).</li>
-      <li><strong>Paràmetres (Params):</strong> Paràmetres de consulta a la URL o variables de ruta (p. ex., <code>:ehr_id</code> o <code>:template_id</code>).</li>
-      <li><strong>Cos (Body):</strong> La càrrega útil de dades (p. ex., la composició en JSON o el contingut XML d'una plantilla OPT).</li>
-      <li><strong>Autorització (Authorization):</strong> On es configuren els tokens d'autenticació (bearer tokens) o credencials bàsiques quan s'interactua amb servidors protegits.</li>
+      <li><strong>Mètode HTTP:</strong> El desplegable de verbs (<code>GET</code>, <code>POST</code>, <code>PUT</code>, etc.).</li>
+      <li><strong>Barra d'adreça URL:</strong> L'adreça de destinació del servidor de l'RDC.</li>
+      <li><strong>Capçaleres (Headers):</strong> Metadades que descriuen la càrrega útil (p. ex., <code>Content-Type: application/json</code> o <code>Prefer: return=representation</code>).</li>
+      <li><strong>Paràmetres (Params):</strong> Paràmetres de consulta URL o variables de ruta (p. ex., <code>:ehr_id</code> o <code>:template_id</code>).</li>
+      <li><strong>Cos (Body):</strong> La informació o dades a enviar (p. ex., la composició en JSON o l'XML d'una plantilla OPT).</li>
+      <li><strong>Autorització (Authorization):</strong> On es configuren els tokens d'accés o les credencials quan es connecta amb sistemes protegits.</li>
     </ul>
   </li>
   <li>
-    <strong>Panell inferior (El visor de respostes):</strong> Mostra la resposta del CDR un cop premeu <strong>Send</strong>:
+    <strong>Panell inferior (El visor de respostes):</strong> Mostra la resposta retornada per l'RDC un cop cliqueu a <strong>Send</strong>:
     <ul>
-      <li><strong>Codi d'estat (Status Code):</strong> Confirma l'èxit de l'operació (<code>200 OK</code>, <code>201 Created</code>) o informa d'errors (<code>400 Bad Request</code>, <code>404 Not Found</code>).</li>
-      <li><strong>Cos de la resposta (Response Body):</strong> Les dades retornades (com ara un nou EHR ID generat, l'UID d'una composició o el resultat d'una consulta).</li>
-      <li><strong>Temps i mida (Time &amp; Size):</strong> Mètriques de rendiment de la petició.</li>
+      <li><strong>Codi d'estat (Status Code):</strong> Confirma si la petició ha reeixit (<code>200 OK</code>, <code>201 Created</code>) o alerta d'incidències (<code>400 Bad Request</code>, <code>404 Not Found</code>).</li>
+      <li><strong>Cos de la resposta (Response Body):</strong> Les dades retornades (com un EHR ID nou, un UID de composició o el resultat d'una consulta).</li>
+      <li><strong>Temps i mida (Time &amp; Size):</strong> Mètriques de rendiment sobre la durada i el volum de la resposta.</li>
     </ul>
   </li>
 </ol>
 
 <div class="img-container">
   <img src="images/Pasted image 20261021121913.png" alt="Visió general de la interfície de Postman" class="guide-img" style="max-width: 100%; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.1: La interfície gràfica de Postman.</p>
+  <p class="img-caption">Figura 7.1: Interfície gràfica d'usuari de Postman.</p>
 </div>
 
-<h3>Verbs HTTP essencials</h3>
+<h3>Verbs HTTP principals</h3>
 
-<p>Per indicar al CDR què voleu aconseguir amb la vostra petició, disposeu de diferents «verbs»: GET, POST, PUT, DELETE, PATCH. Per a tots els nostres exemples pràctics farem servir exclusivament <code>GET</code>, <code>POST</code> i <code>PUT</code>. Per consultar la totalitat de funcionalitats de l'API d'EHRbase, adreceu-vos a la documentació oficial de la seva API.</p>
+<p>Per indicar a l'RDC què voleu aconseguir amb la vostra crida, disposeu de diferents «verbs»: GET, POST, PUT, DELETE, PATCH. Per a tots els nostres exercicis pràctics farem servir exclusivament <code>GET</code>, <code>POST</code> i <code>PUT</code>. Per conèixer totes les opcions de l'API, consulteu la documentació d'EHRbase.</p>
 
 <table class="data-table">
   <thead>
@@ -90,39 +94,39 @@
   <tbody>
     <tr>
       <td><code>GET</code></td>
-      <td><em>Lectura / Recuperació</em></td>
-      <td>Obtenir dades sense modificar l'estat del servidor (p. ex., descarregar una plantilla o consultar una composició).</td>
+      <td><em>Llegir / Recuperar</em></td>
+      <td>Obtenir informació sense modificar l'estat del servidor (p. ex., descarregar una plantilla o recuperar una composició).</td>
     </tr>
     <tr>
       <td><code>POST</code></td>
-      <td><em>Creació / Execució</em></td>
-      <td>Enviar noves dades per ser creades (p. ex., registrar un nou expedient EHR, desar una composició o executar una consulta AQL).</td>
+      <td><em>Crear / Executar</em></td>
+      <td>Trametre dades noves per ser creades (p. ex., registrar un nou EHR, publicar una composició nova o executar una consulta AQL).</td>
     </tr>
     <tr>
       <td><code>PUT</code></td>
-      <td><em>Càrrega / Substitució</em></td>
-      <td>Emmagatzemar o substituir un recurs en una URI específica (p. ex., carregar una Plantilla Operativa (OPT) al punt de definició de plantilles, o actualitzar una versió existent d'una composició).</td>
+      <td><em>Pujar / Substituir</em></td>
+      <td>Desar o actualitzar un recurs en una URI específica (p. ex., pujar una plantilla operativa (OPT) al punt de definició de plantilles, o actualitzar una versió d'una composició existent).</td>
     </tr>
   </tbody>
 </table>
 
-<h2>Comprovar l'estat del servidor</h2>
+<h3>Comprovació de l'estat del servidor</h3>
 
 <p>
-  Com a comprovació inicial per assegurar que el CDR està operatiu i accessible, cridem el punt d'accés d'estat del servidor. Una resposta de <code>200 OK</code> confirma que el servei està actiu.
+  Com a verificació inicial per assegurar-nos que l'RDC funciona i és accessible, cridem l'endpoint d'estat del servidor. Una resposta <code>200 OK</code> confirmarà que el servei està actiu.
 </p>
 
 <p>
-  Com que és el primer cop que fem servir l'eina d'API per enviar una petició, vegem-ho pas a pas:
+  Com que és el primer cop que fem servir l'eina d'API per enviar una petició, seguim el procediment pas a pas:
 </p>
 <ol>
-  <li>Creeu una col·lecció a la barra lateral esquerra (si encara no ho heu fet).</li>
-  <li>Afegiu una nova petició a la vostra col·lecció.</li>
-  <li>Al panell principal, seleccioneu <code>GET</code> al menú desplegable del mètode (a l'esquerra de la barra d'adreces URL).</li>
-  <li>A la barra d'adreces URL, escriviu <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code>.</li>
-  <li>Exploreu les pestanyes de sota de la barra URL («Params», «Headers» i «Body»). Ara no cal afegir-hi res, però va bé veure què s'hi pot configurar. Fixeu-vos que a «Headers» teniu parelles clau-valor, que haurem d'afegir en altres exemples.</li>
-  <li>Feu clic al botó <strong>Send</strong> a la dreta de la barra d'adreces URL.</li>
-  <li>Després d'un breu instant, veureu la resposta a la part inferior de la interfície.</li>
+  <li>Creeu una col·lecció a la barra lateral esquerra (si no ho heu fet ja).</li>
+  <li>Afegiu una petició nova a la col·lecció.</li>
+  <li>Al panell principal de la petició, seleccioneu <code>GET</code> al desplegable de mètodes situat a l'esquerra de la barra d'adreces.</li>
+  <li>A la barra d'adreça URL, introduïu <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code>.</li>
+  <li>Exploreu les pestanyes situades sota la barra d'adreça («Params», «Headers» i «Body»). Encara no cal escriure-hi res, però doneu-hi una ullada. Fixeu-vos que «Headers» empra parelles de clau-valor, que farem servir en exemples posteriors.</li>
+  <li>Feu clic al botó <strong>Send</strong> a la dreta de la barra d'adreça.</li>
+  <li>Al cap d'un instant, la resposta apareixerà al panell inferior.</li>
 </ol>
 
 <table class="data-table">
@@ -131,10 +135,10 @@
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><em>Cap</em></td></tr>
   <tr><td><strong>Cos (Body)</strong></td><td><em>Cap</em></td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>Contingut XML que detalla les versions dels components en execució.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>Document XML amb informació de les versions dels components actius.</td></tr>
 </table>
 
-<h3>Exemple de resposta</h3>
+<h4>Exemple de resposta</h4>
 <pre><code class="language-xml">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
 &lt;status&gt;
     &lt;ehrbase_version&gt;2.33.0&lt;/ehrbase_version&gt;
@@ -145,17 +149,23 @@
     &lt;postgres_version&gt;PostgreSQL 16.15 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7), 64-bit&lt;/postgres_version&gt;
 &lt;/status&gt;</code></pre>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026084826.png" alt="Petició d'estat del servidor a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.2: Verificació de la connectivitat del CDR mitjançant el punt d'accés d'estat.</p>
+  <p class="img-caption">Figura 7.2: Verificació de connectivitat amb l'RDC a través de l'endpoint d'estat.</p>
 </div>
 
-<h2>Llistar les plantilles existents al CDR</h2>
+<h1>Capítol 8: Gestió de plantilles al servidor</h1>
+
+<p class="chapter-intro">
+  Abans de poder emmagatzemar cap registre clínic, el repositori ha de disposar del patró formal que en regeix les regles. En aquest capítol gestionem el cicle de vida de les plantilles directament a EHRbase. Consultem el catàleg de definicions instal·lades actualment, pugem fitxers XML de plantilles operatives compilades (<code>.opt</code>) i recuperem plantilles emmagatzemades a través de l'endpoint REST de definicions.
+</p>
+
+<h2>8.1 Llistar les plantilles existents a l'RDC</h2>
 
 <p>
-  Per inspeccionar quines plantilles estan actualment actives i disponibles al servidor, fem una consulta al punt d'accés de definicions de plantilles:
+  Per saber quines plantilles estan actives i disponibles en aquest moment al servidor, consultem el punt d'accés de definicions de plantilles:
 </p>
 
 <table class="data-table">
@@ -164,10 +174,10 @@
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><em>Cap</em></td></tr>
   <tr><td><strong>Cos (Body)</strong></td><td><em>Cap</em></td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>Matriu JSON amb els resums de les plantilles instal·lades.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>Matriu JSON amb resums de les plantilles instal·lades.</td></tr>
 </table>
 
-<h3>Exemple del cos de la resposta (fragment)</h3>
+<h4>Exemple del cos de resposta (fragment)</h4>
 <pre><code class="language-json">[
     {
         "concept": "International Patient Summary",
@@ -184,22 +194,22 @@
     ...
 ]</code></pre>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026085105.png" alt="Llistat de plantilles a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.3: Sol·licitud del catàleg de plantilles emmagatzemades.</p>
+  <p class="img-caption">Figura 8.1: Consulta del catàleg de plantilles emmagatzemades.</p>
 </div>
 
-<h2>Pujar una Plantilla Operativa (OPT) al CDR</h2>
+<h2>8.2 Pujar una plantilla operativa (OPT) a l'RDC</h2>
 
 <p>
-  Abans de poder desar una composició, cal haver carregat la seva plantilla corresponent en forma de fitxer de Plantilla Operativa (<code>.opt</code>). El CDR analitza aquesta definició i aplica totes les restriccions modelades sobre les composicions que es rebin.
+  Abans de poder desar una composició, cal haver carregat la seva plantilla corresponent en format de fitxer de plantilla operativa (<code>.opt</code>). L'RDC analitza aquesta definició i aplica de manera estricta totes les restriccions del model a les composicions que rep.
 </p>
 
 <p>
   Podeu trobar els fitxers de plantilla d'exemple al paquet descarregable:
-  <a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Descarregar els fitxers d'exemple (.zip)</a>
+  <a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download">Descarregar fitxers d'exemple (.zip)</a>
 </p>
 
 <table class="data-table">
@@ -212,42 +222,48 @@
 </table>
 
 <div class="callout warning">
-  <strong>Important:</strong> Si al servidor ja existeix una plantilla amb el mateix <code>template_id</code> exacte, el CDR rebutjarà la pujada per preservar la integritat de les versions.
+  <strong>Important:</strong> Si al servidor ja existeix una plantilla amb exactament el mateix <code>template_id</code>, l'RDC rebutjarà la pujada per preservar la integritat de les versions.
 </div>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026104155.png" alt="Pujada d'una plantilla OPT a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.4: Registre d'una plantilla OPT a EHRbase.</p>
+  <img src="images/Pasted image 20261026104155.png" alt="Pujant una plantilla OPT a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figura 8.2: Registre d'una plantilla OPT a EHRbase.</p>
 </div>
 
-<h2>Recuperar la definició d'una plantilla OPT del CDR</h2>
+<h2>8.3 Recuperar la definició d'una plantilla OPT de l'RDC</h2>
 
 <p>
-  Si necessiteu obtenir la definició completa d'una plantilla existent, podeu consultar-la mitjançant el seu identificador de plantilla utilitzant un paràmetre de ruta (<code>:template_id</code>):
+  Si necessiteu descarregar la definició completa d'una plantilla ja existent, la podeu sol·licitar pel seu identificador fent servir un paràmetre de ruta (<code>:template_id</code>):
 </p>
 
 <table class="data-table">
   <tr><td><strong>Mètode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id</code></td></tr>
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><code>Accept: application/xml</code></td></tr>
-  <tr><td><strong>Paràmetres (Params)</strong></td><td><code>template_id = Vital Signs</code> (segons el template_id que es vulgui consultar)</td></tr>
+  <tr><td><strong>Paràmetres (Params)</strong></td><td><code>template_id = Vital Signs</code> (segons l'identificador de la plantilla)</td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>Especificació completa de l'OPT en XML.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>Especificació completa de l'OPT en format XML.</td></tr>
 </table>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026105210.png" alt="Recuperació de la definició d'una plantilla" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.5: Obtenció del fitxer OPT directament des del CDR.</p>
+  <p class="img-caption">Figura 8.3: Descàrrega directa del fitxer OPT en brut des de l'RDC.</p>
 </div>
 
-<h2>Generar una composició d'exemple</h2>
+<h1>Capítol 9: Persistència de dades clíniques: l'EHR i les composicions</h1>
+
+<p class="chapter-intro">
+  Amb les plantilles operatives al servidor, abordem el nucli de la persistència a openEHR: la creació de les carpetes d'història clínica (EHR) dels pacients i la seva càrrega amb dades estructurades. En aquest capítol creem un nou contenidor d'EHR, construïm pas a pas des de zero una composició canònica en format JSON totalment vàlida, la desem a l'RDC i mostrem com aplicar actualitzacions segures utilitzant bloqueig optimista i identificadors de versió.
+</p>
+
+<h2>9.1 Generar una composició d'exemple</h2>
 
 <p>
-  Quan es desenvolupen aplicacions per a openEHR, resulta de gran utilitat poder generar ràpidament una composició d'exemple per a una plantilla. Podeu demanar al CDR que generi una estructura JSON d'exemple basada en una plantilla registrada:
+  Quan es dissenyen aplicacions sobre openEHR, resulta de gran utilitat poder obtenir ràpidament una composició d'exemple a partir d'una plantilla. Podeu demanar a l'RDC que creï una estructura d'exemple en format JSON basada en una plantilla instal·lada:
 </p>
 
 <table class="data-table">
@@ -255,24 +271,24 @@
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id/example?format=JSON</code></td></tr>
   <tr><td><strong>Paràmetres (Params)</strong></td><td><code>template_id = Customer_Review_v0</code> (segons l'identificador de la plantilla)</td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>Composició sintètica d'exemple en format Canonical JSON d'openEHR.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>Composició sintètica d'exemple en format JSON Canònic d'openEHR.</td></tr>
 </table>
 
 <div class="callout warning">
-  <strong>Avís:</strong> Les dades d'exemple generades pel CDR estan pensades estrictament per inspeccionar la sintaxi. Emplenen els camps amb valors arbitraris i aleatoris, i mai s'han d'enviar directament com a registres clínics.
+  <strong>Atenció:</strong> Les composicions d'exemple generades automàticament per l'RDC estan pensades únicament per inspeccionar la sintaxi. Omplen els camps amb valors a l'atzar i mai s'han de trametre com a dades clíniques reals.
 </div>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026110252.png" alt="Petició d'una composició d'exemple" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.6: Revisió d'una composició d'exemple generada pel CDR.</p>
+  <img src="images/Pasted image 20261026110252.png" alt="Sol·licitud d'una composició d'exemple" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figura 9.1: Inspecció d'una composició d'exemple generada per l'RDC.</p>
 </div>
 
-<h2>Crear una Història Clínica Electrònica (EHR)</h2>
+<h2>9.2 Crear un Electronic Health Record (EHR)</h2>
 
 <p>
-  A openEHR, les composicions clíniques no poden existir de manera aïllada. Han de pertànyer a un <strong>EHR</strong> que representi el pacient (o el client, seguint la nostra analogia de la pizza). Crear un EHR genera un identificador únic i persistent (un UUID anomenat <code>ehr_id</code>):
+  A openEHR, les composicions clíniques no poden existir aïllades. Han de pertànyer forçosament a un <strong>EHR</strong> que representi el pacient (o el client, en la nostra analogia de la pizza). Quan creem un EHR, el sistema genera un identificador persistent i únic (un UUID d'<code>ehr_id</code>):
 </p>
 
 <table class="data-table">
@@ -280,14 +296,14 @@
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr</code></td></tr>
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><code>Prefer: return=representation</code></td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>201 Created</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>Les metadades del registre EHR creat, incloent-hi l'<code>ehr_id</code>.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>Metadades del registre EHR creat, incloent-hi l'<code>ehr_id</code>.</td></tr>
 </table>
 
 <div class="callout warning">
-  Si voleu, podeu practicar tot això pujant les nostres plantilles d'exemple al sandbox del CDR.
+  Si voleu, podeu practicar aquest pas carregant les nostres plantilles d'exemple a l'entorn de proves de l'RDC.
 </div>
 
-<h3>Exemple de resposta</h3>
+<h4>Exemple de resposta</h4>
 <pre><code class="language-json">{
     "_type": "EHR",
     "system_id": {
@@ -313,38 +329,38 @@
     }
 }</code></pre>
 
-<h3>Captura de pantalla</h3>
+<h4>Captura de pantalla</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026111537.png" alt="Creació d'un EHR a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.7: Creació d'un EHR i recepció de la resposta en JSON.</p>
+  <p class="img-caption">Figura 9.2: Creació d'un EHR i recepció de la resposta en JSON.</p>
 </div>
 
-<h2>Construir una composició des de zero (pas a pas)</h2>
+<h2>9.3 Construir una composició des de zero (pas a pas)</h2>
 
 <p>
-  Un cop tenim les plantilles carregades al CDR, ja podem persistir dades clíniques reals. A openEHR, les dades clíniques s'emmagatzemen en forma de <strong>COMPOSITION</strong>.
+  Un cop tenim les plantilles a l'RDC, podem procedir a persistir dades clíniques reals. A openEHR, la informació clínica s'emmagatzema sota la forma d'una <strong>COMPOSITION</strong>.
 </p>
 
 <p>
-  Tot i que es podria sol·licitar a EHRbase una mostra sintètica, aquests exemples autogenerats contenen molts valors ficticis i atributs opcionals que enfosqueixen allò que és realment necessari. La millor manera d'entendre a fons les dades d'openEHR és construir una composició mínima i vàlida des de zero.
+  Tot i que es podria sol·licitar un exemple automàtic a EHRbase, aquestes estructures estan plenes de valors de prova ficticis i atributs opcionals que confonen i impedeixen distingir el que és estrictament necessari. La millor manera de comprendre com s'estructuren les dades a openEHR és bastir una composició mínima i vàlida des de zero.
 </p>
 
 <p>
-  En aquest recorregut pràctic, construirem una composició completa per a la nostra plantilla <strong><code>Customer_Review_v0</code></strong>.
+  En aquesta guia pràctica construirem una composició completa per a la nostra plantilla <strong><code>Customer_Review_v0</code></strong>.
 </p>
 
 <p>
-  Consulteu les especificacions de la classe <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">COMPOSITION</a>. És molt aconsellable seguir la creació del fitxer de composició consultant el Model de Referència. Per fer cerques ràpides, us recomanem l'eina no oficial <a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">openEHR RM Browser</a>.
+  Podeu consultar les especificacions formals de la classe <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">COMPOSITION</a>. És molt recomanable seguir la creació del fitxer consultant el Model de Referència. Per fer cerques ràpides, recomanem el navegador no oficial <a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">openEHR RM Browser</a>.
 </p>
 
 <!-- ============================================================ -->
 <!-- 7.1 Mental Model -->
 <!-- ============================================================ -->
-<h3>Pas 1 - L'anatomia d'una COMPOSITION</h3>
+<h3>Pas 1 — L'anatomia d'una COMPOSITION</h3>
 
 <p>
-  La <code>COMPOSITION</code> és el contenidor de tot el document que volem persistir. Al nivell arrel, el Model de Referència d'openEHR espera aquesta estructura bàsica:
+  La <code>COMPOSITION</code> és el contenidor de tot el document que volem persistir. Al nivell arrel, el Model de Referència d'openEHR espera aquesta estructura esquelet:
 </p>
 
 <pre><code class="language-json">{
@@ -360,23 +376,23 @@
 }</code></pre>
 
 <div class="callout warning">
-  <strong>Nota:</strong> Aquesta estructura està simplificada. Hem reduït els elements al mínim perquè els exemples siguin fàcils d'entendre. Consulteu l'<a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">especificació d'openEHR</a> per veure la relació completa d'atributs d'una composició.
+  <strong>Nota:</strong> Aquesta estructura s'ha simplificat. Hem minimitzat els elements per fer els exemples entenedors. Consulteu l'<a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">especificació d'openEHR</a> per veure la llista exhaustiva de tots els atributs d'una composició.
 </div>
 
-<p>Ara examinarem i construirem cadascun d'aquests atributs un per un.</p>
+<p>A continuació, examinarem i construirem cadascun d'aquests atributs un per un.</p>
 
 <hr>
 
 <!-- ============================================================ -->
 <!-- Step 2 Root Name -->
 <!-- ============================================================ -->
-<h3>Pas 2 - L'atribut <code>name</code> (Classe RM: <code>DV_TEXT</code>)</h3>
+<h3>Pas 2 — L'atribut <code>name</code> (Classe RM: <code>DV_TEXT</code>)</h3>
 
 <p>
-  A openEHR, fins i tot les etiquetes més simples rarament són cadenes de text pla. S'encapsulen en un tipus de dades del Model de Referència, habitualment <strong><code>DV_TEXT</code></strong> (Data Value: Text), la qual cosa permet gestionar la localització idiomàtica i els jocs de caràcters.
+  A openEHR, fins i tot els textos aparentment més senzills no són cadenes planes ordinàries. S'encapsulen en un tipus de dada del Model de Referència, normalment <strong><code>DV_TEXT</code></strong> (Data Value: Text), la qual cosa permet gestionar la localització idiomàtica i els jocs de caràcters.
 </p>
 
-<p>Per a la composició arrel, aquest nom sol coincidir amb el nom de la plantilla:</p>
+<p>En el cas de la composició arrel, el nom sol coincidir amb el nom de la plantilla:</p>
 
 <pre><code class="language-json">"name": {
   "_type": "DV_TEXT",
@@ -384,7 +400,7 @@
 }</code></pre>
 
 <div class="callout note">
-  <strong>Nota:</strong> Segons com s'hagi dissenyat la plantilla, el nom visible pot diferir de l'identificador de l'arquetip subjacent.
+  <strong>Nota:</strong> Segons com s'hagi dissenyat la plantilla, el nom visible pot diferir de l'identificador tècnic de l'arquetip.
 </div>
 
 <hr>
@@ -392,19 +408,19 @@
 <!-- ============================================================ -->
 <!-- Step 3 Archetype Details -->
 <!-- ============================================================ -->
-<h3>Pas 3 - L'atribut <code>archetype_details</code> (Classe RM: <code>ARCHETYPED</code>)</h3>
+<h3>Pas 3 — L'atribut <code>archetype_details</code> (Classe RM: <code>ARCHETYPED</code>)</h3>
 
 <p>
-  Com sap el CDR quines regles i restriccions ha de validar per a aquesta composició? A través de l'atribut <code>archetype_details</code>. Aquest objecte vincula la composició tant amb el seu arquetip arrel com amb la plantilla operativa específica:
+  Com sap l'RDC quines regles i validacions ha d'aplicar a aquesta composició? A través d'<code>archetype_details</code>. Aquest objecte connecta la composició tant amb el seu arquetip arrel com amb la plantilla operativa concreta:
 </p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261023125358.png" alt="Arbre d'atributs d'archetype_details a RM Browser" class="guide-img" width="300px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.8: Arbre d'atributs d'archetype_details a l'openEHR RM Browser.</p>
+  <img src="images/Pasted image 20261023125358.png" alt="Arbre d'atributs d'archetype_details a l'RM Browser" class="guide-img" width="300px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.3: Arbre d'atributs d'archetype_details a l'openEHR RM Browser.</p>
 </div>
 
 <p>
-  Observeu que <code>archetype_id</code> i <code>template_id</code> tampoc no són cadenes de text lliure; són instàncies de les classes <code>ARCHETYPE_ID</code> i <code>TEMPLATE_ID</code>:
+  Observeu que <code>archetype_id</code> i <code>template_id</code> tampoc no són cadenes simples, sinó instàncies de les classes <code>ARCHETYPE_ID</code> i <code>TEMPLATE_ID</code>:
 </p>
 
 <pre><code class="language-json">"archetype_details": {
@@ -425,20 +441,20 @@
 <!-- ============================================================ -->
 <!-- Step 4 Language & Territory -->
 <!-- ============================================================ -->
-<h3>Pas 4 - Idioma i territori (Classe RM: <code>CODE_PHRASE</code>)</h3>
+<h3>Pas 4 — Llengua i territori (Classe RM: <code>CODE_PHRASE</code>)</h3>
 
 <p>
-  Les dades de salut tenen un abast multinacional. Tota composició defineix explícitament el seu idioma principal i la seva jurisdicció territorial mitjançant <strong><code>CODE_PHRASE</code></strong>, que associa un identificador de terminologia estàndard amb un codi concret.
+  La informació de salut té un abast multinacional. Cada composició defineix de manera explícita la seva llengua principal i l'àmbit territorial mitjançant <strong><code>CODE_PHRASE</code></strong>, que associa un identificador de terminologia estàndard amb un codi concret.
 </p>
 
 <p>
   Podeu consultar els codis admesos a les especificacions d'<a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
 </p>
 
-<h4>Idioma: ISO 639-1</h4>
+<h5>Llengua: ISO 639-1</h5>
 <div class="img-container">
-  <img src="images/Pasted image 20261023131643.png" alt="Arbre d'atributs d'idioma a RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.9: Arbre d'atributs de language.</p>
+  <img src="images/Pasted image 20261023131643.png" alt="Arbre d'atributs de language a l'RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.4: Arbre d'atributs de language.</p>
 </div>
 
 <pre><code class="language-json">"language": {
@@ -450,10 +466,10 @@
   "code_string": "en"
 }</code></pre>
 
-<h4>Territori: ISO 3166-1</h4>
+<h5>Territori: ISO 3166-1</h5>
 <div class="img-container">
-  <img src="images/Pasted image 20261023132253.png" alt="Arbre d'atributs de territori a RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.10: Arbre d'atributs de territory.</p>
+  <img src="images/Pasted image 20261023132253.png" alt="Arbre d'atributs de territory a l'RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.5: Arbre d'atributs de territory.</p>
 </div>
 
 <pre><code class="language-json">"territory": {
@@ -470,19 +486,19 @@
 <!-- ============================================================ -->
 <!-- Step 5 Category -->
 <!-- ============================================================ -->
-<h3>Pas 5 - L'atribut <code>category</code> (Classe RM: <code>DV_CODED_TEXT</code>)</h3>
+<h3>Pas 5 — L'atribut <code>category</code> (Classe RM: <code>DV_CODED_TEXT</code>)</h3>
 
 <p>
-  openEHR categoritza els contactes clínics en grans patrons (com ara <code>event</code>, <code>persistent</code> o <code>episodic</code>). Fem servir <strong><code>DV_CODED_TEXT</code></strong>, que vincula el text visible amb un codi de la terminologia interna d'openEHR (aquí, el codi <code>433</code> representa un «esdeveniment» o contacte puntual en el temps):
+  openEHR classifica els contactes assistencials segons patrons genèrics (com ara <code>event</code>, <code>persistent</code> o <code>episodic</code>). Utilitzem <strong><code>DV_CODED_TEXT</code></strong>, que lliga un text entenedor a un codi de terminologia interna d'openEHR (aquí, el codi <code>433</code> representa un esdeveniment clínic puntual o «event»):
 </p>
 
 <p>
-  Els codis admesos es troben a l'especificació d'<a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_composition_category" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
+  Podeu revisar els codis admesos a l'especificació d'<a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_composition_category" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
 </p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261023132705.png" alt="Arbre d'atributs de category a RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.11: Arbre d'atributs de category.</p>
+  <img src="images/Pasted image 20261023132705.png" alt="Arbre d'atributs de category a l'RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.6: Arbre d'atributs de category.</p>
 </div>
 
 <pre><code class="language-json">"category": {
@@ -503,19 +519,19 @@
 <!-- ============================================================ -->
 <!-- Step 6 Composer -->
 <!-- ============================================================ -->
-<h3>Pas 6 - L'atribut <code>composer</code></h3>
+<h3>Pas 6 — L'atribut <code>composer</code></h3>
 
 <p>
-  Tot registre clínic ha de registrar la seva autoria. A openEHR, l'autor (composer) es modela com un <code>PARTY_PROXY</code>. Generalment s'escull entre:
+  Tot registre mèdic ha de recollir l'autoria del document. A openEHR, l'autor (composer) es modela com un <code>PARTY_PROXY</code>. Habitualment s'escull entre:
 </p>
 <ul>
-  <li><strong><code>PARTY_SELF</code>:</strong> S'utilitza quan és el propi pacient qui registra les dades (p. ex., resultats informats pel pacient / PROMs, aplicacions mòbils).</li>
-  <li><strong><code>PARTY_IDENTIFIED</code>:</strong> S'utilitza quan es recull el nom d'un professional extern o un identificador del prestador assistencial.</li>
+  <li><strong><code>PARTY_SELF</code>:</strong> S'utilitza quan és el mateix pacient qui ha registrat la informació (p. ex., qüestionaris de salut percebuda / PROMs, apps mòbils).</li>
+  <li><strong><code>PARTY_IDENTIFIED</code>:</strong> S'utilitza quan es registra el nom d'una persona externa o l'identificador d'un professional o centre sanitari.</li>
 </ul>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261023132941.png" alt="Arbre d'atributs de composer a RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.12: Elecció de PARTY_IDENTIFIED per representar el composer.</p>
+  <img src="images/Pasted image 20261023132941.png" alt="Arbre d'atributs de composer a l'RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.7: Selecció de PARTY_IDENTIFIED per representar l'autor.</p>
 </div>
 
 <pre><code class="language-json">"composer": {
@@ -528,34 +544,34 @@
 <!-- ============================================================ -->
 <!-- Step 7 Content & Entries -->
 <!-- ============================================================ -->
-<h3>Pas 7 - La secció <code>content</code>: afegir entrades clíniques</h3>
+<h3>Pas 7 — La secció <code>content</code>: incorporació d'entrades clíniques</h3>
 
 <p>
-  Arribem ara al contingut pròpiament dit: la matriu <code>content</code>. A la nostra plantilla hi vam afegir un arquetip de tipus <strong>EVALUATION</strong> (<code>openEHR-EHR-EVALUATION.customer_review.v0</code>).
+  Arribem ara a la càrrega clínica real: la matriu <code>content</code>. A la nostra plantilla hi havíem situat un arquetip de tipus <strong>EVALUATION</strong> (<code>openEHR-EHR-EVALUATION.customer_review.v0</code>).
 </p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026091244.png" alt="Arbre d'atributs de content a RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figura 3.13: Inspecció dels atributs obligatoris d'un ENTRY dins de content.</p>
+  <img src="images/Pasted image 20261026091244.png" alt="Arbre d'atributs de content a l'RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Figura 9.8: Inspecció dels atributs obligatoris d'ENTRY dins de content.</p>
 </div>
 
 <p>
-  Com que qualsevol arquetip d'entrada pot ser extret, citat o traduït de manera independent, openEHR exigeix que cada entrada defineixi el seu propi context local:
+  Com que qualsevol arquetip d'entrada pot, en teoria, ser extret, citat o traduït de manera autònoma, openEHR requereix que cada entrada defineixi el seu propi context localitzat:
 </p>
 
 <ul>
-  <li><strong><code>encoding</code>:</strong> Codificació de caràcters (p. ex., <code>UTF-8</code>).</li>
-  <li><strong><code>language</code>:</strong> Codi d'idioma per a aquesta entrada específica.</li>
-  <li><strong><code>subject</code>:</strong> Sobre qui recau aquesta avaluació clínica. En el nostre cas, <code>PARTY_SELF</code> indica que s'aplica directament al titular d'aquest registre.</li>
-  <li><strong><code>protocol</code>:</strong> Metadades de context sobre <em>com</em> o <em>per què</em> s'ha fet el registre (p. ex., l'Order ID).</li>
-  <li><strong><code>data</code>:</strong> Les observacions o avaluacions clíniques essencials.</li>
+  <li><strong><code>encoding</code>:</strong> La codificació de caràcters (p. ex., <code>UTF-8</code>).</li>
+  <li><strong><code>language</code>:</strong> El codi d'idioma d'aquesta entrada concreta.</li>
+  <li><strong><code>subject</code>:</strong> A qui fa referència aquesta valoració. En el nostre cas, <code>PARTY_SELF</code> indica que s'aplica directament al titular de la història.</li>
+  <li><strong><code>protocol</code>:</strong> Metadades de context sobre <em>com</em> o <em>per què</em> es va registrar l'entrada (p. ex., l'Order ID).</li>
+  <li><strong><code>data</code>:</strong> Les observacions o avaluacions clíniques pròpiament dites.</li>
 </ul>
 
 <hr>
 
-<h4>Pas 7.1 - <code>encoding</code>, <code>language</code> i <code>subject</code> del contingut</h4>
+<h5>Pas 7.1 — L'<code>encoding</code>, el <code>language</code> i el <code>subject</code> del contingut</h5>
 
-<p>La secció <code>content</code> conté una llista de tots els arquetips modelats en aquesta part de la plantilla. Podem afegir, de manera anàloga a com hem fet abans, l'<code>encoding</code>, el <code>language</code> i el <code>subject</code> del contingut:</p>
+<p>La secció <code>content</code> recull la llista d'arquetips modelats en aquesta part de la plantilla. Podem configurar, tal com hem fet abans, l'<code>encoding</code>, el <code>language</code> i el <code>subject</code> d'aquesta entrada:</p>
 
 <pre><code class="language-json">{
   "_type": "EVALUATION",
@@ -599,14 +615,14 @@
 
 <hr>
 
-<h4>Pas 7.2 - Afegir els elements de dades a <code>protocol</code> i <code>data</code></h4>
+<h5>Pas 7.2 — Afegir els elements de dades a <code>protocol</code> i <code>data</code></h5>
 
 <p>
-  Tant a <code>data</code> com a <code>protocol</code>, la informació s'organitza com un <strong><code>ITEM_TREE</code></strong> format per nodes individuals de tipus <strong><code>ELEMENT</code></strong>.
+  Tant a <code>data</code> com a <code>protocol</code>, la informació s'estructura com un <strong><code>ITEM_TREE</code></strong> format per nodes individuals de tipus <strong><code>ELEMENT</code></strong>.
 </p>
 
 <p>
-  Fixeu-vos com cada dada utilitza una classe de <strong>Data Value (DV)</strong> específica i adaptada a la seva naturalesa. Així queden els tres camps de la nostra ressenya:
+  Observeu com cada dada clínica empra una classe <strong>Data Value (DV)</strong> específica adaptada a la seva naturalesa. Així és com queden estructurats els nostres tres camps de valoració:
 </p>
 
 <div class="table-responsive">
@@ -614,37 +630,36 @@
     <thead>
       <tr>
         <th>Nom del camp</th>
-        <th>Archetype Node ID</th>
-        <th>Classe Data Value del RM</th>
+        <th>ID de node d'arquetip</th>
+        <th>Classe Data Value de l'RM</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Puntuació de satisfacció (Satisfaction Rating)</strong></td>
+        <td><strong>Satisfaction Rating</strong></td>
         <td><code>at0005</code></td>
         <td><code>DV_COUNT</code><br><em>(Nombre enter)</em></td>
       </tr>
       <tr>
-        <td><strong>Recomanaries a un amic? (Recommend to a Friend?)</strong></td>
+        <td><strong>Recommend to a Friend?</strong></td>
         <td><code>at0006</code></td>
         <td><code>DV_BOOLEAN</code><br><em>(Indicador Cert / Fals)</em></td>
       </tr>
       <tr>
-        <td><strong>Comentaris del client (Customer Feedback)</strong></td>
+        <td><strong>Customer Feedback</strong></td>
         <td><code>at0007</code></td>
         <td><code>DV_TEXT</code><br><em>(Cadena de text lliure)</em></td>
       </tr>
       <tr>
-        <td><strong>Order ID</strong> (dins de Protocol)</td>
+        <td><strong>Order ID</strong> (al Protocol)</td>
         <td><code>at0002</code></td>
-        <td><code>DV_IDENTIFIER</code><br><em>(Identificador de negoci / UUID)</em></td>
+        <td><code>DV_IDENTIFIER</code><br><em>(Identificador formal de negoci/UUID)</em></td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<p>Amb això podem construir l'estructura JSON corresponent amb els valors introduïts per a <code>data</code> i <code>protocol</code>:</p>
-
+<p>Tenint això en compte, podem construir l'estructura JSON corresponent amb els valors emplenats per a <code>data</code> i <code>protocol</code>:</p>
 <pre><code class="language-json">...
 "protocol": {
   "_type": "ITEM_TREE",
@@ -721,10 +736,10 @@
 <!-- ============================================================ -->
 <!-- Step 9 The Full Assembled Composition -->
 <!-- ============================================================ -->
-<h3>Pas 8 - El document JSON complet assemblat</h3>
+<h3>Pas 8 — El document JSON complet ensamblat</h3>
 
 <p>
-  En unir totes aquestes peces, obtenim la nostra composició canònica d'openEHR completa i plenament vàlida:
+  Quan unim totes aquestes peces, obtenim la nostra composició canònica d'openEHR completa i totalment vàlida:
 </p>
 
 <pre><code class="language-json">{
@@ -885,8 +900,8 @@
 
 <hr>
 
-<h3>Fitxers d'exemple llestos per utilitzar</h3>
-<p>Podeu inspeccionar o descarregar els continguts JSON per a les tres plantilles del nostre procés:</p>
+<h3>Fitxers d'exemple a punt per utilitzar</h3>
+<p>Podeu inspeccionar o descarregar els fitxers JSON per a les tres plantilles del flux de treball:</p>
 <ul>
   <li><a href="docs/Customer_Review_v0_COMPOSITION_EXAMPLE.json" download>Customer_Review_v0_COMPOSITION_EXAMPLE.json</a></li>
   <li><a href="docs/Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json" download>Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json</a></li>
@@ -895,10 +910,10 @@
 
 <hr>
 
-<h2>Publicar (persistir) una composició al CDR</h2>
+<h2>9.4 Persistir una composició a l'RDC</h2>
 
 <p>
-  Per desar una composició, s'envia una petició HTTP <code>POST</code> adreçada al punt d'accés de l'<code>ehr_id</code> del pacient:
+  Per desar una composició, enviem una petició HTTP <code>POST</code> adreçada específicament a l'endpoint de l'<code>ehr_id</code> del pacient:
 </p>
 
 <table class="data-table">
@@ -906,26 +921,26 @@
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition</code></td></tr>
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
   <tr><td><strong>Paràmetres (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code></td></tr>
-  <tr><td><strong>Cos (Body)</strong></td><td>La composició completa en format Canonical JSON.</td></tr>
+  <tr><td><strong>Cos (Body)</strong></td><td>La composició completa en JSON Canònic.</td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>201 Created</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>La composició desada incloent-hi el seu <code>uid</code> versionat assignat.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>La composició persistida, incloent-hi l'<code>uid</code> versionat assignat.</td></tr>
 </table>
 
 <div class="callout note">
-  <strong>Comprendre l'UID de la composició:</strong> A openEHR, les composicions reben un <code>OBJECT_VERSION_ID</code> estructurat com a <code>{UUID}::{system_id}::{version}</code> (per exemple: <code>c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code>).
+  <strong>Comprendre l'UID de la composició:</strong> A openEHR, les composicions reben un <code>OBJECT_VERSION_ID</code> formatat com a <code>{UUID}::{system_id}::{version}</code> (per exemple: <code>c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code>).
 </div>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026135957.png" alt="Publicació d'una composició a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.14: Creació amb èxit de la composició retornant la versió 1.</p>
+  <img src="images/Pasted image 20261026135957.png" alt="Enviant una composició a Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figura 9.9: Creació reeixida de la composició que retorna la versió 1.</p>
 </div>
 
 <hr>
 
-<h2>Recuperar una composició mitjançant el seu ID</h2>
+<h2>9.5 Recuperar una composició mitjançant el seu identificador</h2>
 
 <p>
-  Quan coneixeu l'<code>ehr_id</code> i el <code>composition_id</code> concrets, podeu recuperar la composició sencera mitjançant una petició HTTP <code>GET</code>:
+  Quan coneixeu l'<code>ehr_id</code> i la <code>composition_id</code> de destí, podeu recuperar la composició completa amb una petició HTTP <code>GET</code>:
 </p>
 
 <table class="data-table">
@@ -933,18 +948,18 @@
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
   <tr><td><strong>Paràmetres (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>La versió més recent de la composició emmagatzemada.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>La darrera versió de la composició emmagatzemada.</td></tr>
 </table>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026141946.png" alt="Obtenció d'una composició per ID" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.15: Recuperació d'un registre de composició existent.</p>
+  <img src="images/Pasted image 20261026141946.png" alt="Recuperant una composició per ID" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figura 9.10: Descàrrega d'un registre de composició existent.</p>
 </div>
 
-<h2>Modificar una composició existent</h2>
+<h2>9.6 Modificar una composició existent</h2>
 
 <p>
-  Els repositoris d'openEHR mantenen un historial de versions auditable i permanent: les composicions mai no se sobreescriuen directament. Per actualitzar un registre, s'emet una petició HTTP <code>PUT</code> i s'envia l'identificador de la versió actual a la capçalera <code>If-Match</code> per prevenir conflictes d'actualització concurrents (bloqueig optimista):
+  Els repositoris openEHR conserven un historial de versions auditable i permanent: les composicions mai se sobreescriuen al mateix registre. Quan s'actualitza una dada, enviem una petició HTTP <code>PUT</code> passant l'identificador de versió actual a la capçalera <code>If-Match</code> per prevenir conflictes d'escriptura concurrents (bloqueig optimista):
 </p>
 
 <table class="data-table">
@@ -952,36 +967,42 @@
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
   <tr><td><strong>Capçaleres (Headers)</strong></td><td><code>If-Match: c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code><br><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
   <tr><td><strong>Paràmetres (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
-  <tr><td><strong>Cos (Body)</strong></td><td>El JSON de la composició actualitzada.</td></tr>
+  <tr><td><strong>Cos (Body)</strong></td><td>El document JSON de la composició actualitzat.</td></tr>
   <tr><td><strong>Estat esperat</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Cos de la resposta</strong></td><td>El registre actualitzat, mostrant l'increment de versió a <code>::2</code>.</td></tr>
+  <tr><td><strong>Cos de la resposta</strong></td><td>El registre actualitzat que mostra com la versió s'ha incrementat a <code>::2</code>.</td></tr>
 </table>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026143522.png" alt="Modificació d'una composició amb PUT" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figura 3.16: Actualització d'una composició observant l'increment de la versió a ::2.</p>
+  <img src="images/Pasted image 20261026143522.png" alt="Modificant una composició amb PUT" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Figura 9.11: Actualització d'una composició observant com la versió s'incrementa a ::2.</p>
 </div>
 
 <hr>
 
-<h2>AQL: consultar dades clíniques específiques</h2>
+<h1>Capítol 10: Consulta de dades clíniques específiques amb AQL</h1>
+
+<p class="chapter-intro">
+  Persistir la informació clínica és només una cara de la moneda; recuperar valors concrets a través de múltiples trobades assistencials és on openEHR ofereix el seu valor més diferencial. En aquest capítol introduïm l'Archetype Query Language (AQL): l'estàndard de consulta neutral respecte als proveïdors dissenyat específicament per a estructures clíniques. Desglossem l'anatomia de les consultes AQL, les executem a través de l'API REST i mostrem patrons d'ús del món real com la parametrització, la inspecció de rutes i la correlació de documents en fluxos de treball complexos.
+</p>
+
+<h2>10.1 Consulta de dades clíniques específiques mitjançant AQL</h2>
 
 <p>
-  Als passos anteriors hem persistit dades al CDR i hem vist com recuperar una composició sencera mitjançant l'API quan en coneixem l'identificador únic. Tanmateix, en aplicacions clíniques reals rarament coneixereu l'ID de la composició per endavant, o només necessitareu punts de dades específics (p. ex., únicament el nom de la pizza, o la lectura de la pressió arterial sistòlica) entre múltiples contactes assistencials. Per a això, openEHR proporciona l'<strong>Archetype Query Language (AQL)</strong>.
+  En els passos previs hem desat dades a l'RDC i hem vist com recuperar una composició sencera via API quan ja en coneixem l'identificador únic. Tanmateix, a les aplicacions assistencials del món real rarament sabreu la ID de la composició per endavant, o només necessitareu punts de dades molt concrets (p. ex., només el nom de la pizza, o només el valor sistòlic de la pressió arterial) al llarg de múltiples visites. Per a això, openEHR proporciona l'<strong>Archetype Query Language (AQL)</strong>.
 </p>
 
 <p>
-  L'AQL està estandarditzat en les especificacions oficials d'openEHR: 
-  <a href="https://specifications.openehr.org/releases/QUERY/latest/AQL.html" target="_blank" rel="noopener noreferrer">Especificacions AQL d'openEHR</a>.
+  L'AQL està formalitzat a les especificacions oficials d'openEHR: 
+  <a href="https://specifications.openehr.org/releases/QUERY/latest/AQL.html" target="_blank" rel="noopener noreferrer">Especificacions d'AQL a openEHR</a>.
 </p>
 
 <p>
-  En aquesta secció veurem exemples pràctics que us donaran un primer contacte intuïtiu i directe amb l'AQL.
+  En aquesta secció veurem exemples pràctics perquè tingueu un primer contacte intuïtiu i aplicat amb l'AQL.
 </p>
 
 <h3>Executar una consulta AQL mitjançant l'API REST</h3>
 
-<p>Les consultes AQL s'envien a EHRbase utilitzant una petició HTTP <code>POST</code> al punt d'accés de consultes:</p>
+<p>Les consultes AQL s'envien a EHRbase fent una petició HTTP <code>POST</code> a l'endpoint de consultes:</p>
 
 <table class="data-table">
   <tr>
@@ -998,7 +1019,7 @@
   </tr>
   <tr>
     <td><strong>Cos (Body)</strong></td>
-    <td>Càrrega útil: l'embolcall de la consulta AQL en format JSON.</td>
+    <td>Payload: l'embolcall de la consulta AQL en format JSON.</td>
   </tr>
   <tr>
     <td><strong>Estat esperat</strong></td>
@@ -1006,11 +1027,11 @@
   </tr>
   <tr>
     <td><strong>Cos de la resposta</strong></td>
-    <td>Columnes i files del resultat de la consulta en format JSON.</td>
+    <td>Columnes i files amb els resultats de la consulta en format JSON.</td>
   </tr>
 </table>
 
-<p>El cos JSON enviat a la petició segueix aquesta estructura:</p>
+<p>La càrrega útil en format JSON enviada al cos de la petició té aquesta estructura:</p>
 
 <pre><code class="language-json">{
   "q": "SELECT ...",
@@ -1020,14 +1041,14 @@
 }</code></pre>
 
 <ul>
-  <li><code>q</code>: La cadena de la consulta AQL (obligatòria).</li>
-  <li><code>offset</code>: Nombre de files inicials a ometre (molt útil per paginar resultats).</li>
-  <li><code>fetch</code>: Nombre màxim de files a retornar (també es pot especificar dins de la consulta mitjançant <code>LIMIT</code>).</li>
-  <li><code>query_parameters</code>: Un diccionari de paràmetres clau-valor que se substitueixen en les variables declarades a la consulta (amb el prefix <code>$</code>).</li>
+  <li><code>q</code>: La cadena de text amb la consulta AQL (obligatòria).</li>
+  <li><code>offset</code>: El nombre de files inicials que cal ometre (molt útil per paginar resultats).</li>
+  <li><code>fetch</code>: El nombre màxim de files que es volen rebre (també es pot indicar directament a la consulta amb <code>LIMIT</code>).</li>
+  <li><code>query_parameters</code>: Un diccionari de paràmetres clau-valor que se substitueixen a les variables declarades a la consulta (amb el prefix <code>$</code>).</li>
 </ul>
 
 <p>
-  Les consultes AQL estàndard en JSON s'han d'enviar en una sola línia. Per inspeccionar, formatar i documentar consultes de múltiples línies de forma còmoda, podeu emprar l'eina de codi obert <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a>.
+  Les consultes AQL estàndard en JSON s'han de formatar en una sola línia. Per inspeccionar, donar format i documentar consultes de diverses línies de forma còmoda, podeu emprar l'eina de codi obert <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a>.
 </p>
 
 <hr>
@@ -1035,10 +1056,10 @@
 <h3>L'anatomia d'una consulta AQL</h3>
 
 <p>
-  A grans trets, una consulta AQL demana al CDR: <em>«Retorna'm un conjunt d'elements de dades clíniques basant-te en camins d'arquetip i criteris específics.»</em>
+  A grans trets, una consulta AQL demana a l'RDC: <em>«Si us plau, retorna'm un conjunt d'elements de dades clíniques a partir d'unes rutes d'arquetip i uns criteris concrets.»</em>
 </p>
 
-<p>Per exemple, comparem una pregunta en llenguatge natural amb la seva sentència AQL equivalent (aplicada a la nostra analogia de la comanda de pizzes):</p>
+<p>Per exemple, comparem una pregunta en llenguatge natural amb la seva clàusula AQL equivalent (aplicada a la nostra analogia de les pizzes):</p>
 
 <div class="callout note">
   <strong>Objectiu:</strong> Quins clients han fet una comanda?
@@ -1047,17 +1068,17 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th>Pregunta en llenguatge natural</th>
+      <th>Pregunta en llenguatge col·loquial</th>
       <th>Clàusula AQL</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>«Digues-me tots els EHR IDs...»</td>
+      <td>«Digue'm tots els identificadors d'EHR...»</td>
       <td><code>SELECT e/ehr_id/value</code></td>
     </tr>
     <tr>
-      <td>«...dels registres que continguin composicions...»</td>
+      <td>«...dels historials que continguin composicions...»</td>
       <td><code>FROM EHR e CONTAINS COMPOSITION c</code></td>
     </tr>
     <tr>
@@ -1067,7 +1088,7 @@
   </tbody>
 </table>
 
-<p>Si ho ajuntem tot en una consulta completa:</p>
+<p>Agrupant totes les peces en una consulta completa:</p>
 
 <pre><code class="language-sql">SELECT e/ehr_id/value 
 FROM EHR e 
@@ -1076,10 +1097,12 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 
 <hr>
 
+<h2>10.2 Exemples pràctics de consultes AQL</h2>
+
 <h3>Conjunt de dades de prova</h3>
 
 <p>
-  Per provar aquestes consultes, es van enregistrar tres comandes de mostra al nostre registre EHR de proves (<code>ehr_id: 7fab0168-e79f-456f-b271-02050dabaa43</code>). Com que els entorns de proves públics s'esborren periòdicament, podeu descarregar el conjunt complet de composicions de mostra per tornar-les a carregar si cal:
+  Per provar aquestes consultes, s'han desat tres comandes d'exemple al nostre registre EHR de test (<code>ehr_id: 7fab0168-e79f-456f-b271-02050dabaa43</code>). Com que els entorns de proves públics es buiden periòdicament, podeu descarregar el conjunt complet de composicions de mostra per si us cal tornar-les a carregar:
 </p>
 
 <p>
@@ -1087,7 +1110,7 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 </p>
 
 <p>
-  Es van enviar les comandes següents:
+  Es van trametre les comandes següents:
 </p>
 
 <table class="data-table">
@@ -1137,7 +1160,7 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
       <td>Large (<code>at0010</code>)</td>
     </tr>
     <tr>
-      <td><strong>Notes de cuina</strong></td>
+      <td><strong>Notes per a la cuina</strong></td>
       <td>Sense gluten</td>
       <td>Cap</td>
       <td>Sense extres!</td>
@@ -1158,7 +1181,7 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 </table>
 
 <p>
-  En crear aquests registres, es van desar els UIDs de les versions de les composicions de comanda i es van passar com a <code>Order ID</code> a les composicions posteriors de seguiment i de ressenya del client.
+  En donar d'alta aquests registres, es van anotar els UIDs versionats de les composicions de les comandes i es van passar com a <code>Order ID</code> a les composicions posteriors de seguiment i de valoració del client.
 </p>
 
 <hr>
@@ -1166,18 +1189,18 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 <!-- ============================================================ -->
 <!-- AQL 1 -->
 <!-- ============================================================ -->
-<h3>AQL 1 - Llistar totes les comandes d'un client</h3>
+<h3>AQL 1 — Llistar totes les comandes d'un client</h3>
 
 <p>
   El nostre objectiu és trobar totes les comandes fetes pel nostre client, retornant l'UUID únic de cada composició basada en <code>Online_Customer_Order_v0</code>.
 </p>
 
-<p>Comencem amb l'estructura bàsica de contenció:</p>
+<p>Comencem amb el nostre esquelet bàsic de contenció:</p>
 
 <pre><code class="language-sql">SELECT ... FROM EHR e CONTAINS COMPOSITION c ...</code></pre>
 
 <p>
-  Al Model de Referència d'openEHR, l'identificador versionat de la composició es troba a l'atribut <code>uid</code>. Si seleccionem directament <code>c/uid</code>, el CDR retorna tot l'objecte <code>OBJECT_VERSION_ID</code>:
+  Al Model de Referència d'openEHR, l'identificador versionat de la composició es troba a l'atribut <code>uid</code>. Si seleccionem <code>c/uid</code> directament, l'RDC retorna l'objecte <code>OBJECT_VERSION_ID</code> complet:
 </p>
 
 <pre><code class="language-json">{
@@ -1190,10 +1213,10 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 </p>
 
 <div class="callout tip">
-  <strong>Convé seleccionar l'objecte sencer o només el valor?</strong> Seleccionar l'objecte complet preserva les metadades (com ara el tipus de dades i els identificadors de terminologia). D'altra banda, apuntar directament a <code>/value</code> retorna una resposta més neta i redueix el processament al costat del client. En aquests exemples seleccionarem directament els valors primitius.
+  <strong>Convé seleccionar l'objecte sencer o només el valor?</strong> Si es tria l'objecte complet es conserven les metadades (com ara tipus de dades i identificadors de terminologia). En canvi, apuntar directament a <code>/value</code> produeix una resposta més neta i simplifica el processament de les dades al client. En aquests exemples seleccionem directament els valors primitius.
 </div>
 
-<p>A continuació, restringim la consulta al registre del nostre client concret mitjançant el seu EHR ID (que es troba a <code>ehr_id/value</code> de l'EHR):</p>
+<p>A continuació, acotem la consulta al registre del nostre client fent servir el seu identificador EHR ID (que trobem a <code>ehr_id/value</code> de l'EHR):</p>
 
 <pre><code class="language-sql">SELECT c/uid/value 
 FROM EHR e 
@@ -1201,7 +1224,7 @@ CONTAINS COMPOSITION c
 WHERE e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43'</code></pre>
 
 <p>
-  Finalment, per evitar que coincideixi amb altres composicions (com ara ressenyes o registres del seguiment), filtrem específicament per l'identificador de la plantilla (situat a <code>archetype_details/template_id/value</code> de la composició):
+  Finalment, per evitar coincidències amb altres composicions (com ara avaluacions o registres de seguiment), filtrem expressament per l'identificador de la plantilla (situat a <code>archetype_details/template_id/value</code> de la composició):
 </p>
 
 <pre><code class="language-sql">SELECT c/uid/value 
@@ -1212,11 +1235,11 @@ WHERE
     AND 
     c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></pre>
 
-<p>En executar aquesta consulta a Postman obtenim les nostres tres comandes enregistrades:</p>
+<p>L'execució d'aquesta consulta a Postman retorna les nostres tres comandes registrades:</p>
 
 <div class="img-container">
   <img src="images/Pasted image 20261027115836.png" alt="Resposta d'AQL 1 a Postman" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.17: Resultat d'AQL 1 retornant els tres UIDs de les composicions.</p>
+  <p class="img-caption">Figura 10.1: Resultat de la consulta AQL 1 que retorna els tres UIDs de les composicions.</p>
 </div>
 
 <hr>
@@ -1224,35 +1247,35 @@ WHERE
 <!-- ============================================================ -->
 <!-- AQL 2 -->
 <!-- ============================================================ -->
-<h3>AQL 2 - Consultar l'estat de preparació de les comandes</h3>
+<h3>AQL 2 — Comprovar l'estat de preparació de les comandes</h3>
 
 <p>
-  En aquest exemple volem consultar l'estat de preparació de les nostres comandes. Aquesta informació es troba emmagatzemada a les composicions basades en la plantilla <code>Kitchen_And_Delivery_Tracker_v0</code>.
+  En aquest exemple volem conèixer l'estat de preparació de les comandes. Aquesta informació està guardada en composicions basades en la plantilla <code>Kitchen_And_Delivery_Tracker_v0</code>.
 </p>
 
 <p>
-  Per determinar les rutes AQL exactes d'aquests elements, consultem l'<strong>openEHR Archetype Designer</strong>. Als detalls del node trobem la ruta resolta per a l'<strong>Order ID</strong>:
+  Per esbrinar les rutes AQL exactes d'aquests elements, consultem l'<strong>openEHR Archetype Designer</strong>. Als detalls del node trobem la ruta resolta per a l'<strong>Order ID</strong>:
 </p>
 
 <pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]</code></pre>
 
 <div class="img-container">
   <img src="images/Pasted image 20261027120325.png" alt="Ruta resolta per a l'Order ID a l'Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.18: Inspecció de la ruta resolta per a l'Order ID a l'Archetype Designer.</p>
+  <p class="img-caption">Figura 10.2: Inspecció de la ruta resolta de l'Order ID a l'Archetype Designer.</p>
 </div>
 
 <p>
-  De la mateixa manera, localitzem la ruta per a l'estat de transició ISM de l'acció (l'estat de preparació):
+  De la mateixa manera, ubiquem la ruta per a l'estat de transició ISM de l'acció (l'estat de preparació):
 </p>
 
 <pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition</code></pre>
 
 <div class="img-container">
   <img src="images/Pasted image 20261027120403.png" alt="Ruta resolta per a la transició ISM a l'Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.19: Localització de la ruta per a l'estat de transició ISM.</p>
+  <p class="img-caption">Figura 10.3: Localització de la ruta de l'estat de transició ISM.</p>
 </div>
 
-<p>Amb això construïm la sentència AQL completa:</p>
+<p>Ensamblem l'enunciat AQL complet:</p>
 
 <pre><code class="language-sql">SELECT 
   c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]/value/id, 
@@ -1265,7 +1288,7 @@ WHERE
     c/archetype_details/template_id/value = 'Kitchen_And_Delivery_Tracker_v0'</code></pre>
 
 <p>
-  Escriure valors directament a mà dins de cadenes AQL llargues és propens a errors. Si substituïm els valors literals per paràmetres (com ara <code>$ehr_id</code> i <code>$template_id</code>), fem que la nostra consulta sigui neta, dinàmica i reutilitzable:
+  Inserir paràmetres directament en cadenes AQL llargues pot ser font d'errors. Si substituïm els valors literals per paràmetres (com ara <code>$ehr_id</code> i <code>$template_id</code>), obtenim una consulta neta, dinàmica i reutilitzable:
 </p>
 
 <pre><code class="language-json">{
@@ -1278,20 +1301,20 @@ WHERE
   }
 }</code></pre>
 
-<p>En executar aquesta petició obtenim l'Order ID i l'estat actual de preparació:</p>
+<p>L'execució d'aquesta petició retorna l'Order ID i l'estat actual de preparació:</p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027121236.png" alt="Resultats d'AQL 2 mostrant l'Order ID i l'estat" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.20: Identificadors de comanda recuperats amb el seu estat actual de preparació.</p>
+  <img src="images/Pasted image 20261027121236.png" alt="Resultats d'AQL 2 que mostren l'Order ID i l'estat" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 10.4: Identificadors de comanda recuperats amb el seu estat de preparació corresponent.</p>
 </div>
 
 <p>
-  Com que formatar consultes AQL complexes en una sola línia pot resultar feixuc, l'eina no oficial <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a> us permet estructurar, provar i documentar les vostres consultes de manera visual:
+  Com que escriure consultes AQL extenses en una sola línia pot ser tediós, l'eina no oficial <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a> us permet estructurar, provar i documentar visualment les vostres consultes:
 </p>
 
 <div class="img-container">
   <img src="images/Pasted image 20261027121542.png" alt="Interfície d'openEHR AQL Manager" class="guide-img" width="906px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.21: Formatació i validació de consultes AQL multilínia a l'openEHR AQL Manager.</p>
+  <p class="img-caption">Figura 10.5: Formatació i validació de consultes AQL de diverses línies a l'openEHR AQL Manager.</p>
 </div>
 
 <hr>
@@ -1299,22 +1322,22 @@ WHERE
 <!-- ============================================================ -->
 <!-- AQL 3 -->
 <!-- ============================================================ -->
-<h3>AQL 3 - Avaluar les puntuacions per nom de pizza</h3>
+<h3>AQL 3 — Avaluar puntuacions segons el nom de la pizza</h3>
 
 <p>
-  Finalment, determinarem quina pizza ha obtingut la puntuació de satisfacció més alta per part del client.
+  Per acabar, determinarem quina pizza ha obtingut la puntuació més alta de satisfacció del client.
 </p>
 
 <p>
-  Aquí ens trobem amb un repte clàssic de modelatge a openEHR: el nom de la pizza es va registrar en el moment de la comanda a <code>Online_Customer_Order_v0</code>, mentre que la valoració de satisfacció es va enviar posteriorment a <code>Customer_Review_v0</code>. Tot i que certes tècniques avançades d'AQL permeten vincular registres relacionats, en entorns de producció sovint és més net i eficient executar dues consultes específiques i relacionar-les mitjançant el seu identificador comú (l'<strong>Order ID</strong>):
+  Aquí ens trobem amb un repte típic del modelatge openEHR: el nom de la pizza es va registrar en fer la comanda a <code>Online_Customer_Order_v0</code>, mentre que la valoració de satisfacció es va trametre més tard a <code>Customer_Review_v0</code>. Tot i que tècniques avançades d'AQL permeten vincular registres connectats, en entorns de producció sovint és més net, eficient i robust fer dues consultes acotades i creuar-les mitjançant el seu identificador comú (l'<strong>Order ID</strong>):
 </p>
 
 <ol>
-  <li><strong>Consulta 1:</strong> Recuperar el nom de la pizza per a cada Order ID.</li>
-  <li><strong>Consulta 2:</strong> Recuperar la valoració del client per a cada Order ID.</li>
+  <li><strong>Consulta 1:</strong> Obtenir el nom de la pizza per a cada Order ID.</li>
+  <li><strong>Consulta 2:</strong> Obtenir la valoració del client per a cada Order ID.</li>
 </ol>
 
-<h4>Consulta 1: Obtenir noms de pizza per Order ID</h4>
+<h4>Consulta 1: Recuperar el nom de la pizza per Order ID</h4>
 
 <pre><code class="language-json">{
   "q": "SELECT c/uid/value AS order_id, c/content[openEHR-EHR-INSTRUCTION.pizza_order.v0]/activities[at0001]/description[at0002]/items[at0004]/value/value AS pizza_name FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
@@ -1327,11 +1350,11 @@ WHERE
 }</code></pre>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027122531.png" alt="Resultats d'AQL associant Order IDs amb noms de pizza" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.22: Sortida que associa els identificadors de comanda amb els noms concrets de pizza.</p>
+  <img src="images/Pasted image 20261027122531.png" alt="Resultats d'AQL creuant Order IDs i noms de pizza" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 10.6: Sortida que vincula els identificadors de comanda amb noms de pizza concrets.</p>
 </div>
 
-<h4>Consulta 2: Obtenir valoracions per Order ID</h4>
+<h4>Consulta 2: Recuperar les puntuacions per Order ID</h4>
 
 <pre><code class="language-json">{
   "q": "SELECT c/content[openEHR-EHR-EVALUATION.customer_review.v0]/protocol[at0001]/items[at0002]/value/id AS order_id, c/content[openEHR-EHR-EVALUATION.customer_review.v0]/data[at0003]/items[at0005]/value/magnitude AS rating FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
@@ -1344,12 +1367,12 @@ WHERE
 }</code></pre>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027123305.png" alt="Resultats d'AQL associant Order IDs amb valoracions" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figura 3.23: Sortida que vincula els identificadors de comanda amb les puntuacions numèriques de satisfacció.</p>
+  <img src="images/Pasted image 20261027123305.png" alt="Resultats d'AQL creuant Order IDs i valoracions" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Figura 10.7: Sortida que vincula els identificadors de comanda amb les puntuacions numèriques de satisfacció.</p>
 </div>
 
 <p>
-  En creuar els resultats pel camp <code>order_id</code>, comprovem que l'<strong>«Archetype Supreme»</strong> ha estat la pizza millor valorada per aquest client, amb una puntuació perfecta de <strong>5</strong>!
+  En creuar els resultats pel camp <code>order_id</code>, podem observar clarament que la <strong>«Archetype Supreme»</strong> ha estat la pizza més ben valorada per aquest client, aconseguint una puntuació perfecta de <strong>5</strong>!
 </p>
 
 <hr>
@@ -1357,10 +1380,10 @@ WHERE
 <!-- ============================================================ -->
 <!-- Postman Collection Section -->
 <!-- ============================================================ -->
-<h2>Col·lecció de Postman a punt per utilitzar</h2>
+<h3>Col·lecció de Postman a punt per utilitzar</h3>
 
 <p>
-  Per estalviar-vos haver d'escriure a mà URLs llargues, rutes complexes i capçaleres, totes les peticions mostrades al llarg d'aquesta Part 3 estan aplegades en un fitxer de col·lecció de Postman preconfigurat:
+  Per estalviar-vos d'escriure manualment URLs llargues, rutes complexes i capçaleres, totes les peticions mostrades a la Part 3 s'han recollit en un fitxer de col·lecció de Postman preconfigurat:
 </p>
 
 <p>
@@ -1369,24 +1392,24 @@ WHERE
   </a>
 </p>
 
-<h3>Com importar la col·lecció a Postman</h3>
+<h4>Com importar la col·lecció a Postman</h4>
 
-<h4>Mètode A: Arrossegar i deixar anar (Més ràpid)</h4>
+<h5>Mètode A: Arrossegar i deixar anar (Més ràpid)</h5>
 <ol>
   <li>Obriu Postman al vostre ordinador.</li>
-  <li>Arrossegueu el fitxer descarregat <code>openEHR_Pizza_Tutorial.postman_collection.json</code> a l'interior de la finestra de Postman.</li>
-  <li>Feu clic a <strong>Import</strong> quan el programa us ho demani.</li>
+  <li>Arrossegueu el fitxer descarregat <code>openEHR_Pizza_Tutorial.postman_collection.json</code> directament a la finestra de Postman.</li>
+  <li>Feu clic a <strong>Import</strong> quan aparegui el missatge.</li>
 </ol>
 
-<h4>Mètode B: El botó Import</h4>
+<h5>Mètode B: El botó Import</h5>
 <ol>
-  <li>Feu clic al botó <strong>Import</strong> a la barra d'eines superior esquerra de Postman.</li>
-  <li>Seleccioneu <strong>Files</strong> i cerqueu el fitxer de la col·lecció descarregat.</li>
+  <li>Feu clic al botó <strong>Import</strong> a la barra superior esquerra de Postman.</li>
+  <li>Seleccioneu <strong>Files</strong> i cerqueu el fitxer de col·lecció descarregat.</li>
   <li>Confirmeu fent clic a <strong>Import</strong>.</li>
 </ol>
 
 <p>
-  Un cop importada, la col·lecció apareixerà a la barra lateral esquerra amb totes les peticions ordenades en una seqüència lògica, a punt perquè les exploreu, proveu i executeu contra EHRbase!
+  Un cop importada, la col·lecció apareixerà a la barra lateral esquerra amb totes les peticions ordenades seqüencialment, a punt perquè les exploreu, proveu i executeu contra EHRbase!
 </p>
 
 </section>

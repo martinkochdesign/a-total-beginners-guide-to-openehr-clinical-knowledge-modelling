@@ -1,324 +1,376 @@
 <section>
 
-<h1>Modellierung eines Prozesses mit Archetypen und Templates</h1>
+<h1>Kapitel 4: Den Arbeitsablauf mit Archetypen und Templates gestalten</h1>
 
-<p>Wie wir gelernt haben, modelliert openEHR klinische Daten auf zwei klar voneinander getrennten Ebenen: klinische Konzepte (Archetypen) und klinischer Kontext (Templates).</p>
-<p>Um den Einstieg in die praktische Modellierung zu erleichtern, nutzen wir eine Analogie zu einem klinischen Arbeitsablauf, der die verschiedenen Archetyp-Klassen abdeckt.</p>
-<p>Wir bleiben bei kulinarischen Vergleichen und modellieren den Ablauf einer <strong>Pizzabestellung und -lieferung</strong>.</p>
-<p>Wir verwenden das Pizza-Beispiel ganz bewusst, um uns auf die Mechanik der Modellierung konzentrieren zu können, ohne uns in echten medizinischen Fachdebatten zu verlieren.</p>
-<p>Dazu bilden wir folgenden Ablauf ab:</p>
-<ul>
-  <li>Der Kunde sendet eine Bestellung über ein Online-Formular an die Pizzeria. Es wird eine Order ID erzeugt, um die gesamte nachfolgende Dokumentation eindeutig mit dieser Bestellung zu verknüpfen.</li>
-  <li>Die Küche bereitet die Pizza zu und verfolgt den Status bis zur Auslieferung. Jeder Schritt dieses Prozesses wird dokumentiert.</li>
-  <li>Nachdem der Kunde die Pizza erhalten und genossen hat, füllt er ein Zufriedenheitsformular aus.</li>
-</ul>
-
-<div class="img-container">
-  <img src="images/Pasted image 20261023112056.png" alt="Pizza-Prozess" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.1: Der Ablauf der Pizzalieferung und die drei daraus resultierenden Dokumentationen.</p>
-</div>
-
-<h2>Strukturierung des Prozesses</h2>
-<p>Die Templates und Archetypen, die wir für diesen Workflow entwickeln, sind:</p>
-<ul>
-  <li><strong>Template 1: „Online-Kundenbestellung“ (Online Customer Checkout)</strong></li>
-  <li><strong>Template 2: „Küchen- und Lieferstatus“ (Kitchen and Courier Tracker)</strong></li>
-  <li><strong>Template 3: „Kundenbewertung“ (Customer Review)</strong></li>
-</ul>
-
-<p>In den folgenden Abschnitten legen wir fest, welche Templates welche Archetypen enthalten sollen und welche Datenelemente wir in den Archetypen modellieren müssen.</p>
-
-<h3>Der Basis-Archetyp</h3>
-<p>Um die Struktur übersichtlich zu halten, basieren alle unsere Templates auf einem einzigen Archetyp: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. In der realen klinischen Praxis würden Sie einen spezifischen Composition-Archetyp je nach Einsatzzweck wählen oder erstellen – beispielsweise zur Abbildung eines Patientenkontakts (Encounter), einer persistenten Liste oder eines Befundberichts.</p>
-<p>
-  Diese Basis-Komposition entsteht, indem wir einen neuen COMPOSITION-Archetyp mit der ID <code>openEHR-EHR-COMPOSITION.example_base.v0</code> anlegen und speichern. Es sind keine weiteren Anpassungen erforderlich.
+<p class="chapter-intro">
+  Bevor wir Softwarewerkzeuge öffnen, beginnt erfolgreiches klinisches Modellieren stets mit einem klaren Bauplan. In diesem Kapitel bilden wir einen vollständigen End-to-End-Prozess anhand einer alltagsnahen Gastronomie-Analogie ab: dem Bestellen, Zubereiten und Bewerten einer Pizza. Wir unterteilen den Arbeitsablauf in verschiedene klinische Dokumentationszeitpunkte, ermitteln die erforderlichen Archetyp-Klassen und planen die drei Templates, die jede Phase dieses Ablaufs erfassen.
 </p>
 
-<h3>Template 1: Online-Kundenbestellung (Online Customer Order)</h3>
+<h2>4.1 Die Pizzalieferdienst-Analogie</h2>
+
+<p>Wie wir gelernt haben, modelliert openEHR klinische Daten über zwei klare Ebenen hinweg: klinische Konzepte (Archetypen) und klinischer Kontext (Templates).</p>
+<p>Um mit dem Modellieren in der Praxis zu beginnen, nutzen wir eine Analogie zu einem klinischen Arbeitsablauf, die die verschiedenen Archetyp-Klassen umfasst.</p>
+<p>Wir bleiben bei den Analogien rund ums Essen und modellieren den Ablauf einer <strong>Pizzabestellung und -lieferung</strong>.</p>
+<p>Wir verwenden die Pizza-Analogie, damit wir uns auf die Modellierungsmechanik konzentrieren können, ohne uns in echten klinischen Fachdebatten zu verlieren.</p>
+<p>Dazu modellieren wir den folgenden Arbeitsablauf:</p>
+<ul>
+  <li>Der Kunde sendet eine Bestellung über ein Online-Formular an die Pizzeria. Dabei wird eine Bestell-ID (Order ID) erzeugt, um nachfolgende Dokumentationen mit dieser konkreten Bestellung zu verknüpfen.</li>
+  <li>Die Küche bereitet die Pizza zu und verfolgt den Status bis zur Auslieferung. Jeder Schritt dieser Nachverfolgung wird dokumentiert.</li>
+  <li>Nachdem der Kunde die Pizza erhalten und genossen hat, füllt er ein Formular zur Kundenzufriedenheit aus.</li>
+</ul>
+
+  <div class="img-container">
+    <img src="images/Pasted image 20261023112056.png" alt="Ablauf der Pizzalieferung" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+    <p class="img-caption">Abbildung 4.1: Der Ablauf der Pizzalieferung und die drei daraus resultierenden Dokumentationen.</p>
+  </div>
+
+<h2>4.2 Die drei Templates</h2>
+
+<h3>Strukturierung des Prozesses</h3>
+<p>Die Templates und Archetypen, die wir für diesen Workflow entwickeln, sind:</p>
+<ul>
+  <li><strong>Template 1: „Online Customer Checkout“</strong></li>
+  <li><strong>Template 2: „Kitchen and Courier Tracker“</strong></li>
+  <li><strong>Template 3: „Customer Review“</strong></li>
+</ul>
+
+<p>In den folgenden Abschnitten skizzieren wir, welche Templates welche Archetypen enthalten sollten und welche Datenelemente wir in den Archetypen modellieren müssen.</p>
+
+<h4>Basis-Archetyp</h4>
+<p>Um die Dinge einfach zu halten, stützen wir alle unsere Templates auf einen einzigen Archetypen: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. In der realen Praxis würden Sie einen spezifischen Composition-Archetypen passend zum Einsatzzweck auswählen oder erstellen, etwa zur Modellierung eines Kontakts (Encounter), einer persistenten Liste oder eines Befundberichts.</p>
+<p>
+  Diese Basis-Komposition entsteht, indem wir einen neuen COMPOSITION-Archetypen mit <code>openEHR-EHR-COMPOSITION.example_base.v0</code> als ID anlegen und speichern. Es sind keine Änderungen erforderlich.
+</p>
+
+<h4>Template 1: Online-Kundenbestellung (Online Customer Order)</h4>
 <ul>
   <li><strong>Archetyp:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
     <ul>
-      <li>Datenelement: <strong>Kundenname</strong> — Typ: <code>DV_TEXT</code></li>
-      <li>Datenelement: <strong>Lieferadresse (Straße und Hausnummer)</strong> — Typ: <code>DV_TEXT</code></li>
-      <li>Datenelement: <strong>Telefonnummer</strong> — Typ: <code>DV_TEXT</code></li>
+      <li>Datenelement: <strong>Customer Name</strong> — Typ: <code>DV_TEXT</code></li>
+      <li>Datenelement: <strong>Delivery Street and Number</strong> — Typ: <code>DV_TEXT</code></li>
+      <li>Datenelement: <strong>Contact Phone</strong> — Typ: <code>DV_TEXT</code></li>
     </ul>
   </li>
   <li><strong>Archetyp:</strong> <code>INSTRUCTION.pizza_order.v0</code>
     <ul>
-      <li>Datenelement: <strong>Name der Pizza</strong> — Typ: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
-      <li>Datenelement: <strong>Größe</strong> — Typ: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
-      <li>Datenelement: <strong>Besondere Küchenhinweise</strong> — Typ: <code>DV_TEXT</code> (z. B. „Bitte kross backen“)</li>
-      <li>Slot: <strong>Zusätzliche Beläge</strong> (bindet <code>CLUSTER.pizza_topping.v0</code> unten ein)</li>
+      <li>Datenelement: <strong>Pizza Name</strong> — Typ: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
+      <li>Datenelement: <strong>Size</strong> — Typ: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
+      <li>Datenelement: <strong>Special Kitchen Notes</strong> — Typ: <code>DV_TEXT</code> (z.&nbsp;B. „Bitte gut durchbacken“)</li>
+      <li>Slot: <strong>Extra Toppings</strong> (enthält den unten stehenden <code>CLUSTER.pizza_topping.v0</code>)</li>
     </ul>
   </li>
-  <li><strong>Archetyp:</strong> <code>CLUSTER.pizza_topping.v0</code> (eingebettet in <code>INSTRUCTION.pizza_order.v0</code>)
+  <li><strong>Archetyp:</strong> <code>CLUSTER.pizza_topping.v0</code> (eingebunden in <code>INSTRUCTION.pizza_order.v0</code>)
     <ul>
-      <li>Datenelement: <strong>Belag-Name</strong> — Typ: <code>DV_CODED_TEXT</code> (z. B. Champignons, Extra-Mozzarella, Jalapeños)</li>
-      <li>Datenelement: <strong>Menge</strong> — Typ: <code>DV_ORDINAL</code> (1: Normal, 2: Doppelt, 3: Dreifach)</li>
+      <li>Datenelement: <strong>Topping Name</strong> — Typ: <code>DV_CODED_TEXT</code> (z.&nbsp;B. Champignons, Extra Mozzarella, Jalapeños)</li>
+      <li>Datenelement: <strong>Amount</strong> — Typ: <code>DV_ORDINAL</code> (1: Regular, 2: Double, 3: Triple)</li>
     </ul>
   </li>
 </ul>
 
-<h3>Template 2: Küchen- und Lieferstatus (Kitchen and Delivery Tracker)</h3>
+<h4>Template 2: Küchen- und Lieferverfolgung (Kitchen and Delivery Tracker)</h4>
 <ul>
   <li><strong>Archetyp:</strong> <code>ACTION.pizza_preparation.v0</code>
     <ul>
       <li>Datenelement: <strong>Order ID</strong> — Typ: <code>DV_IDENTIFIER</code> (UUID der Bestellung)</li>
-      <li>Datenelement: <strong>ISM-Lebenszyklusstatus</strong> — Typ: <code>ISM_TRANSITION</code> (Geplant → Im Ofen → Unterwegs → Zugestellt, oder Storniert)</li>
-      <li>Datenelement: <strong>Backtemperatur</strong> — Typ: <code>DV_QUANTITY</code> (z. B. 320 °C)</li>
-      <li>Datenelement: <strong>Hinweise</strong> — Typ: <code>DV_TEXT</code> (z. B. „Dem Kunden an der Haustür übergeben“)</li>
-      <li>Slot: <strong>Geprüfte Beläge</strong> (wiederverwendet <code>CLUSTER.pizza_topping.v0</code>, um abzugleichen, was tatsächlich gebacken wurde)</li>
+      <li>Datenelement: <strong>ISM Lifecycle State</strong> — Typ: <code>ISM_TRANSITION</code> (Planned → In Oven → Dispatched → Delivered oder Cancelled)</li>
+      <li>Datenelement: <strong>Baking Temperature</strong> — Typ: <code>DV_QUANTITY</code> (z.&nbsp;B. 320 °C)</li>
+      <li>Datenelement: <strong>Notes</strong> — Typ: <code>DV_TEXT</code> (z.&nbsp;B. „Dem Kunden am Eingangstor übergeben“)</li>
+      <li>Slot: <strong>Toppings Verified</strong> (wiederverwendet <code>CLUSTER.pizza_topping.v0</code>, um zu überprüfen, was tatsächlich gebacken wurde)</li>
     </ul>
   </li>
 </ul>
 
-<h3>Template 3: Kundenbewertung (Customer Review)</h3>
+<h4>Template 3: Kundenbewertung (Customer Review)</h4>
 <ul>
   <li><strong>Archetyp:</strong> <code>EVALUATION.customer_review.v0</code>
     <ul>
       <li>Datenelement: <strong>Order ID</strong> — Typ: <code>DV_IDENTIFIER</code> (UUID der Bestellung)</li>
-      <li>Datenelement: <strong>Zufriedenheitsbewertung</strong> — Typ: <code>DV_COUNT</code> (eingeschränkt auf Werte von 1 bis 5)</li>
-      <li>Datenelement: <strong>Freunden empfehlen?</strong> — Typ: <code>DV_BOOLEAN</code> (Wahr / Falsch)</li>
-      <li>Datenelement: <strong>Kundenfeedback</strong> — Typ: <code>DV_TEXT</code> (Freitext-Kommentare)</li>
+      <li>Datenelement: <strong>Satisfaction Rating</strong> — Typ: <code>DV_COUNT</code> (eingeschränkt auf Werte von 1 bis 5)</li>
+      <li>Datenelement: <strong>Recommend to Friend?</strong> — Typ: <code>DV_BOOLEAN</code> (True / False)</li>
+      <li>Datenelement: <strong>Customer Feedback</strong> — Typ: <code>DV_TEXT</code> (Freitextkommentar)</li>
     </ul>
   </li>
 </ul>
 
-<h2>Beginnen wir mit der Modellierung der Archetypen</h2>
-<p>Mit diesem Bauplan können wir nun die Archetypen erstellen. Die konkreten Klicks hängen vom verwendeten Modellierungswerkzeug ab. In diesen Beispielen nutzen wir den <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, entwickelt von Better).</p>
+<h1>Kapitel 5: Modellieren der openEHR-Archetypen und -Templates</h1>
 
-<h3>Modellierung von COMPOSITION.example_base.v0</h3>
-<p>Als Basis für all unsere Templates benötigen wir einen COMPOSITION-Archetyp. Um alles sauber und minimalistisch zu halten, erstellen wir eine COMPOSITION und speichern sie direkt ab, ohne eigene Elemente hinzuzufügen.</p>
+<p class="chapter-intro">
+  Mit unserem Bauplan in der Hand geht es nun an die praktische Umsetzung. In diesem Kapitel erstellen wir unsere Archetypen von Grund auf im webbasierten openEHR Archetype Designer. Wir definieren Datentypen, konfigurieren interne Codes, richten Cluster-Slots ein und steuern den Aktionslebenszyklus über Statusübergänge, bevor wir diese einzelnen Komponenten zu unseren drei einsatzbereiten Operational Templates zusammenfügen.
+</p>
+
+<h2>5.1 Beginnen wir mit der Modellierung der Archetypen</h2>
+<p>Nachdem wir einen Plan haben, können wir die Archetypen anlegen. Die genauen Klicks hängen etwas vom verwendeten Werkzeug ab. In diesen Beispielen nutzen wir den <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, entwickelt von Better).</p>
+
+<h3>Modellieren von COMPOSITION.example_base.v0</h3>
+<p>Als Basis für alle unsere Templates benötigen wir einen COMPOSITION-Archetypen. Um alles übersichtlich und minimal zu halten, erstellen wir einfach eine COMPOSITION und speichern sie ab, ohne benutzerdefinierte Elemente hinzuzufügen.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020151218.png" alt="Modellierung von COMPOSITION.example_base.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.2: Erstellung des Basis-Composition-Archetyps.</p>
+  <img src="images/Pasted image 20261020151218.png" alt="Basis-Composition-Archetyp im Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.1: Erstellung des Basis-Composition-Archetypen COMPOSITION.example_base.v0.</p>
 </div>
 
-<h3>Modellierung von ADMIN_ENTRY.delivery_address.v0</h3>
-<p>Wir erstellen einen ADMIN_ENTRY-Archetyp und fügen unter dem <code>data</code>-Attribut drei <code>DV_TEXT</code>-Elemente hinzu.</p>
+<h3>Modellieren von ADMIN_ENTRY.delivery_address.v0</h3>
+<p>Wir erstellen einen ADMIN_ENTRY-Archetypen und fügen 3 <code>DV_TEXT</code>-Elemente unter dem <code>data</code>-Attribut hinzu.</p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261020135043.png" alt="Modellierung von ADMIN_ENTRY.delivery_address.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.3: Aufbau des Archetyps für die Lieferadresse.</p>
+  <img src="images/Pasted image 20261020135043.png" alt="ADMIN_ENTRY Lieferadresse" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.2: Struktur des Archetypen ADMIN_ENTRY.delivery_address.v0.</p>
 </div>
 
-<p>Bitte beachten Sie: Hier speichern wir Kontaktdaten des Kunden für die Pizzalieferung. In echten medizinischen openEHR-Systemen <strong>persistieren wir niemals direkt identifizierende Patientendaten</strong> innerhalb der klinischen Akte.</p>
+<p>Beachten Sie, dass wir hier Kontaktdaten des Kunden für unsere Pizzalieferung speichern. In echten klinischen openEHR-Implementierungen <strong>speichern wir niemals direkt identifizierende Patientendaten</strong> innerhalb der klinischen Patientenakte.</p>
 
-<h3>Modellierung von INSTRUCTION.pizza_order.v0</h3>
-<p>Wir erstellen einen INSTRUCTION-Archetyp und benennen die „Current Activity“ in „Order“ um.</p>
-<p>Unter <code>description</code> fügen wir je ein <code>DV_CODED_TEXT</code> für den Namen der Pizza und die Größe hinzu, ein <code>DV_TEXT</code> für besondere Küchenhinweise sowie einen CLUSTER-Slot für zusätzliche Beläge.</p>
+<h3>Modellieren von INSTRUCTION.pizza_order.v0</h3>
+<p>Wir erstellen einen INSTRUCTION-Archetypen und benennen „Current Activity“ in „Order“ um.</p>
+<p>Unter <code>description</code> fügen wir ein <code>DV_CODED_TEXT</code> für Pizza Name und Size, ein <code>DV_TEXT</code> für Special Kitchen Notes sowie einen CLUSTER-Slot für Extra Toppings hinzu.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135237.png" alt="Modellierung von INSTRUCTION.pizza_order.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.4: Struktur der Bestellanweisung.</p>
+  <img src="images/Pasted image 20261020135237.png" alt="INSTRUCTION Pizzabestellung Struktur" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.3: Struktur des Archetypen INSTRUCTION.pizza_order.v0.</p>
 </div>
 
-<p>Nach Auswahl von <strong>Pizza Name</strong> konfigurieren wir interne codierte Werte für unsere drei Pizza-Varianten:</p>
+<p>Wenn wir <strong>Pizza Name</strong> auswählen, konfigurieren wir interne codierte Begriffe für unsere drei Pizza-Optionen:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135603.png" alt="Codes für den Pizzanamen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.5: Definition der Auswahlliste für Pizzanamen.</p>
+  <img src="images/Pasted image 20261020135603.png" alt="Pizza Name codierte Werte" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.4: Interne Codes für die Pizza-Auswahl.</p>
 </div>
-<p>Beachten Sie, dass für jede Auswahloption automatisch ein interner Code generiert wird (beginnend mit <code>at</code>).</p>
 
-<p>Ebenso verfahren wir mit den Optionen für die Größen:</p>
+<p>Beachten Sie, dass für jede Auswahlmöglichkeit automatisch ein interner Code generiert wird (der mit <code>at</code> beginnt).</p>
+
+<p>Ebenso fügen wir die Optionen für die Größen hinzu:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135750.png" alt="Optionen für die Größen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.6: Definition der Größenangaben.</p>
+  <img src="images/Pasted image 20261020135750.png" alt="Pizzagrößen codierte Werte" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.5: Interne Codes für die Pizzagrößen.</p>
 </div>
 
-<p>Im Cluster-Slot für Beläge können wir festlegen, welche Archetypen akzeptiert werden. Wir nutzen hier ein offenes Wildcard-Muster (<code>.*</code>), wodurch auf Template-Ebene jeder beliebige CLUSTER-Archetyp eingehängt werden kann.</p>
+<p>Im Cluster-Slot für Toppings können wir festlegen, welche Archetypen akzeptiert werden. Wir verwenden hier einfach ein offenes Wildcard-Muster (<code>.*</code>), das es erlaubt, jeden beliebigen CLUSTER-Archetypen auf Template-Ebene einzubinden.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135901.png" alt="Cluster-Slot für zusätzliche Beläge" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.7: Konfiguration des Cluster-Slots.</p>
+  <img src="images/Pasted image 20261020135901.png" alt="Cluster-Slot für Toppings" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.6: Konfiguration des offenen Cluster-Slots für Toppings.</p>
 </div>
-<p>Beachten Sie, dass die Occurrences (Häufigkeit) an diesem Slot auf <code>0..*</code> gesetzt sind. So wird sichergestellt, dass Kunden mehrere verschiedene Zusatzbeläge hinzufügen können.</p>
 
-<h3>Modellierung von CLUSTER.pizza_topping.v0</h3>
-<p>Wir erstellen einen CLUSTER-Archetyp. Direkt auf der obersten Ebene fügen wir ein <code>DV_CODED_TEXT</code> für den Namen des Belags und ein <code>DV_ORDINAL</code> für die Menge hinzu.</p>
+<p>Beachten Sie, dass die Häufigkeit (Occurrences) dieses Cluster-Slots auf <code>0..*</code> gesetzt ist. Dadurch wird sichergestellt, dass Kunden mehrere verschiedene zusätzliche Toppings auswählen können.</p>
+
+<h3>Modellieren von CLUSTER.pizza_topping.v0</h3>
+<p>Wir erstellen einen CLUSTER-Archetypen. Direkt auf der Wurzelebene fügen wir ein <code>DV_CODED_TEXT</code> für den Namen des Toppings und ein <code>DV_ORDINAL</code> für die Menge des Toppings hinzu.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020143746.png" alt="Modellierung von CLUSTER.pizza_topping.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.8: Aufbau des Belag-Clusters.</p>
+  <img src="images/Pasted image 20261020143746.png" alt="CLUSTER Pizzabelag Struktur" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.7: Struktur des Archetypen CLUSTER.pizza_topping.v0.</p>
 </div>
 
-<p>Unter <strong>Topping Name</strong> legen wir interne Codes für unsere drei Belag-Optionen an:</p>
+<p>Wenn wir <strong>Topping Name</strong> auswählen, fügen wir interne Codes für unsere 3 Topping-Optionen hinzu:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144047.png" alt="Codes für Beläge" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.9: Interne Codes für die Beläge.</p>
+  <img src="images/Pasted image 20261020144047.png" alt="Topping Name codierte Werte" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.8: Interne Codes für die Belagauswahl.</p>
 </div>
 
-<p>Im Ordinalfeld <strong>Amount</strong> fügen wir Wert-Text-Paare für jede Mengeneinheit hinzu. Beachten Sie, dass Ordinalwerte stets ganze Zahlen (Integer) erfordern (z. B. 1 = Normal, 2 = Doppelt, 3 = Dreifach):</p>
+<p>Im Ordinalwert <strong>Amount</strong> fügen wir Wert-Text-Paare für jede Mengenebene hinzu. Beachten Sie, dass Ordinalzahlen ganzzahlige Werte für ihren numerischen Wert erfordern (z.&nbsp;B. 1 = Regular, 2 = Double, 3 = Triple):</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144107.png" alt="Konfiguration des Mengen-Ordinals" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.10: Wertdefinitionen des Mengen-Ordinals.</p>
+  <img src="images/Pasted image 20261020144107.png" alt="Amount Ordinalwerte" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.9: Ordinalwerte für die Belagmenge.</p>
 </div>
 
-<h3>Modellierung von ACTION.pizza_preparation.v0</h3>
-<p>Wir erstellen einen ACTION-Archetyp, um den Zubereitungs- und Lieferprozess von der Planung bis zum Abschluss über die <code>ism_transition</code> abzubilden.</p>
-<p>Unter <code>description</code> fügen wir ein <code>DV_QUANTITY</code> für die Backtemperatur ein und legen <code>Cel</code> als einzig zulässige Einheit fest.</p>
+<h3>Modellieren von ACTION.pizza_preparation.v0</h3>
+<p>Wir erstellen einen ACTION-Archetypen, um den Vorbereitungslebenszyklus von geplant bis abgeschlossen über die <code>ism_transition</code> zu verfolgen.</p>
+<p>Unter <code>description</code> fügen wir ein <code>DV_QUANTITY</code> für Baking Temperature hinzu und legen <code>Cel</code> als einzig zulässige Einheit fest.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144924.png" alt="Backtemperatur in ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.11: DV_QUANTITY für die Temperaturangabe.</p>
+  <img src="images/Pasted image 20261020144924.png" alt="Backtemperatur DV_QUANTITY" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.10: Datenelement für die Backtemperatur als DV_QUANTITY.</p>
 </div>
 
-<p>Wir ergänzen ein <code>DV_TEXT</code> für Hinweisfelder:</p>
+<p>Wir fügen ein <code>DV_TEXT</code> für Notes hinzu:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144904.png" alt="Hinweisfeld in ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.12: DV_TEXT für Notizen.</p>
+  <img src="images/Pasted image 20261020144904.png" alt="Notes DV_TEXT" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.11: Notizfeld als DV_TEXT.</p>
 </div>
 
-<p>Als Nächstes fügen wir einen CLUSTER-Slot für „Toppings verified“ hinzu und halten auch diesen Slot offen:</p>
+<p>Als Nächstes fügen wir einen CLUSTER-Slot für „Toppings verified“ hinzu, wobei wir den Slot erneut offen halten:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144848.png" alt="Cluster-Slot für geprüfte Beläge" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.13: Slot zur Verifikation der Beläge.</p>
+  <img src="images/Pasted image 20261020144848.png" alt="Toppings verified Cluster-Slot" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.12: Cluster-Slot für verifizierte Toppings.</p>
 </div>
 
-<p>Unter <code>protocol</code> fügen wir ein <code>DV_IDENTIFIER</code> für die <strong>Order ID</strong> ein. Hier hinterlegen wir die UID der ursprünglichen Bestellkomposition, sodass die Aktion jederzeit eindeutig mit der Anweisung verknüpft ist:</p>
+<p>Unter <code>protocol</code> fügen wir ein <code>DV_IDENTIFIER</code> für die <strong>Order ID</strong> hinzu. Hier speichern wir die UID der ursprünglichen Order-Komposition, wodurch wir die Aktion wieder mit ihrer Anweisung verknüpfen können:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144831.png" alt="Order ID im Protokoll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.14: DV_IDENTIFIER für die Order ID.</p>
+  <img src="images/Pasted image 20261020144831.png" alt="Order ID DV_IDENTIFIER" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.13: Order ID im Protokoll als DV_IDENTIFIER.</p>
 </div>
 
-<p>Unter <code>ism_transition</code> definieren wir fünf operative Prozesszustände. Wir können die Bezeichnungen frei in unserem Fachkontext wählen, jede davon muss jedoch auf einen standardisierten openEHR-Statuscode abgebildet werden. So entspricht unser Zustand „Planned“ beispielsweise dem openEHR-Code 526 (<code>planned</code>):</p>
+<p>In <code>ism_transition</code> definieren wir 5 Betriebsstatus. Zwar können wir die Bezeichnungen in unserer eigenen Domänenterminologie wählen, doch jede einzelne muss einem offiziellen openEHR-Statuscode zugeordnet werden. Unser Status „Planned“ entspricht beispielsweise dem openEHR-Code 526 (<code>planned</code>):</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144720.png" alt="ISM-Zustandsübergänge" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.15: Konfiguration der ISM-Zustände.</p>
+  <img src="images/Pasted image 20261020144720.png" alt="ISM Transition Statuscodes" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.14: Definition der ISM-Statusübergänge.</p>
 </div>
 
-<p>Die Codes für unsere fünf Zustände lauten:</p>
+<p>Die Codes für unsere 5 Status lauten:</p>
 <ul>
-  <li>Geplant — <code>526::planned</code></li>
-  <li>Im Ofen — <code>524::initial</code></li>
-  <li>Unterwegs — <code>245::active</code></li>
-  <li>Zugestellt — <code>531::completed</code></li>
-  <li>Storniert — <code>528::cancelled</code></li>
+  <li>Planned — <code>526::planned</code></li>
+  <li>In Oven — <code>524::initial</code></li>
+  <li>Dispatched — <code>245::active</code></li>
+  <li>Delivered — <code>531::completed</code></li>
+  <li>Cancelled — <code>528::cancelled</code></li>
 </ul>
-<p>Der vollständige Standardkatalog der openEHR-Zustandscodes für Anweisungen und Aktionen kann in der <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Specification</a> nachgeschlagen werden.</p>
+<p>Der vollständige Standardkatalog der openEHR-Statuscodes für Anweisungen und Aktionen kann in der <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Specification</a> nachgeschlagen werden.</p>
 
-<h3>Modellierung von EVALUATION.customer_review.v0</h3>
-<p>Als letzten Archetyp erstellen wir die Evaluation für die Kundenbewertung:</p>
+<h3>Modellieren von EVALUATION.customer_review.v0</h3>
+<p>Als unseren letzten Archetypen erstellen wir die Kundenbewertungs-Evaluation:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150118.png" alt="Modellierung von EVALUATION.customer_review.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.16: Erstellung des EVALUATION-Archetyps.</p>
+  <img src="images/Pasted image 20261020150118.png" alt="EVALUATION Kundenbewertung Struktur" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.15: Struktur des Archetypen EVALUATION.customer_review.v0.</p>
 </div>
 
-<p>Unter <code>data</code> fügen wir ein <code>DV_COUNT</code> für die <strong>Zufriedenheitsbewertung</strong> ein und begrenzen den Wertebereich:</p>
+<p>Unter <code>data</code> fügen wir ein <code>DV_COUNT</code> für das <strong>Satisfaction Rating</strong> hinzu. Den zulässigen Bereich schränken wir wie folgt ein:</p>
 <ul>
   <li>Min: <code>&gt;=0</code></li>
   <li>Max: <code>&lt;=5</code></li>
 </ul>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150242.png" alt="Einschränkung des Punktebereichs" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.17: Wertebereichseinschränkung des Zählwerts.</p>
+  <img src="images/Pasted image 20261020150242.png" alt="Satisfaction Rating DV_COUNT Einschränkungen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.16: Einschränkungen für das Zufriedenheitsrating als DV_COUNT.</p>
 </div>
 
-<p>Wir ergänzen ein <code>DV_BOOLEAN</code> für die Weiterempfehlung (<code>true</code> oder <code>false</code>):</p>
+<p>Wir fügen ein <code>DV_BOOLEAN</code> für die Weiterempfehlung an Freunde hinzu (<code>true</code> oder <code>false</code>):</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150310.png" alt="Boolesches Weiterempfehlungs-Element" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.18: Boolescher Indikator für Empfehlungen.</p>
+  <img src="images/Pasted image 20261020150310.png" alt="Weiterempfehlung DV_BOOLEAN" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.17: Weiterempfehlungs-Flag als DV_BOOLEAN.</p>
 </div>
 
-<p>Schließlich fügen wir ein Freitextfeld <code>DV_TEXT</code> für das <strong>Kundenfeedback</strong> hinzu:</p>
+<p>Schließlich fügen wir ein Freitext-Element <code>DV_TEXT</code> für <strong>Customer Feedback</strong> hinzu:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150329.png" alt="Kundenfeedback als Freitext" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.19: DV_TEXT für freies Feedback.</p>
+  <img src="images/Pasted image 20261020150329.png" alt="Kundenfeedback DV_TEXT" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.18: Freitextfeld für Kundenfeedback als DV_TEXT.</p>
 </div>
 
-<p>Unter <code>protocol</code> fügen wir ein <code>DV_IDENTIFIER</code> für die <strong>Order ID</strong> ein, damit diese Bewertung eindeutig der ursprünglichen Bestellung zugeordnet werden kann:</p>
+<p>Unter <code>protocol</code> fügen wir ein <code>DV_IDENTIFIER</code> für die <strong>Order ID</strong> hinzu, damit diese Bewertung mit der ursprünglichen Bestellung verknüpft werden kann:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150345.png" alt="Order ID im Protokoll der Bewertung" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.20: DV_IDENTIFIER zur Rückverknüpfung der Bewertung.</p>
+  <img src="images/Pasted image 20261020150345.png" alt="Order ID im Bewertungsprotokoll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.19: Order ID im Protokoll der Evaluation.</p>
 </div>
 
-<h2>Zusammenstellen unserer drei Templates</h2>
-<p>Da alle Archetypen definiert sind, setzen wir sie nun zu unseren drei Templates zusammen.</p>
+<h2>5.2 Modellieren unserer 3 Templates</h2>
+<p>Nachdem alle unsere Archetypen definiert sind, können wir sie zu unseren 3 Templates zusammensetzen.</p>
 
-<h3>Template 1: „Online-Kundenbestellung“ (Online Customer Checkout)</h3>
-<p>Basierend auf <code>openEHR-EHR-COMPOSITION.example_base.v0</code> erstellen wir das Template <code>Online_Customer_Order_v0</code>.</p>
-<p>Unter <code>content</code> fügen wir hinzu:</p>
+<h3>Modellieren von Template 1: „Online Customer Checkout“</h3>
+<p>Erstellen Sie basierend auf <code>openEHR-EHR-COMPOSITION.example_base.v0</code> das Template <code>Online_Customer_Order_v0</code>.</p>
+<p>Fügen Sie unter <code>content</code> Folgendes hinzu:</p>
 <ul>
   <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
   <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
 </ul>
-<p>Wählen Sie den CLUSTER-Slot <strong>Extra Toppings</strong> innerhalb der Instruction aus und hängen Sie <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code> ein.</p>
-<div class="img-container">
-  <img src="images/Pasted image 20261020151744.png" alt="Aufbau von Template 1" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.21: Aufbau des ersten Templates im Archetype Designer.</p>
-</div>
-<p>Fertig! Gehen wir zum nächsten Template über.</p>
+<p>Wählen Sie den CLUSTER-Slot <strong>Extra Toppings</strong> innerhalb der Instruction aus und binden Sie <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code> ein.</p>
 
-<h3>Template 2: „Küchen- und Lieferstatus“ (Kitchen and Courier Tracker)</h3>
-<p>Nach demselben Vorgehen mit <code>openEHR-EHR-COMPOSITION.example_base.v0</code> erstellen wir das Template <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
-<p>Unter <code>content</code> fügen wir hinzu:</p>
+<div class="img-container">
+  <img src="images/Pasted image 20261020151744.png" alt="Template 1 im Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.20: Struktur des ersten Templates im Archetype Designer.</p>
+</div>
+
+<p>Das war es schon! Gehen wir zum nächsten Template über.</p>
+
+<h3>Modellieren von Template 2: „Kitchen and Courier Tracker“</h3>
+<p>Nach demselben Verfahren mit <code>openEHR-EHR-COMPOSITION.example_base.v0</code> erstellen Sie das Template <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
+<p>Fügen Sie unter <code>content</code> Folgendes hinzu:</p>
 <ul>
   <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
 </ul>
-<p>Wählen Sie den CLUSTER-Slot <strong>Toppings Verified</strong> und binden Sie <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code> ein.</p>
+<p>Wählen Sie den CLUSTER-Slot <strong>Toppings Verified</strong> aus und fügen Sie <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code> ein.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020151841.png" alt="Aufbau von Template 2" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.22: Aufbau des zweiten Templates.</p>
+  <img src="images/Pasted image 20261020151841.png" alt="Template 2 im Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.21: Struktur des zweiten Templates im Archetype Designer.</p>
 </div>
 
-<h3>Template 3: „Kundenbewertung“ (Customer Review)</h3>
-<p>Nun zu unserem letzten Template: Basierend auf <code>openEHR-EHR-COMPOSITION.example_base.v0</code> erstellen wir <code>Customer_Review_v0</code>.</p>
-<p>Unter <code>content</code> fügen wir hinzu:</p>
+<h3>Modellieren von Template 3: „Customer Review“</h3>
+<p>Nun zu unserem letzten Template: Erstellen Sie basierend auf <code>openEHR-EHR-COMPOSITION.example_base.v0</code> das Template <code>Customer_Review_v0</code>.</p>
+<p>Fügen Sie unter <code>content</code> Folgendes hinzu:</p>
 <ul>
   <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
 </ul>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020151821.png" alt="Aufbau von Template 3" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.23: Aufbau des dritten Templates.</p>
+  <img src="images/Pasted image 20261020151821.png" alt="Template 3 im Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 5.22: Struktur des dritten Templates im Archetype Designer.</p>
 </div>
-<p>Geschafft! Wir haben einen vollständigen Satz an Archetypen und Templates für unseren Workflow entworfen und aufgebaut.</p>
 
-<h2>Beispieldateien</h2>
-<p>Sie können den kompletten Satz der Beispieldateien hier herunterladen:</p>
-<p><a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Leitfaden für Einsteiger – Beispieldateien.zip</a></p>
+<p>Geschafft! Wir haben einen vollständigen Satz an Archetypen und Templates für unseren Arbeitsablauf erfolgreich geplant und modelliert.</p>
 
-<h2>Aber halt, da ist noch mehr! Einschränken von Archetypen in Templates</h2>
-<p>In unserem Beispiel war das Zusammensetzen eines Templates aus vorhandenen Archetypen recht geradlinig. Es wirkt, als würde man einfach wiederverwendbare Bausteine zusammenstecken. Das ist eine oft genutzte Analogie bei openEHR.</p>
-<p>In der Realität ist das jedoch nur die halbe Wahrheit. Archetypen werden bewusst mit vielen Elementen und Optionen entworfen, die im konkreten Template gar nicht benötigt werden oder angepasst werden müssen. Wir stecken also nicht bloß Bausteine zusammen, sondern verändern sie während des Zusammenbaus. Deshalb habe ich das Bild vom „Backen“ des Templates eingeführt, bei dem die „Zutaten“ (Archetypen) im Prozess transformiert werden.</p>
-<p>Diese Modifikationen können ganz unterschiedlich aussehen, unter anderem:</p>
+<h3>Beispieldateien</h3>
+<p>Sie können den vollständigen Satz an Beispieldateien hier herunterladen:</p>
+<p><a href="docs/A_total_beginners_guide_Example_files.zip">A total beginners guide - Example files.zip</a></p>
+
+<h1>Kapitel 6: Halt, da ist noch mehr! – Archetypen in Templates einschränken</h1>
+
+<p class="chapter-intro">
+  Ein Template zusammenzustellen bedeutet in der Praxis selten, unveränderte Bausteine einfach nur aneinanderzureihen; reale klinische Abläufe verlangen präzise Zuschnitte. In diesem Kapitel widmen wir uns dem „Backen“ eines Templates: Wir nehmen maximale, allgemeingültige Archetypen und schränken sie exakt auf den lokalen Anwendungsfall ein. Wir betrachten das Umbenennen von Elementen, das Klonen, das Eingrenzen von Wertelisten und das Verfeinern von Kardinalitäten mitsamt den semantischen Leitplanken, die jeder Modeller kennen sollte.
+</p>
+
+<p>Wie wir in unserem Beispiel gesehen haben, war es recht einfach, ein Template aus bestehenden Archetypen zusammenzusetzen. Es sieht ganz so aus, als würde man wiederverwendbare Bausteine nutzen, um eine Struktur zu erschaffen. Das ist eine Analogie, der man bei openEHR häufig begegnet.</p>
+
+<p>In der Praxis ist das jedoch nicht die ganze Wahrheit. Archetypen werden so entworfen, dass sie viele Elemente und Optionen enthalten, die im Template gar nicht benötigt werden oder angepasst werden müssen. Das bedeutet, dass wir Bausteine nicht bloß aneinanderfügen, sondern sie während der Zusammenstellung modifizieren. Deshalb habe ich – auf meiner Mission, alles mit Essen zu verknüpfen – die Idee des „Backens“ des Templates eingeführt, bei dem die „Zutaten“ (Archetypen) während des Prozesses verändert werden.</p>
+
+<p>Diese Anpassung kann unterschiedliche Formen annehmen. Dazu gehören unter anderem:</p>
 <ul>
-  <li>Umbenennen von Elementen</li>
+  <li>Ändern von Elementnamen</li>
   <li>Klonen von Elementen</li>
   <li>Klonen von Archetypen</li>
-  <li>Einschränken von Auswahllisten</li>
-  <li>Begrenzen der Instanzanzahl (Occurrences)</li>
+  <li>Einschränken von Optionen</li>
+  <li>Einschränken der Anzahl der Instanzen</li>
 </ul>
-<p>Beachten Sie, dass jede Änderung das Risiko birgt, die Bedeutung des Datenelements oder Archetyps zu verändern, was später zu technischen oder fachlichen Problemen führen kann.</p>
+<p>Bedenken Sie, dass jede Modifikation das Risiko birgt, die Bedeutung des Datenelements oder Archetypen zu verändern, was im weiteren Verlauf zu technischen Schwierigkeiten führen kann.</p>
 
-<h3>Umbenennen von Elementen</h3>
-<p>Sie können Datenelemente oder Archetypen unkompliziert umbenennen. Achten Sie jedoch darauf, keinen Namen zu wählen, der dem intendierten Verwendungszweck des Elements widerspricht.</p>
+<h2>6.2 Ändern von Elementnamen</h2>
+<p>Sie können den Namen eines Datenelements oder Archetypen problemlos ändern. Achten Sie jedoch darauf, den Namen nicht in etwas zu ändern, das dem beabsichtigten Zweck dieses Elements widerspricht.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021083407.png" alt="Umbenennen eines Elements" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.24: Umbenennen eines Knotens im Template.</p>
+  <img src="images/Pasted image 20261021083407.png" alt="Elementnamen im Designer umbenennen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 6.1: Anpassen von Bezeichnungen im Template.</p>
 </div>
 
-<h3>Klonen von Elementen</h3>
-<p>Wenn die „Occurrences“ eines Datenelements mehrere Instanzen erlauben, kann dieses Element geklont werden.</p>
+<h2>6.3 Klonen von Elementen</h2>
+<p>Wenn das Vorkommen („Occurrence“) eines Datenelements mehrere Instanzen erlaubt, kann dieses Datenelement geklont werden.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021101127.png" alt="Klonen von Elementen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.25: Klonen eines Datenelements im Template.</p>
+  <img src="images/Pasted image 20261021101127.png" alt="Datenelemente im Designer klonen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 6.2: Klonen von Datenelementen bei mehrfachem Vorkommen.</p>
 </div>
 
-<h3>Klonen von Archetypen</h3>
-<p>Wenn die „Occurrences“ eines Archetyps mehrere Instanzen erlauben, kann der gesamte Archetyp geklont werden.</p>
+<h2>6.4 Klonen von Archetypen</h2>
+<p>Wenn das Vorkommen („Occurrence“) eines Archetypen mehrere Instanzen zulässt, kann dieser Archetyp geklont werden.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021093844.png" alt="Klonen von Archetypen" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.26: Klonen eines vollständigen Archetyps.</p>
+  <img src="images/Pasted image 20261021093844.png" alt="Archetypen im Designer klonen" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 6.3: Klonen ganzer Archetypen im Template.</p>
 </div>
 
-<h3>Einschränken von Optionen</h3>
-<p>Liefert ein Archetyp eine Liste interner Codes, können wir im Template Optionen abwählen. Dies ist stets restriktiv: Wir können im Template niemals neue Optionen zu einer geschlossenen Liste hinzufügen.</p>
+<h2>6.5 Einschränken von Optionen</h2>
+<p>Wenn vom Archetypen eine Liste interner Codes bereitgestellt wird, können wir im Template Optionen abwählen. Dies ist stets restriktiv: Wir können im Template keine neue Option zu einer Auswahl hinzufügen.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021083213.png" alt="Einschränken von Auswahllisten" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.27: Einschränken der Auswahloptionen im Template.</p>
+  <img src="images/Pasted image 20261021083213.png" alt="Auswahloptionen einschränken" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 6.4: Abwählen nicht benötigter Auswahloptionen.</p>
 </div>
 
-<h3>Begrenzen der Instanzanzahl</h3>
-<p>Wenn die Occurrences eines Archetyps oder Datenelements „offen“ sind und mehrere Instanzen erlauben, können wir diese einschränken.</p>
+<h2>6.6 Einschränken der Anzahl der Instanzen</h2>
+<p>Wenn das Vorkommen eines Archetypen oder Datenelements „offen“ ist und mehrere Instanzen erlaubt, können wir dies einschränken.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021082906.png" alt="Einschränken von Occurrences" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 2.28: Begrenzung der Häufigkeit im Template.</p>
+  <img src="images/Pasted image 20261021082906.png" alt="Anzahl der Instanzen einschränken" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+  <p class="img-caption">Abbildung 6.5: Einschränken der Häufigkeit (Occurrences) von mehr auf weniger.</p>
 </div>
-<p>Diese Anpassung kann immer nur „einschränkend“ sein – von mehr zu weniger. Es ist nicht möglich, Occurrences zu erweitern, indem man beispielsweise <code>0..1</code> (optional, maximal 1 Instanz) auf <code>0..*</code> (optional, unendlich viele Instanzen) ändert.</p>
+
+<p>Diese Einschränkung von Vorkommen kann nur „restriktiv“ sein – also von mehr zu weniger gehend. Sie können Vorkommen nicht „öffnen“, indem Sie beispielsweise von <code>0..1</code> (optional, aber maximal 1 Vorkommen) auf <code>0..*</code> (optional, unendlich viele Vorkommen erlaubt) umstellen.</p>
 </section>

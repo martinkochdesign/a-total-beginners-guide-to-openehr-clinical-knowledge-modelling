@@ -204,11 +204,11 @@ function closeImgOverlay() {
   {
     id: 'part0',
     title: {
-      en: 'Part 0: About this document',
-      ca: 'Part 0: Sobre aquest document',
-      es: 'Parte 0: Sobre este documento',
-      de: 'Teil 0: Über dieses Dokument',
-      nb: 'Del 0: Om dette dokumentet'
+      en: 'About this document',
+      ca: 'Sobre aquest document',
+      es: 'Sobre este documento',
+      de: 'Über dieses Dokument',
+      nb: 'Om dette dokumentet'
     },
     files: {
       en: 'parts/part0_en.html',
@@ -221,11 +221,11 @@ function closeImgOverlay() {
   {
     id: 'part1',
     title: {
-      en: 'Part 1: Introduction to basic concepts',
-      ca: 'Part 1: Introducció als conceptes bàsics',
-      es: 'Parte 1: Introducción a los conceptos básicos',
-      de: 'Teil 1: Einführung in die grundlegenden Konzepte',
-      nb: 'Del 1: Innføring i grunnleggende konsepter'
+      en: 'Part I: Introduction to basic concepts',
+      ca: 'Part I: Introducció als conceptes bàsics',
+      es: 'Parte I: Introducción a los conceptos básicos',
+      de: 'Teil I: Einführung in die grundlegenden Konzepte',
+      nb: 'Del I: Innføring i grunnleggende konsepter'
     },
     files: {
       en: 'parts/part1_en.html',
@@ -238,11 +238,11 @@ function closeImgOverlay() {
   {
     id: 'part2',
     title: {
-      en: 'Part 2: Practical modelling',
-      ca: 'Part 2: Modelatge pràctic',
-      es: 'Parte 2: Modelado práctico',
-      de: 'Teil 2: Praktische Modellierung',
-      nb: 'Del 2: Praktisk modellering'
+      en: 'Part II: Practical modelling',
+      ca: 'Part II: Modelatge pràctic',
+      es: 'Parte II: Modelado práctico',
+      de: 'Teil II: Praktische Modellierung',
+      nb: 'Del II: Praktisk modellering'
     },
     files: {
       en: 'parts/part2_en.html',
@@ -255,11 +255,11 @@ function closeImgOverlay() {
   {
     id: 'part3',
     title: {
-      en: 'Part 3: Storing and querying data in the CDR',
-      ca: 'Part 3: Emmagatzematge i consulta de dades al CDR',
-      es: 'Parte 3: Almacenamiento y consulta de datos en el CDR',
-      de: 'Teil 3: Speichern und Abfragen von Daten im CDR',
-      nb: 'Del 3: Lagring og spørring av data i CDR'
+      en: 'Part III: Storing and querying data in the CDR',
+      ca: 'Part III: Emmagatzematge i consulta de dades al CDR',
+      es: 'Parte III: Almacenamiento y consulta de datos en el CDR',
+      de: 'Teil III: Speichern und Abfragen von Daten im CDR',
+      nb: 'Del III: Lagring og spørring av data i CDR'
     },
     files: {
       en: 'parts/part3_en.html',
@@ -272,11 +272,11 @@ function closeImgOverlay() {
   {
     id: 'part4',
     title: {
-      en: 'Part 4: Next steps',
-      ca: 'Part 4: Passos següents',
-      es: 'Parte 4: Próximos pasos',
-      de: 'Teil 4: Nächste Schritte',
-      nb: 'Del 4: Neste steg'
+      en: 'Part IV: Next steps',
+      ca: 'Part IV: Passos següents',
+      es: 'Parte IV: Próximos pasos',
+      de: 'Teil IV: Nächste Schritte',
+      nb: 'Del IV: Neste steg'
     },
     files: {
       en: 'parts/part4_en.html',

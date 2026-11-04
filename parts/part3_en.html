@@ -1,6 +1,12 @@
 <section>
 
-<h1>Storing and Querying Data in the CDR</h1>
+
+
+<h1>Chapter 7: Getting Started with the CDR and REST APIs</h1>
+
+<p class="chapter-intro">
+  Designing clinical models on your workstation is only the beginning; the real test comes when those models interact with an operational server. In this chapter, we introduce the Clinical Data Repository (CDR) as the central persistence engine of openEHR and connect to the public EHRbase sandbox. We explore the essential layout of Postman, review standard HTTP methods, and execute our first live health check to confirm server readiness.
+</p>
 
 <p>
   In the previous part, we designed a set of archetypes and assembled them into templates to represent a workflow. In this part, we will walk through the core operations required to persist (store) and retrieve clinical data using an openEHR Clinical Data Repository (CDR). We will focus on practical, hands-on steps using standard REST APIs.
@@ -10,7 +16,7 @@
   <strong>Note:</strong> Even though we are not using clinical data in the following examples (we keep the pizza delivery analogy) everything shown here is transferable to a clincal workflow.
 </div>
 
-<h2>The Clinical Data Repository (CDR)</h2>
+<h2>7.1 The Clinical Data Repository (CDR)</h2>
 
 <p>
   As discussed earlier, the CDR is the database that stores and manages healthcare data. Because all compositions stored in an openEHR CDR are strictly governed by templates, the CDR must store the relevant templates <em>before</em> it can accept any compositions based on them.
@@ -33,13 +39,13 @@
   <strong>Security Note:</strong> The sandbox is a shared, public environment. Never submit real patient data, passwords, or personal identifying information.
 </div>
 
-<h2>API Testing Tools</h2>
+<h2>7.2 API Testing Tools</h2>
 
 <p>
   To send data to and retrieve data from EHRbase endpoints, we need an HTTP/REST client. Popular tools include Insomnia, Bruno, and Postman. In this tutorial, we will use <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>, though the exact same requests and concepts apply to any API testing tool.
 </p>
 
-<h2>A Short Tour Around Postman</h2>
+<h3>A Short Tour Around Postman</h3>
 
 <p>
   When you first open Postman, do not let the extensive interface intimidate you. For our openEHR workflow, you only need to interact with three primary zones:
@@ -72,7 +78,7 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261021121913.png" alt="Postman Interface Overview" class="guide-img" style="max-width: 100%; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.1: The GUI of Postman.</p>
+  <p class="img-caption">Figure 7.1: The GUI of Postman.</p>
 </div>
 
 <h3>Core HTTP Verbs</h3>
@@ -106,7 +112,7 @@
   </tbody>
 </table>
 
-<h2>Testing the Server Status</h2>
+<h3>Testing the Server Status</h3>
 
 <p>
   As a baseline verification to ensure the CDR is operational and reachable, we call the server's status endpoint. A response of <code>200 OK</code> confirms the service is up.
@@ -134,7 +140,7 @@
   <tr><td><strong>Response Body</strong></td><td>XML payload detailing running component versions.</td></tr>
 </table>
 
-<h3>Example Response</h3>
+<h4>Example Response</h4>
 <pre><code class="language-xml">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
 &lt;status&gt;
     &lt;ehrbase_version&gt;2.33.0&lt;/ehrbase_version&gt;
@@ -145,15 +151,20 @@
     &lt;postgres_version&gt;PostgreSQL 16.15 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7), 64-bit&lt;/postgres_version&gt;
 &lt;/status&gt;</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026084826.png" alt="Server status request in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.2: Verifying CDR connectivity via the status endpoint.</p>
+  <p class="img-caption">Figure 7.2: Verifying CDR connectivity via the status endpoint.</p>
 </div>
 
+<h1>Chapter 8: Managing Templates on the Server</h1>
 
-<h2>Listing Existing Templates on the CDR</h2>
+<p class="chapter-intro">
+  Before any clinical record can be stored, the repository must possess the formal blueprint that governs it. In this chapter, we manage the lifecycle of templates directly inside EHRbase. We query the catalog of currently installed definitions, upload compiled Operational Template (<code>.opt</code>) XML files, and retrieve stored templates via the REST definition endpoint.
+</p>
+
+<h2>8.1 Listing Existing Templates on the CDR</h2>
 
 <p>
   To inspect which templates are currently active and available on the server, we query the template definitions endpoint:
@@ -168,7 +179,7 @@
   <tr><td><strong>Response Body</strong></td><td>JSON array of installed template summaries.</td></tr>
 </table>
 
-<h3>Example Response Body (Truncated)</h3>
+<h4>Example Response Body (Truncated)</h4>
 <pre><code class="language-json">[
     {
         "concept": "International Patient Summary",
@@ -185,14 +196,14 @@
     ...
 ]</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026085105.png" alt="Listing templates in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.3: Requesting the catalog of stored templates.</p>
+  <p class="img-caption">Figure 8.1: Requesting the catalog of stored templates.</p>
 </div>
 
-<h2>Uploading an Operational Template (OPT) to the CDR</h2>
+<h2>8.2 Uploading an Operational Template (OPT) to the CDR</h2>
 
 <p>
   Before a composition can be stored, its corresponding template must be uploaded as an Operational Template (<code>.opt</code>) file. The CDR parses this definition and enforces all modeled constraints against incoming compositions.
@@ -216,14 +227,14 @@
   <strong>Important:</strong> If a template with the exact same <code>template_id</code> already exists on the server, the CDR will reject the upload to preserve version integrity.
 </div>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026104155.png" alt="Uploading an OPT template in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.4: Registering an OPT template on EHRbase.</p>
+  <p class="img-caption">Figure 8.2: Registering an OPT template on EHRbase.</p>
 </div>
 
-<h2>Retrieving an OPT Template Definition from the CDR</h2>
+<h2>8.3 Retrieving an OPT Template Definition from the CDR</h2>
 
 <p>
   If you need to retrieve the full definition of an existing template, you can query it by its template ID using a path parameter (<code>:template_id</code>):
@@ -238,14 +249,21 @@
   <tr><td><strong>Response Body</strong></td><td>Full OPT XML specification.</td></tr>
 </table>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026105210.png" alt="Retrieving a template definition" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.5: Fetching the raw OPT file directly from the CDR.</p>
+  <p class="img-caption">Figure 8.3: Fetching the raw OPT file directly from the CDR.</p>
 </div>
 
-<h2>Generating an Example Composition</h2>
+
+<h1>Chapter 9: Persisting Clinical Data: The EHR & Compositions</h1>
+
+<p class="chapter-intro">
+  With our templates active on the server, we turn to the heart of openEHR persistence: creating patient records and populating them with structured data. In this chapter, we create a new Electronic Health Record (EHR) container, walk step by step through assembling a fully valid canonical JSON composition from scratch, commit the record to the CDR, and demonstrate safe record modification using optimistic locking and version identifiers.
+</p>
+
+<h2>9.1 Generating an Example Composition</h2>
 
 <p>
   When developing applications for openEHR, it can be useful to rapidly generate an example composition for a template. You can ask the CDR to generate an example JSON payload based on a registered template:
@@ -263,14 +281,14 @@
   <strong>Warning:</strong> CDR-generated example payloads are intended strictly for syntax inspection. They populate fields with arbitrary random values and should never be submitted directly as clinical records.
 </div>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026110252.png" alt="Requesting an example composition" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.6: Reviewing a CDR-generated example composition.</p>
+  <p class="img-caption">Figure 9.1: Reviewing a CDR-generated example composition.</p>
 </div>
 
-<h2>Creating an Electronic Health Record (EHR)</h2>
+<h2>9.2 Creating an Electronic Health Record (EHR)</h2>
 
 <p>
   In openEHR, clinical compositions cannot exist in isolation. They must belong to an <strong>EHR</strong> representing the patient (or client, in our pizza analogy). Creating an EHR generates a unique, persistent identifier (an <code>ehr_id</code> UUID):
@@ -289,7 +307,7 @@
 </div>
 
 
-<h3>Example Response</h3>
+<h4>Example Response</h4>
 <pre><code class="language-json">{
     "_type": "EHR",
     "system_id": {
@@ -315,15 +333,15 @@
     }
 }</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026111537.png" alt="Creating an EHR in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.7: Creating an EHR and receiving it in JSON.</p>
+  <p class="img-caption">Figure 9.2: Creating an EHR and receiving it in JSON.</p>
 </div>
 
 
-<h2>Building a Composition from Scratch (Step-by-Step)</h2>
+<h2>9.3 Building a Composition from Scratch (Step-by-Step)</h2>
 
 <p>
   Now that our templates are uploaded to the CDR, we can persist actual clinical data. In openEHR, clinical data is stored in the form of a <strong>COMPOSITION</strong>.
@@ -403,7 +421,7 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261023125358.png" alt="Attribute tree of archetype_details in RM Browser" class="guide-img" width="300px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.8: Looking at the attribute tree of archetype_details in the openEHR RM Browser.</p>
+  <p class="img-caption">Figure 9.3: Looking at the attribute tree of archetype_details in the openEHR RM Browser.</p>
 </div>
 
 <p>
@@ -438,10 +456,10 @@
   The supported codes can be found in the <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html" target="_blank" rel="noopener noreferrer">openEHR Support Terminology </a>  specifications.
 </p>
 
-<h4>Language: ISO 639-1</h4>
+<h5>Language: ISO 639-1</h5>
 <div class="img-container">
   <img src="images/Pasted image 20261023131643.png" alt="Attribute tree of language in RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.9: Attribute tree of language.</p>
+  <p class="img-caption">Figure 9.4: Attribute tree of language.</p>
 </div>
 
 <pre><code class="language-json">"language": {
@@ -453,10 +471,10 @@
   "code_string": "en"
 }</code></pre>
 
-<h4>Territory: ISO 3166-1</h4>
+<h5>Territory: ISO 3166-1</h5>
 <div class="img-container">
   <img src="images/Pasted image 20261023132253.png" alt="Attribute tree of territory in RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.10: Attribute tree of territory.</p>
+  <p class="img-caption">Figure 9.5: Attribute tree of territory.</p>
 </div>
 
 <pre><code class="language-json">"territory": {
@@ -485,7 +503,7 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261023132705.png" alt="Attribute tree of category in RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.11: Attribute tree of category.</p>
+  <p class="img-caption">Figure 9.6: Attribute tree of category.</p>
 </div>
 
 <pre><code class="language-json">"category": {
@@ -518,7 +536,7 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261023132941.png" alt="Attribute tree of composer in RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.12: PARTY_IDENTIFIED chosen to represent the composer.</p>
+  <p class="img-caption">Figure 9.7: PARTY_IDENTIFIED chosen to represent the composer.</p>
 </div>
 
 <pre><code class="language-json">"composer": {
@@ -539,7 +557,7 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261026091244.png" alt="Attribute tree of content in RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Figure 3.13: Inspecting the mandatory ENTRY attributes inside content.</p>
+  <p class="img-caption">Figure 9.8: Inspecting the mandatory ENTRY attributes inside content.</p>
 </div>
 
 <p>
@@ -556,7 +574,7 @@
 
 <hr>
 
-<h4>Step 7.1 - The <code>encoding</code>, <code>language</code> and <code>subject</code> of the content</h4>
+<h5>Step 7.1 - The <code>encoding</code>, <code>language</code> and <code>subject</code> of the content</h5>
 
 <p>The <code>content</code> section contains a list of all archetypes modelled in this part of the template. We can add similar to before the <code>encoding</code>, <code>language</code> and <code>subject</code> of the content:</p>
 
@@ -602,7 +620,7 @@
 
 <hr>
 
-<h4>Step 7.2 - Adding the data elements to <code>protocol</code> and <code>data</code></h4>
+<h5>Step 7.2 - Adding the data elements to <code>protocol</code> and <code>data</code></h5>
 
 <p>
   Inside both <code>data</code> and <code>protocol</code>, information is organized as an <strong><code>ITEM_TREE</code></strong> consisting of individual <strong><code>ELEMENT</code></strong> nodes.
@@ -902,7 +920,7 @@
 
 <hr>
 
-<h2>Committing a Composition to the CDR</h2>
+<h2>9.4 Committing a Composition to the CDR</h2>
 
 <p>
   To persist a composition, send an HTTP <code>POST</code> request targeted to the specific patient's <code>ehr_id</code> endpoint:
@@ -924,12 +942,12 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261026135957.png" alt="Committing a composition in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.14: Successful composition creation returning version 1.</p>
+  <p class="img-caption">Figure 9.9: Successful composition creation returning version 1.</p>
 </div>
 
 <hr>
 
-<h2>Retrieving a Composition by Its ID</h2>
+<h2>9.5 Retrieving a Composition by Its ID</h2>
 
 <p>
   When you know the target <code>ehr_id</code> and <code>composition_id</code>, you can retrieve the full composition with an HTTP <code>GET</code> request:
@@ -945,10 +963,10 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261026141946.png" alt="Fetching a composition by ID" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.15: Retrieving an existing composition record.</p>
+  <p class="img-caption">Figure 9.10: Retrieving an existing composition record.</p>
 </div>
 
-<h2>Modifying an Existing Composition</h2>
+<h2>9.6 Modifying an Existing Composition</h2>
 
 <p>
   openEHR repositories maintain a permanent, auditable version history: compositions are never overwritten in-place. When updating a record, we issue an HTTP <code>PUT</code> request and pass the current version ID in the <code>If-Match</code> header to prevent concurrent update conflicts (optimistic locking):
@@ -966,15 +984,19 @@
 
 <div class="img-container">
   <img src="images/Pasted image 20261026143522.png" alt="Modifying a composition with PUT" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Figure 3.16: Updating a composition and observing the version increment to ::2.</p>
+  <p class="img-caption">Figure 9.11: Updating a composition and observing the version increment to ::2.</p>
 </div>
 
 
 <hr>
 
+<h1>Chapter 10: Querying Specific Clinical Data with AQL </h1>
 
+<p class="chapter-intro">
+  Storing clinical data is only half the picture; retrieving precise values across multiple patient encounters is where openEHR delivers its greatest value. In this chapter, we introduce Archetype Query Language (AQL)—the vendor-neutral query standard built specifically for clinical structures. We break down the anatomy of AQL statements, execute queries through the REST API, and demonstrate practical real-world patterns like parameterization, path inspection, and correlating multi-composition workflows.
+</p>
 
-<h2>AQL - Querying Specific Clinical Data</h2>
+<h2>10.1 Querying Specific Clinical Data via AQL</h2>
 
 <p>
   In previous steps, we persisted data into the CDR and saw how to retrieve an entire composition via API when we already know its unique identifier. However, in real clinical applications, you will rarely know the composition ID beforehand, or you will only need specific data points (e.g., only the pizza name, or only the blood pressure systolic reading) across many encounters. For this, openEHR provides the <strong>Archetype Query Language (AQL)</strong>.
@@ -1085,6 +1107,8 @@ CONTAINS COMPOSITION c
 WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></pre>
 
 <hr>
+
+<h2>10.2 A practical exampole of AQL queries</h2>
 
 <h3>Sample Test Dataset</h3>
 
@@ -1226,7 +1250,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027115836.png" alt="AQL 1 Response in Postman" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.17: Result of AQL 1 returning the three composition UIDs.</p>
+  <p class="img-caption">Figure 10.1: Result of AQL 1 returning the three composition UIDs.</p>
 </div>
 
 <hr>
@@ -1248,7 +1272,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027120325.png" alt="Resolved path for Order ID in Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.18: Inspecting the resolved path for the Order ID in the Archetype Designer.</p>
+  <p class="img-caption">Figure 10.2: Inspecting the resolved path for the Order ID in the Archetype Designer.</p>
 </div>
 
 <p>
@@ -1259,7 +1283,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027120403.png" alt="Resolved path for ISM transition in Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.19: Locating the path for the ISM transition state.</p>
+  <p class="img-caption">Figure 10.3: Locating the path for the ISM transition state.</p>
 </div>
 
 <p>We assemble the complete AQL statement:</p>
@@ -1292,7 +1316,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027121236.png" alt="AQL 2 Results showing Order ID and status" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.20: Retrieved order IDs paired with their current preparation status.</p>
+  <p class="img-caption">Figure 10.4: Retrieved order IDs paired with their current preparation status.</p>
 </div>
 
 <p>
@@ -1301,7 +1325,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027121542.png" alt="openEHR AQL Manager interface" class="guide-img" width="906px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.21: Formatting and validating multi-line AQL queries in openEHR AQL Manager.</p>
+  <p class="img-caption">Figure 10.5: Formatting and validating multi-line AQL queries in openEHR AQL Manager.</p>
 </div>
 
 <hr>
@@ -1355,7 +1379,7 @@ WHERE
 
 <div class="img-container">
   <img src="images/Pasted image 20261027123305.png" alt="AQL results mapping Order IDs to Ratings" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figure 3.23: Output mapping order identifiers to numeric satisfaction scores.</p>
+  <p class="img-caption">Figure 10.7: Output mapping order identifiers to numeric satisfaction scores.</p>
 </div>
 
 <p>
@@ -1367,7 +1391,7 @@ WHERE
 <!-- ============================================================ -->
 <!-- Postman Collection Section -->
 <!-- ============================================================ -->
-<h2>Ready-to-Use Postman Collection</h2>
+<h3>Ready-to-Use Postman Collection</h3>
 
 <p>
   To save you from typing long URLs, complex paths, and headers by hand, all requests demonstrated throughout Part 3 are bundled into a pre-configured Postman Collection file:
@@ -1379,16 +1403,16 @@ WHERE
   </a>
 </p>
 
-<h3>How to Import into Postman</h3>
+<h4>How to Import into Postman</h4>
 
-<h4>Method A: Drag &amp; Drop (Fastest)</h4>
+<h5>Method A: Drag &amp; Drop (Fastest)</h5>
 <ol>
   <li>Open Postman on your computer.</li>
   <li>Drag the downloaded <code>openEHR_Pizza_Tutorial.postman_collection.json</code> file into the Postman window.</li>
   <li>Click <strong>Import</strong> when prompted.</li>
 </ol>
 
-<h4>Method B: The Import Button</h4>
+<h5>Method B: The Import Button</h5>
 <ol>
   <li>Click the <strong>Import</strong> button in the top-left toolbar of Postman.</li>
   <li>Select <strong>Files</strong> and navigate to the downloaded collection file.</li>

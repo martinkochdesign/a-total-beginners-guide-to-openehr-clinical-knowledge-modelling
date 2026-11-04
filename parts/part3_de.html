@@ -1,23 +1,27 @@
 <section>
 
-<h1>Speichern und Abfragen von Daten im CDR</h1>
+<h1>Kapitel 7: Erste Schritte mit dem CDR und REST-APIs</h1>
+
+<p class="chapter-intro">
+  Klinische Modelle am eigenen Arbeitsplatz zu entwerfen, ist erst der Anfang; die eigentliche Bewährungsprobe folgt, wenn diese Modelle mit einem operativen Server interagieren. In diesem Kapitel führen wir das Clinical Data Repository (CDR) als zentrales Persistenzsystem von openEHR ein und verbinden uns mit der öffentlichen EHRbase-Sandbox. Wir erkunden den grundlegenden Aufbau von Postman, wiederholen standardmäßige HTTP-Methoden und führen unseren ersten Verbindungstest durch, um die Betriebsbereitschaft des Servers zu überprüfen.
+</p>
 
 <p>
-  Im vorangegangenen Teil haben wir ein Set von Archetypen entworfen und sie zu Templates zusammengefügt, um einen vollständigen Arbeitsablauf abzubilden. In diesem Teil durchlaufen wir die zentralen Schritte, die erforderlich sind, um klinische Daten in einem openEHR Clinical Data Repository (CDR) zu persistieren (speichern) und wieder abzurufen. Der Fokus liegt auf praxisnahen, konkreten Schritten unter Verwendung von Standard-REST-APIs.
+  Im vorherigen Teil haben wir eine Reihe von Archetypen entworfen und zu Templates zusammengestellt, um einen Ablauf abzubilden. In diesem Teil durchlaufen wir die zentralen Arbeitsschritte, die erforderlich sind, um klinische Daten in einem openEHR Clinical Data Repository (CDR) zu speichern (persistieren) und wieder abzurufen. Dabei konzentrieren wir uns auf praxisnahe, konkrete Schritte unter Verwendung standardmäßiger REST-APIs.
 </p>
 
 <div class="callout warning">
-  <strong>Hinweis:</strong> Auch wenn wir in den folgenden Beispielen keine echten medizinischen Daten verwenden (wir bleiben bei unserer Pizzalieferungs-Analogie), lässt sich alles hier Gezeigte direkt auf einen realen klinischen Behandlungspfad übertragen.
+  <strong>Hinweis:</strong> Auch wenn wir in den folgenden Beispielen keine echten Patientendaten verwenden (wir behalten die Pizzalieferdienst-Analogie bei), lässt sich alles hier Gezeigte direkt auf einen klinischen Arbeitsablauf übertragen.
 </div>
 
-<h2>Das Clinical Data Repository (CDR)</h2>
+<h2>7.1 Das Clinical Data Repository (CDR)</h2>
 
 <p>
-  Wie bereits beschrieben, ist das CDR die zentrale Datenbank zur Speicherung und Verwaltung von Gesundheitsdaten. Da alle in einem openEHR-CDR abgelegten Kompositionen streng durch Templates gesteuert werden, muss das CDR die entsprechenden Templates kennen und gespeichert haben, <em>bevor</em> es darauf basierende Kompositionen annehmen kann.
+  Wie bereits erläutert, ist das CDR die Datenbank, die medizinische Behandlungsdaten speichert und verwaltet. Da alle in einem openEHR-CDR gespeicherten Kompositionen streng durch Templates gesteuert werden, muss das CDR die entsprechenden Templates vorab kennen und speichern, <em>bevor</em> es darauf basierende Kompositionen annehmen kann.
 </p>
 
 <p>
-  In diesem Leitfaden nutzen wir ein CDR auf Basis von <strong>EHRbase</strong>, einer quelloffenen openEHR-Implementierung der vitagroup AG (<a href="https://www.vitagroup.ag/en/" target="_blank" rel="noopener noreferrer">vitagroup.ag</a>). Obwohl verschiedene CDR-Implementierungen am Markt existieren, bietet EHRbase eine frei zugängliche, öffentliche Sandbox, die sich ideal zum Lernen und Testen eignet:
+  In diesem Leitfaden verwenden wir ein CDR auf Basis von <strong>EHRbase</strong>, einer quelloffenen openEHR-Implementierung der vitagroup AG (<a href="https://www.vitagroup.ag/de/" target="_blank" rel="noopener noreferrer">vitagroup.ag</a>). Zwar gibt es verschiedene CDR-Implementierungen auf dem Markt, doch EHRbase stellt eine frei zugängliche öffentliche Sandbox bereit, die sich ideal zum Lernen und Testen eignet:
 </p>
 
 <ul>
@@ -25,116 +29,116 @@
     <strong>Sandbox-URL:</strong> <a href="https://sandkiste.ehrbase.org" target="_blank" rel="noopener noreferrer">https://sandkiste.ehrbase.org</a>
   </li>
   <li>
-    <strong>Vollständige API-Dokumentation:</strong> <a href="https://docs.ehrbase.org/api/hip-ehrbase/openehr" target="_blank" rel="noopener noreferrer">EHRbase openEHR REST-API-Dokumentation</a>
+    <strong>Vollständige API-Dokumentation:</strong> <a href="https://docs.ehrbase.org/api/hip-ehrbase/openehr" target="_blank" rel="noopener noreferrer">EHRbase openEHR REST API Dokumentation</a>
   </li>
 </ul>
 
 <div class="callout warning">
-  <strong>Sicherheitshinweis:</strong> Die Sandbox ist eine öffentlich geteilte Testumgebung. Übermitteln Sie niemals echte Patientendaten, Passwörter oder personenbezogene Daten.
+  <strong>Sicherheitshinweis:</strong> Die Sandbox ist eine geteilte, öffentliche Umgebung. Übertragen Sie unter keinen Umständen echte Patientendaten, Passwörter oder personenbezogene Daten.
 </div>
 
-<h2>Werkzeuge für API-Tests</h2>
+<h2>7.2 API-Testwerkzeuge</h2>
 
 <p>
-  Um Daten an die EHRbase-Endpunkte zu senden und von dort abzurufen, benötigen wir einen HTTP/REST-Client. Zu den gängigen Tools zählen Insomnia, Bruno und Postman. In dieser Anleitung nutzen wir <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>; die gezeigten Aufrufe und Konzepte lassen sich jedoch 1:1 auf jedes andere API-Testwerkzeug übertragen.
+  Um Daten an EHRbase-Endpunkte zu senden und von dort abzurufen, benötigen wir einen HTTP/REST-Client. Beliebte Werkzeuge sind beispielsweise Insomnia, Bruno oder Postman. In diesem Tutorial verwenden wir <a href="https://www.postman.com/downloads/" target="_blank" rel="noopener noreferrer">Postman</a>, wobei exakt dieselben Anfragen und Prinzipien für jedes andere API-Testwerkzeug gleichermaßen gelten.
 </p>
 
-<h2>Ein kurzer Rundgang durch Postman</h2>
+<h3>Ein kurzer Rundgang durch Postman</h3>
 
 <p>
-  Lassen Sie sich beim ersten Öffnen von Postman nicht von der Funktionsvielfalt überwältigen. Für unseren openEHR-Ablauf benötigen Sie lediglich drei Hauptbereiche:
+  Lassen Sie sich beim ersten Öffnen von Postman nicht von der umfangreichen Oberfläche einschüchtern. Für unseren openEHR-Workflow müssen Sie lediglich mit drei Hauptbereichen interagieren:
 </p>
 
 <ol>
   <li>
-    <strong>Linke Seitenleiste (Ihre Bibliothek):</strong> Hier liegen Ihre gespeicherten Anfragen. Der wichtigste Bereich ist <strong>Collections</strong> (Sammlungen), in dem thematisch zusammenhängende Requests in Ordnern organisiert werden. Neue Sammlungen erstellen Sie mit einem Klick auf das „+“ und Auswahl von „Collection“. Um eine Anfrage anzulegen, fahren Sie mit der Maus über die Sammlung und klicken auf das erscheinende „+“.
+    <strong>Linke Seitenleiste (Ihre Bibliothek):</strong> Hier liegen Ihre gespeicherten Anfragen. Der wichtigste Bereich ist <strong>Collections</strong> (Sammlungen), in dem Sie zusammengehörige Anfragen in Ordnern organisieren. Erstellen Sie Sammlungen, indem Sie auf das „+“ klicken und „Collection“ auswählen. Um eine Anfrage in Ihrer Sammlung zu erstellen, fahren Sie mit der Maus über die Sammlung und klicken Sie auf das daneben erscheinende „+“.
   </li>
   <li>
-    <strong>Oberes / Mittleres Panel (Der Request-Builder):</strong> Hier konfigurieren Sie den HTTP-Aufruf:
+    <strong>Oberes / Mittleres Bedienfeld (Der Request-Builder):</strong> Hier stellen Sie Ihren HTTP-Aufruf zusammen:
     <ul>
-      <li><strong>HTTP-Methode:</strong> Das Dropdown-Menü für das Verb (<code>GET</code>, <code>POST</code>, <code>PUT</code> etc.).</li>
-      <li><strong>Adresszeile (URL):</strong> Die Zieladresse des CDR-Servers.</li>
-      <li><strong>Header:</strong> Metadaten, die den Inhalt beschreiben (z. B. <code>Content-Type: application/json</code> oder <code>Prefer: return=representation</code>).</li>
-      <li><strong>Parameter (Params):</strong> URL-Query-Parameter oder Pfadvariablen (z. B. <code>:ehr_id</code> oder <code>:template_id</code>).</li>
-      <li><strong>Body:</strong> Die Nutzdaten (z. B. das JSON der Komposition oder der XML-Quelltext eines OPT-Templates).</li>
-      <li><strong>Autorisierung (Authorization):</strong> Konfiguration von Bearer-Tokens oder Basic-Auth bei abgesicherten Systemen.</li>
+      <li><strong>HTTP-Methode:</strong> Das Verben-Dropdown (<code>GET</code>, <code>POST</code>, <code>PUT</code> etc.).</li>
+      <li><strong>URL-Zeile:</strong> Die Zieladresse Ihres CDR-Servers.</li>
+      <li><strong>Headers:</strong> Metadaten, die den Payload beschreiben (z.&nbsp;B. <code>Content-Type: application/json</code> oder <code>Prefer: return=representation</code>).</li>
+      <li><strong>Params:</strong> URL-Abfrageparameter oder Pfadvariablen (z.&nbsp;B. <code>:ehr_id</code> oder <code>:template_id</code>).</li>
+      <li><strong>Body:</strong> Die eigentliche Datennutzlast (z.&nbsp;B. die JSON-Komposition oder das rohe XML eines OPT-Templates).</li>
+      <li><strong>Authorization:</strong> Hier werden Bearer-Tokens oder Zugangsdaten hinterlegt, wenn mit gesicherten Systemen kommuniziert wird.</li>
     </ul>
   </li>
   <li>
-    <strong>Unteres Panel (Der Response-Viewer):</strong> Zeigt die Antwort des CDR an, sobald Sie auf <strong>Send</strong> geklickt haben:
+    <strong>Unteres Bedienfeld (Der Response-Viewer):</strong> Zeigt die Antwort des CDR an, sobald Sie auf <strong>Send</strong> klicken:
     <ul>
       <li><strong>Statuscode:</strong> Bestätigt den Erfolg (<code>200 OK</code>, <code>201 Created</code>) oder meldet Fehler (<code>400 Bad Request</code>, <code>404 Not Found</code>).</li>
-      <li><strong>Response-Body:</strong> Die zurückgegebenen Daten (wie eine neu generierte EHR-ID, die UID einer Komposition oder das Abfrageergebnis).</li>
-      <li><strong>Zeit &amp; Größe:</strong> Performancemetriken des Requests.</li>
+      <li><strong>Response Body:</strong> Die zurückgegebenen Daten (wie eine neu generierte EHR-ID, Kompositions-UID oder Abfrageergebnisse).</li>
+      <li><strong>Time &amp; Size:</strong> Performance-Kennzahlen zur Dauer und Größe der Anfrage.</li>
     </ul>
   </li>
 </ol>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261021121913.png" alt="Übersicht über die Postman-Benutzeroberfläche" class="guide-img" style="max-width: 100%; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.1: Die grafische Benutzeroberfläche von Postman.</p>
+  <img src="images/Pasted image 20261021121913.png" alt="Übersicht der Postman-Benutzeroberfläche" class="guide-img" style="max-width: 100%; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 7.1: Die grafische Benutzeroberfläche von Postman.</p>
 </div>
 
-<h3>Wichtige HTTP-Verben</h3>
+<h3>Zentrale HTTP-Verben</h3>
 
-<p>Um dem CDR mitzuteilen, was mit der Anfrage bezweckt wird, stehen verschiedene HTTP-Verben zur Verfügung: GET, POST, PUT, DELETE, PATCH. Für all unsere Praxisbeispiele beschränken wir uns auf <code>GET</code>, <code>POST</code> und <code>PUT</code>. Den vollen Funktionsumfang entnehmen Sie bitte der EHRbase-Dokumentation.</p>
+<p>Um dem CDR mitzuteilen, was Sie mit Ihrer Anfrage erreichen möchten, stehen verschiedene „Verben“ zur Verfügung: GET, POST, PUT, DELETE, PATCH. Für alle unsere praktischen Beispiele verwenden wir ausschließlich <code>GET</code>, <code>POST</code> und <code>PUT</code>. Den vollen Funktionsumfang der API entnehmen Sie bitte der EHRbase-Dokumentation.</p>
 
 <table class="data-table">
   <thead>
     <tr>
       <th>HTTP-Methode</th>
       <th>Bedeutung</th>
-      <th>Einsatz in openEHR &amp; EHRbase</th>
+      <th>Verwendung in openEHR &amp; EHRbase</th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <td><code>GET</code></td>
       <td><em>Lesen / Abrufen</em></td>
-      <td>Daten abrufen, ohne den Serverstatus zu verändern (z. B. ein Template herunterladen oder eine Komposition laden).</td>
+      <td>Daten abrufen, ohne den Serverstatus zu verändern (z.&nbsp;B. Herunterladen eines Templates oder Abrufen einer Komposition).</td>
     </tr>
     <tr>
       <td><code>POST</code></td>
       <td><em>Erstellen / Ausführen</em></td>
-      <td>Neue Daten an den Server übermitteln (z. B. eine neue Akte/EHR registrieren, eine Komposition anlegen oder eine AQL-Abfrage ausführen).</td>
+      <td>Neue Daten zur Erstellung übermitteln (z.&nbsp;B. Anlegen einer neuen Patientenakte/EHR, Einreichen einer neuen Komposition oder Ausführen eines AQL-Abfrage-Payloads).</td>
     </tr>
     <tr>
       <td><code>PUT</code></td>
       <td><em>Hochladen / Ersetzen</em></td>
-      <td>Eine Ressource an einer definierten URI speichern oder überschreiben (z. B. ein Operational Template (OPT) hochladen oder eine bestehende Komposition aktualisieren).</td>
+      <td>Eine Ressource unter einer bestimmten URI speichern oder ersetzen (z.&nbsp;B. Hochladen eines Operational Templates (OPT) an den Definitions-Endpunkt oder Aktualisieren einer bestehenden Kompositionsversion).</td>
     </tr>
   </tbody>
 </table>
 
-<h2>Serverstatus überprüfen</h2>
+<h3>Serverstatus überprüfen</h3>
 
 <p>
-  Als Basisprüfung, ob das CDR läuft und erreichbar ist, rufen wir den Status-Endpunkt des Servers auf. Die Antwort <code>200 OK</code> bestätigt die Betriebsbereitschaft.
+  Als grundlegende Überprüfung, um sicherzustellen, dass das CDR erreichbar und betriebsbereit ist, rufen wir den Status-Endpunkt des Servers auf. Eine Antwort von <code>200 OK</code> bestätigt, dass der Dienst aktiv ist.
 </p>
 
 <p>
-  Da wir das API-Werkzeug zum ersten Mal verwenden, um eine Anfrage zu senden, gehen wir die Schritte einmal gemeinsam durch:
+  Da dies das erste Mal ist, dass wir das API-Werkzeug zum Senden einer Anfrage verwenden, gehen wir Schritt für Schritt vor:
 </p>
 <ol>
-  <li>Erstellen Sie eine Sammlung (Collection) in der linken Seitenleiste (falls noch nicht geschehen).</li>
-  <li>Fügen Sie Ihrer Sammlung eine neue Anfrage (Request) hinzu.</li>
-  <li>Wählen Sie im zentralen Request-Bereich <code>GET</code> aus dem Methoden-Dropdown links neben der URL-Eingabezeile aus.</li>
-  <li>Geben Sie in die URL-Zeile <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code> ein.</li>
-  <li>Klicken Sie durch die Reiter unter der URL-Zeile („Params“, „Headers“ und „Body“). Für diese Abfrage müssen wir hier nichts eintragen, aber es hilft, die Struktur zu sehen. Beachten Sie, dass unter „Headers“ Schlüssel-Wert-Paare (Key-Value) gepflegt werden, die wir in späteren Beispielen benötigen.</li>
+  <li>Erstellen Sie eine Sammlung in der linken Seitenleiste (sofern noch nicht geschehen).</li>
+  <li>Fügen Sie Ihrer Sammlung eine neue Anfrage hinzu.</li>
+  <li>Wählen Sie im Hauptbereich links neben der URL-Eingabezeile <code>GET</code> aus dem Methoden-Dropdown aus.</li>
+  <li>Geben Sie in der URL-Zeile <code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code> ein.</li>
+  <li>Klicken Sie durch die Reiter unter der URL-Zeile („Params“, „Headers“ und „Body“). Hier müssen wir vorerst nichts eintragen, verschaffen Sie sich aber gerne einen Überblick. Beachten Sie, dass „Headers“ Schlüssel-Wert-Paare verwendet, die wir in späteren Beispielen benötigen werden.</li>
   <li>Klicken Sie rechts neben der URL-Zeile auf die Schaltfläche <strong>Send</strong>.</li>
-  <li>Nach einem kurzen Moment wird die Antwort des Servers im unteren Bereich der Benutzeroberfläche angezeigt.</li>
+  <li>Nach einem kurzen Moment erscheint die Antwort im unteren Bereich.</li>
 </ol>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/status</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><em>Keine</em></td></tr>
+  <tr><td><strong>Headers</strong></td><td><em>Keine</em></td></tr>
   <tr><td><strong>Body</strong></td><td><em>Keiner</em></td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>XML-Payload mit Versionsangaben der laufenden Serverkomponenten.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>XML-Payload mit Details zu den laufenden Komponentenversionen.</td></tr>
 </table>
 
-<h3>Beispielantwort</h3>
+<h4>Beispiel-Antwort</h4>
 <pre><code class="language-xml">&lt;?xml version='1.0' encoding='UTF-8'?&gt;
 &lt;status&gt;
     &lt;ehrbase_version&gt;2.33.0&lt;/ehrbase_version&gt;
@@ -145,29 +149,35 @@
     &lt;postgres_version&gt;PostgreSQL 16.15 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 15.2.1 20260123 (Red Hat 15.2.1-7), 64-bit&lt;/postgres_version&gt;
 &lt;/status&gt;</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026084826.png" alt="Serverstatus-Abfrage in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.2: Überprüfung der CDR-Konnektivität über den Status-Endpunkt.</p>
+  <img src="images/Pasted image 20261026084826.png" alt="Serverstatus-Anfrage in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 7.2: Überprüfung der CDR-Konnektivität über den Status-Endpunkt.</p>
 </div>
 
-<h2>Bestehende Templates auf dem CDR auflisten</h2>
+<h1>Kapitel 8: Verwalten von Templates auf dem Server</h1>
+
+<p class="chapter-intro">
+  Bevor ein klinischer Datensatz gespeichert werden kann, muss das Repository den formalen Bauplan besitzen, der ihn steuert. In diesem Kapitel verwalten wir den Lebenszyklus von Templates direkt in EHRbase. Wir fragen den Katalog der aktuell installierten Definitionen ab, laden kompilierte Operational-Template-XML-Dateien (<code>.opt</code>) hoch und rufen gespeicherte Templates über den REST-Definitionsendpunkt ab.
+</p>
+
+<h2>8.1 Vorhandene Templates auf dem CDR auflisten</h2>
 
 <p>
-  Um zu prüfen, welche Templates aktuell auf dem Server aktiv und verfügbar sind, fragen wir den Definition-Endpunkt für Templates ab:
+  Um zu prüfen, welche Templates derzeit auf dem Server aktiv und verfügbar sind, fragen wir den Template-Definitionsendpunkt ab:
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><em>Keine</em></td></tr>
+  <tr><td><strong>Headers</strong></td><td><em>Keine</em></td></tr>
   <tr><td><strong>Body</strong></td><td><em>Keiner</em></td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>JSON-Array mit Kurzangaben zu allen installierten Templates.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>JSON-Array mit Kurzbeschreibungen der installierten Templates.</td></tr>
 </table>
 
-<h3>Beispielantwort (Auszug)</h3>
+<h4>Beispiel-Antwortkörper (gekürzt)</h4>
 <pre><code class="language-json">[
     {
         "concept": "International Patient Summary",
@@ -184,110 +194,116 @@
     ...
 ]</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026085105.png" alt="Auflisten von Templates in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.3: Abrufen des Katalogs gespeicherter Templates.</p>
+  <img src="images/Pasted image 20261026085105.png" alt="Templates auflisten in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 8.1: Abfrage des Katalogs gespeicherter Templates.</p>
 </div>
 
-<h2>Ein Operational Template (OPT) auf das CDR hochladen</h2>
+<h2>8.2 Hochladen eines Operational Templates (OPT) auf das CDR</h2>
 
 <p>
-  Bevor eine Komposition gespeichert werden kann, muss das zugehörige Template als Operational Template (<code>.opt</code>-Datei) hochgeladen werden. Das CDR parst diese Definition und wendet alle darin modellierten Einschränkungen auf eingehende Kompositionen an.
+  Bevor eine Komposition gespeichert werden kann, muss das zugehörige Template als Operational Template (<code>.opt</code>-Datei) hochgeladen werden. Das CDR parst diese Definition und wendet alle modellierten Bedingungen verbindlich auf eingehende Kompositionen an.
 </p>
 
 <p>
-  Die Beispieldateien der Templates finden Sie im herunterladbaren ZIP-Archiv:
-  <a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Beispieldateien herunterladen (.zip)</a>
+  Die Beispieldateien der Templates finden Sie im herunterladbaren Paket:
+  <a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download">Beispieldateien herunterladen (.zip)</a>
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>POST</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/xml</code></td></tr>
+  <tr><td><strong>Headers</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/xml</code></td></tr>
   <tr><td><strong>Body</strong></td><td>Der rohe XML-Inhalt Ihrer <code>.opt</code>-Datei.</td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>201 Created</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Das registrierte OPT-Template im XML-Format.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Das registrierte OPT-Template im XML-Format.</td></tr>
 </table>
 
 <div class="callout warning">
-  <strong>Wichtig:</strong> Falls auf dem Server bereits ein Template mit exakt derselben <code>template_id</code> existiert, weist das CDR den Upload ab, um die Integrität der Versionierung zu schützen.
+  <strong>Wichtig:</strong> Wenn auf dem Server bereits ein Template mit exakt derselben <code>template_id</code> existiert, weist das CDR den Upload ab, um die Versionsintegrität zu wahren.
 </div>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026104155.png" alt="Hochladen eines OPT-Templates in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.4: Registrierung eines OPT-Templates in EHRbase.</p>
+  <img src="images/Pasted image 20261026104155.png" alt="OPT-Template in Postman hochladen" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 8.2: Registrierung eines OPT-Templates auf EHRbase.</p>
 </div>
 
-<h2>Eine OPT-Templatedefinition vom CDR abrufen</h2>
+<h2>8.3 Abrufen einer OPT-Templatedefinition vom CDR</h2>
 
 <p>
-  Wenn Sie die vollständige Definition eines bestehenden Templates abrufen möchten, können Sie dies über den Pfadparameter <code>:template_id</code> tun:
+  Wenn Sie die vollständige Definition eines vorhandenen Templates abrufen müssen, können Sie dieses über seine Template-ID mithilfe eines Pfadparameters (<code>:template_id</code>) abfragen:
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><code>Accept: application/xml</code></td></tr>
-  <tr><td><strong>Parameter (Params)</strong></td><td><code>template_id = Vital Signs</code> (abhängig von der gesuchten Template-ID)</td></tr>
+  <tr><td><strong>Headers</strong></td><td><code>Accept: application/xml</code></td></tr>
+  <tr><td><strong>Params</strong></td><td><code>template_id = Vital Signs</code> (abhängig von der Template-ID)</td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Vollständige XML-Spezifikation des OPT.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Vollständige OPT-XML-Spezifikation.</td></tr>
 </table>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026105210.png" alt="Abrufen einer Templatedefinition" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.5: Direktes Laden der rohen OPT-Datei vom CDR.</p>
+  <img src="images/Pasted image 20261026105210.png" alt="Templatedefinition abrufen" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 8.3: Abrufen der rohen OPT-Datei direkt vom CDR.</p>
 </div>
 
-<h2>Eine Beispiel-Komposition generieren</h2>
+<h1>Kapitel 9: Persistieren klinischer Daten: Die EHR &amp; Kompositionen</h1>
+
+<p class="chapter-intro">
+  Mit unseren aktiven Templates auf dem Server wenden wir uns dem Kernstück der openEHR-Datenspeicherung zu: dem Erstellen von Patientenakten und deren Befüllung mit strukturierten Daten. In diesem Kapitel erstellen wir einen neuen Electronic Health Record (EHR)-Container, bauen Schritt für Schritt eine vollständig gültige kanonische JSON-Komposition von Grund auf auf, übertragen den Datensatz an das CDR und demonstrieren das sichere Ändern von Einträgen mittels optimistischer Sperrung und Versionskennungen.
+</p>
+
+<h2>9.1 Generieren einer Beispiel-Komposition</h2>
 
 <p>
-  Bei der Entwicklung von Anwendungen ist es oft hilfreich, rasch eine Beispiel-Komposition für ein Template zur Hand zu haben. Sie können das CDR anweisen, ein synthetisches JSON-Muster basierend auf einem registrierten Template zu erzeugen:
+  Bei der Entwicklung von Anwendungen für openEHR kann es hilfreich sein, schnell eine Beispiel-Komposition für ein Template zu generieren. Sie können das CDR bitten, einen beispielhaften JSON-Payload basierend auf einem registrierten Template zu erzeugen:
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/definition/template/adl1.4/:template_id/example?format=JSON</code></td></tr>
-  <tr><td><strong>Parameter (Params)</strong></td><td><code>template_id = Customer_Review_v0</code> (je nach Template-ID)</td></tr>
+  <tr><td><strong>Params</strong></td><td><code>template_id = Customer_Review_v0</code> (abhängig von der Template-ID)</td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Synthetische Beispiel-Komposition im Canonical JSON-Format von openEHR.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Synthetische Beispiel-Komposition im kanonischen openEHR-JSON-Format.</td></tr>
 </table>
 
 <div class="callout warning">
-  <strong>Warnung:</strong> Vom CDR generierte Beispiel-Payloads dienen ausschließlich der Syntaxprüfung. Sie befüllen Felder mit zufälligen Werten und dürfen niemals als reale klinische Daten persistiert werden.
+  <strong>Warnung:</strong> Vom CDR generierte Beispiel-Payloads dienen ausschließlich der Syntaxprüfung. Sie füllen Felder mit beliebigen Zufallswerten und sollten niemals direkt als echte klinische Datensätze eingereicht werden.
 </div>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026110252.png" alt="Anfordern einer Beispiel-Komposition" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.6: Prüfung einer vom CDR generierten Beispiel-Komposition.</p>
+  <img src="images/Pasted image 20261026110252.png" alt="Beispiel-Komposition anfordern" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 9.1: Prüfung einer vom CDR generierten Beispiel-Komposition.</p>
 </div>
 
-<h2>Eine elektronische Patientenakte (EHR) anlegen</h2>
+<h2>9.2 Erstellen einer elektronischen Patientenakte (EHR)</h2>
 
 <p>
-  In openEHR können klinische Kompositionen nicht isoliert existieren. Sie müssen stets einer elektronischen Akte (<strong>EHR</strong>) zugeordnet sein, die den Patienten repräsentiert (in unserer Analogie den Kunden). Beim Anlegen einer Akte wird ein eindeutiger, persistenter Identifikator (eine <code>ehr_id</code> als UUID) erzeugt:
+  In openEHR können klinische Kompositionen nicht isoliert existieren. Sie müssen zu einer <strong>EHR</strong> gehören, die den Patienten repräsentiert (oder in unserer Analogie den Kunden). Beim Erstellen einer EHR wird ein eindeutiger, dauerhafter Bezeichner generiert (eine <code>ehr_id</code>-UUID):
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>POST</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><code>Prefer: return=representation</code></td></tr>
+  <tr><td><strong>Headers</strong></td><td><code>Prefer: return=representation</code></td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>201 Created</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Metadaten des angelegten EHR-Datensatzes inklusive der <code>ehr_id</code>.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Metadaten des erstellten EHR-Datensatzes einschließlich <code>ehr_id</code>.</td></tr>
 </table>
 
 <div class="callout warning">
-  Wenn Sie möchten, können Sie dies direkt ausprobieren, indem Sie unsere Beispiel-Templates in die CDR-Sandbox laden.
+  Wenn Sie möchten, können Sie dies üben, indem Sie unsere Beispiel-Templates in die CDR-Sandbox hochladen.
 </div>
 
-<h3>Beispielantwort</h3>
+<h4>Beispiel-Antwort</h4>
 <pre><code class="language-json">{
     "_type": "EHR",
     "system_id": {
@@ -313,29 +329,29 @@
     }
 }</code></pre>
 
-<h3>Screenshot</h3>
+<h4>Screenshot</h4>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026111537.png" alt="Anlegen einer EHR in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.7: Anlegen einer EHR und Empfang der JSON-Antwort.</p>
+  <img src="images/Pasted image 20261026111537.png" alt="EHR in Postman anlegen" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 9.2: Erstellen einer EHR und Rückgabe im JSON-Format.</p>
 </div>
 
-<h2>Eine Komposition von Grund auf erstellen (Schritt für Schritt)</h2>
+<h2>9.3 Schritt für Schritt: Eine Komposition von Grund auf aufbauen</h2>
 
 <p>
-  Nachdem unsere Templates im CDR registriert sind, können wir reale klinische Daten speichern. In openEHR geschieht dies in Form einer <strong>COMPOSITION</strong>.
+  Nachdem unsere Templates auf das CDR hochgeladen wurden, können wir tatsächliche klinische Daten speichern. In openEHR werden medizinische Daten in Form einer <strong>COMPOSITION</strong> erfasst.
 </p>
 
 <p>
-  Man könnte zwar EHRbase um eine synthetische Vorlage bitten, doch diese autogenerierten Payloads sind voller verwirrender Dummy-Werte und optionaler Attribute, die den Blick auf das Wesentliche verstellen. Der beste Weg, openEHR-Daten wirklich zu verstehen, ist der Bau einer minimalen, validen Komposition von Hand.
+  Man könnte zwar EHRbase um ein synthetisches Beispiel bitten, doch diese automatisch erzeugten Payloads stecken voller unübersichtlicher Dummy-Werte und optionaler Attribute, die den Blick auf das Wesentliche verstellen. Der beste Weg, openEHR-Daten wirklich zu verstehen, besteht darin, eine minimale, gültige Komposition Schritt für Schritt von Hand aufzubauen.
 </p>
 
 <p>
-  In dieser Schritt-für-Schritt-Anleitung bauen wir eine vollständige Komposition für unser Template <strong><code>Customer_Review_v0</code></strong>.
+  In dieser Anleitung erstellen wir eine vollständige Komposition für unser Template <strong><code>Customer_Review_v0</code></strong>.
 </p>
 
 <p>
-  Werfen Sie dazu gerne einen Blick in die Spezifikation der Klasse <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">COMPOSITION</a>. Es empfiehlt sich, den Aufbau der Datei anhand des Referenzmodells nachzuvollziehen. Für schnelle Nachschlagezwecke ist der inoffizielle <a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">openEHR RM Browser</a> ideal geeignet.
+  Bitte werfen Sie einen Blick auf die Spezifikation der Klasse <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">COMPOSITION</a>. Es empfiehlt sich, den Aufbau der Datei anhand des Referenzmodells nachzuvollziehen. Für schnelles Nachschlagen wird der inoffizielle <a href="https://martinkochdesign.github.io/openEHR_RM_browser/" target="_blank" rel="noopener noreferrer">openEHR RM Browser</a> empfohlen.
 </p>
 
 <!-- ============================================================ -->
@@ -344,7 +360,7 @@
 <h3>Schritt 1 – Die Anatomie einer COMPOSITION</h3>
 
 <p>
-  Die <code>COMPOSITION</code> dient als Hülle für das gesamte zu speichernde Dokument. Auf oberster Ebene erwartet das openEHR-Referenzmodell folgende Grundstruktur:
+  Die <code>COMPOSITION</code> ist der übergeordnete Container für das gesamte Dokument, das wir persistieren möchten. Auf Wurzelebene erwartet das openEHR-Referenzmodell folgendes Grundgerüst:
 </p>
 
 <pre><code class="language-json">{
@@ -360,10 +376,10 @@
 }</code></pre>
 
 <div class="callout warning">
-  <strong>Hinweis:</strong> Diese Struktur ist bewusst auf das Wesentliche reduziert, um die Beispiele übersichtlich zu halten. Die vollständige Liste aller Attribute einer Komposition finden Sie in der <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">offiziellen openEHR-Spezifikation</a>.
+  <strong>Hinweis:</strong> Diese Struktur ist unvollständig. Wir haben die Elemente auf ein Minimum reduziert, um die Beispiele übersichtlich zu halten. Die vollständige Liste aller Attribute einer Komposition finden Sie in der <a href="https://specifications.openehr.org/releases/RM/Release-1.1.0/ehr.html#_composition_class" target="_blank" rel="noopener noreferrer">openEHR-Spezifikation</a>.
 </div>
 
-<p>Lassen Sie uns nun jedes dieser Attribute einzeln betrachten und aufbauen.</p>
+<p>Lassen Sie uns nun jedes dieser Attribute einzeln untersuchen und aufbauen.</p>
 
 <hr>
 
@@ -373,10 +389,10 @@
 <h3>Schritt 2 – Das <code>name</code>-Attribut (RM-Klasse: <code>DV_TEXT</code>)</h3>
 
 <p>
-  In openEHR sind selbst einfache Bezeichnungen selten reine Strings. Sie werden in Datentypen des Referenzmodells gekapselt – meist in <strong><code>DV_TEXT</code></strong> (Data Value: Text), was Lokalisierung und Zeichensatzangaben ermöglicht.
+  In openEHR sind selbst einfache Bezeichnungen selten bloße Text-Strings. Sie werden in einen Datentyp des Referenzmodells verpackt, meist <strong><code>DV_TEXT</code></strong> (Data Value: Text), was Lokalisierungen und Zeichensätze unterstützt.
 </p>
 
-<p>Für die Basis-Komposition entspricht dies üblicherweise dem Namen des Templates:</p>
+<p>Für die Wurzel-Komposition entspricht dies üblicherweise dem Template-Namen:</p>
 
 <pre><code class="language-json">"name": {
   "_type": "DV_TEXT",
@@ -384,7 +400,7 @@
 }</code></pre>
 
 <div class="callout note">
-  <strong>Hinweis:</strong> Je nachdem, wie Ihr Template benannt wurde, kann der Anzeigename vom technischen Bezeichner des zugrundeliegenden Archetyps abweichen.
+  <strong>Hinweis:</strong> Je nachdem, wie Ihr Template erstellt wurde, kann der Anzeigename vom zugrundeliegenden Archetyp-Bezeichner abweichen.
 </div>
 
 <hr>
@@ -395,16 +411,16 @@
 <h3>Schritt 3 – Das <code>archetype_details</code>-Attribut (RM-Klasse: <code>ARCHETYPED</code>)</h3>
 
 <p>
-  Woher weiß das CDR, gegen welche Regeln und Einschränkungen diese Komposition validiert werden muss? Über <code>archetype_details</code>. Dieses Objekt verknüpft die Komposition sowohl mit ihrem Basis-Archetyp als auch mit dem spezifischen Operational Template:
+  Woher weiß das CDR, gegen welche Regeln und Einschränkungen diese Komposition validiert werden muss? Über <code>archetype_details</code>. Dieses Objekt verknüpft die Komposition sowohl mit ihrem Basis-Wurzelarchetypen als auch mit dem spezifischen Operational Template:
 </p>
 
 <div class="img-container">
   <img src="images/Pasted image 20261023125358.png" alt="Attributbaum von archetype_details im RM Browser" class="guide-img" width="300px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.8: Aufbau von archetype_details im openEHR RM Browser.</p>
+  <p class="img-caption">Abbildung 9.3: Ansicht des Attributbaums von archetype_details im openEHR RM Browser.</p>
 </div>
 
 <p>
-  Beachten Sie, dass auch <code>archetype_id</code> und <code>template_id</code> kein reiner Text sind, sondern Instanzen der Klassen <code>ARCHETYPE_ID</code> und <code>TEMPLATE_ID</code>:
+  Beachten Sie, dass auch <code>archetype_id</code> und <code>template_id</code> kein einfacher Freitext sind, sondern Instanzen der Klassen <code>ARCHETYPE_ID</code> und <code>TEMPLATE_ID</code>:
 </p>
 
 <pre><code class="language-json">"archetype_details": {
@@ -428,17 +444,17 @@
 <h3>Schritt 4 – Sprache und Territorium (RM-Klasse: <code>CODE_PHRASE</code>)</h3>
 
 <p>
-  Medizinische Daten sind international. Jede Komposition definiert ihre Primärsprache und ihren Rechtsraum explizit über eine <strong><code>CODE_PHRASE</code></strong>, die eine Standard-Terminologiekennung mit einem spezifischen Code verbindet.
+  Gesundheitsdaten sind international. Jede Komposition definiert ihre primäre Sprache und ihren geografischen Geltungsbereich explizit über <strong><code>CODE_PHRASE</code></strong>, wodurch ein standardisierter Terminologie-Bezeichner mit einem spezifischen Code verknüpft wird.
 </p>
 
 <p>
-  Die zulässigen Codes finden sich in den Spezifikationen der <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a>.
+  Die unterstützten Codes finden Sie in den <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Spezifikationen</a>.
 </p>
 
-<h4>Sprache: ISO 639-1</h4>
+<h5>Sprache: ISO 639-1</h5>
 <div class="img-container">
-  <img src="images/Pasted image 20261023131643.png" alt="Attributbaum für Sprache im RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.9: Attributbaum für language.</p>
+  <img src="images/Pasted image 20261023131643.png" alt="Attributbaum von language im RM Browser" class="guide-img" width="313px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Abbildung 9.4: Attributbaum von language.</p>
 </div>
 
 <pre><code class="language-json">"language": {
@@ -450,10 +466,10 @@
   "code_string": "en"
 }</code></pre>
 
-<h4>Territorium: ISO 3166-1</h4>
+<h5>Territorium: ISO 3166-1</h5>
 <div class="img-container">
-  <img src="images/Pasted image 20261023132253.png" alt="Attributbaum für Territorium im RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.10: Attributbaum für territory.</p>
+  <img src="images/Pasted image 20261023132253.png" alt="Attributbaum von territory im RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Abbildung 9.5: Attributbaum von territory.</p>
 </div>
 
 <pre><code class="language-json">"territory": {
@@ -473,16 +489,16 @@
 <h3>Schritt 5 – Das <code>category</code>-Attribut (RM-Klasse: <code>DV_CODED_TEXT</code>)</h3>
 
 <p>
-  openEHR unterteilt klinische Begegnungen in übergeordnete Muster (wie <code>event</code>, <code>persistent</code> oder <code>episodic</code>). Wir nutzen hier <strong><code>DV_CODED_TEXT</code></strong>, das lesbaren Text mit einem internen openEHR-Terminologiecode verknüpft (hier steht Code <code>433</code> für ein punktuelles Ereignis bzw. „event“):
+  openEHR unterteilt klinische Kontakte in grundlegende Muster (wie <code>event</code>, <code>persistent</code> oder <code>episodic</code>). Wir verwenden <strong><code>DV_CODED_TEXT</code></strong>, welches einen menschenlesbaren Text an einen internen openEHR-Terminologiecode bindet (hier steht der Code <code>433</code> für ein punktuelles Ereignis bzw. „event“):
 </p>
 
 <p>
-  Die unterstützten Codes sind in der <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_composition_category" target="_blank" rel="noopener noreferrer">openEHR Support Terminology</a> definiert.
+  Die unterstützten Codes finden Sie in der <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_composition_category" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Spezifikation</a>.
 </p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261023132705.png" alt="Attributbaum für category im RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.11: Attributbaum für category.</p>
+  <img src="images/Pasted image 20261023132705.png" alt="Attributbaum von category im RM Browser" class="guide-img" width="279px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Abbildung 9.6: Attributbaum von category.</p>
 </div>
 
 <pre><code class="language-json">"category": {
@@ -506,16 +522,16 @@
 <h3>Schritt 6 – Das <code>composer</code>-Attribut</h3>
 
 <p>
-  Jeder medizinische Datensatz muss seine Urheberschaft nachweisen. In openEHR wird der Verfasser (Composer) über <code>PARTY_PROXY</code> modelliert. Üblicherweise wählt man zwischen:
+  Jeder medizinische Datensatz muss seine Urheberschaft nachvollziehbar festhalten. In openEHR wird der Verfasser (Composer) als <code>PARTY_PROXY</code> modelliert. In der Regel wählen Sie zwischen:
 </p>
 <ul>
-  <li><strong><code>PARTY_SELF</code>:</strong> Wird genutzt, wenn der Patient die Daten selbst erfasst hat (z. B. bei Patientenfragebögen / PROMs, Apps).</li>
-  <li><strong><code>PARTY_IDENTIFIED</code>:</strong> Dient der Erfassung des Namens oder Identifikators eines behandelnden Arztes oder einer Einrichtung.</li>
+  <li><strong><code>PARTY_SELF</code>:</strong> Wird verwendet, wenn der Patient die Daten selbst erfasst hat (z.&nbsp;B. Patient-Reported Outcome Measures / PROMs, Smartphone-Apps).</li>
+  <li><strong><code>PARTY_IDENTIFIED</code>:</strong> Wird verwendet, wenn der Name einer externen Person oder eine Kennung des Leistungserbringers dokumentiert wird.</li>
 </ul>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261023132941.png" alt="Attributbaum für composer im RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.12: PARTY_IDENTIFIED zur Abbildung des Verfassers.</p>
+  <img src="images/Pasted image 20261023132941.png" alt="Attributbaum von composer im RM Browser" class="guide-img" width="243px" onclick="openImg(this)" style="cursor: pointer;">
+  <p class="img-caption">Abbildung 9.7: Wahl von PARTY_IDENTIFIED zur Repräsentation des Verfassers.</p>
 </div>
 
 <pre><code class="language-json">"composer": {
@@ -528,34 +544,34 @@
 <!-- ============================================================ -->
 <!-- Step 7 Content & Entries -->
 <!-- ============================================================ -->
-<h3>Schritt 7 – Der <code>content</code>-Bereich: Hinzufügen klinischer Einträge</h3>
+<h3>Schritt 7 – Der <code>content</code>-Bereich: Klinische Einträge hinzufügen</h3>
 
 <p>
-  Nun erreichen wir die eigentlichen Nutzdaten: das <code>content</code>-Array. In unserem Template haben wir einen <strong>EVALUATION</strong>-Archetyp eingebunden (<code>openEHR-EHR-EVALUATION.customer_review.v0</code>).
+  Nun erreichen wir die eigentliche Nutzlast: das <code>content</code>-Array. In unserem Template haben wir einen <strong>EVALUATION</strong>-Archetypen (<code>openEHR-EHR-EVALUATION.customer_review.v0</code>) platziert.
 </p>
 
 <div class="img-container">
   <img src="images/Pasted image 20261026091244.png" alt="Attributbaum von content im RM Browser" class="guide-img" width="288px" onclick="openImg(this)" style="cursor: pointer;">
-  <p class="img-caption">Abbildung 3.13: Die verpflichtenden ENTRY-Attribute innerhalb von content.</p>
+  <p class="img-caption">Abbildung 9.8: Inspektion der obligatorischen ENTRY-Attribute innerhalb von content.</p>
 </div>
 
 <p>
-  Da jeder Entry-Archetyp theoretisch isoliert zitiert, extrahiert oder übersetzt werden kann, verlangt openEHR, dass jeder Eintrag seinen eigenen lokalen Kontext definiert:
+  Da jeder Eintragsarchetyp theoretisch unabhängig voneinander zitiert, extrahiert oder übersetzt werden kann, verlangt openEHR, dass jeder Eintrag seinen eigenen lokalen Kontext definiert:
 </p>
 
 <ul>
-  <li><strong><code>encoding</code>:</strong> Zeichenkodierung (z. B. <code>UTF-8</code>).</li>
-  <li><strong><code>language</code>:</strong> Sprachcode für diesen spezifischen Eintrag.</li>
-  <li><strong><code>subject</code>:</strong> Auf wen sich diese Evaluation bezieht. In unserem Fall zeigt <code>PARTY_SELF</code> an, dass sie direkt für den Inhaber dieser Akte gilt.</li>
-  <li><strong><code>protocol</code>:</strong> Kontextuelle Metadaten darüber, <em>wie</em> oder <em>warum</em> der Eintrag erfasst wurde (z. B. die Order ID).</li>
-  <li><strong><code>data</code>:</strong> Die eigentlichen fachlichen Beobachtungen oder Bewertungen.</li>
+  <li><strong><code>encoding</code>:</strong> Zeichenkodierung (z.&nbsp;B. <code>UTF-8</code>).</li>
+  <li><strong><code>language</code>:</strong> Sprachcode für diesen konkreten Eintrag.</li>
+  <li><strong><code>subject</code>:</strong> Auf wen sich diese Beurteilung bezieht. In unserem Fall zeigt <code>PARTY_SELF</code> an, dass sie sich direkt auf den Inhaber der Akte bezieht.</li>
+  <li><strong><code>protocol</code>:</strong> Kontextuelle Metadaten darüber, <em>wie</em> oder <em>warum</em> der Eintrag erfasst wurde (z.&nbsp;B. die Order ID).</li>
+  <li><strong><code>data</code>:</strong> Die eigentlichen klinischen Beobachtungen oder Bewertungen.</li>
 </ul>
 
 <hr>
 
-<h4>Schritt 7.1 – <code>encoding</code>, <code>language</code> und <code>subject</code> des Inhalts</h4>
+<h5>Schritt 7.1 – <code>encoding</code>, <code>language</code> und <code>subject</code> des Inhalts</h5>
 
-<p>Das <code>content</code>-Array enthält eine Liste aller in diesem Abschnitt modellierten Archetypen. Wir befüllen <code>encoding</code>, <code>language</code> und <code>subject</code> analog zu den vorherigen Schritten:</p>
+<p>Der <code>content</code>-Abschnitt enthält eine Liste aller Archetypen, die in diesem Teil des Templates modelliert wurden. Wir können wie zuvor <code>encoding</code>, <code>language</code> und <code>subject</code> ergänzen:</p>
 
 <pre><code class="language-json">{
   "_type": "EVALUATION",
@@ -599,14 +615,14 @@
 
 <hr>
 
-<h4>Schritt 7.2 – Datenelemente zu <code>protocol</code> und <code>data</code> hinzufügen</h4>
+<h5>Schritt 7.2 – Datenelemente zu <code>protocol</code> und <code>data</code> hinzufügen</h5>
 
 <p>
-  Sowohl in <code>data</code> als auch in <code>protocol</code> werden Informationen als <strong><code>ITEM_TREE</code></strong> strukturiert, der sich aus einzelnen <strong><code>ELEMENT</code></strong>-Knoten zusammensetzt.
+  Sowohl in <code>data</code> als auch in <code>protocol</code> sind die Informationen als <strong><code>ITEM_TREE</code></strong> organisiert, der sich aus einzelnen <strong><code>ELEMENT</code></strong>-Knoten zusammensetzt.
 </p>
 
 <p>
-  Beachten Sie, wie jeder Datenpunkt eine passende <strong>Data Value (DV)</strong>-Klasse nutzt. So stellen sich die Felder unserer Kundenbewertung dar:
+  Beachten Sie, wie jeder klinische Datenpunkt eine spezifische <strong>Data Value (DV)</strong>-Klasse nutzt, die genau zu seiner Art passt. So sehen unsere drei Bewertungsfelder aus:
 </p>
 
 <div class="table-responsive">
@@ -614,37 +630,36 @@
     <thead>
       <tr>
         <th>Feldname</th>
-        <th>Archetype Node ID</th>
-        <th>RM Data-Value-Klasse</th>
+        <th>Archetyp-Knoten-ID</th>
+        <th>RM Data Value Klasse</th>
       </tr>
     </thead>
     <tbody>
       <tr>
-        <td><strong>Zufriedenheitsbewertung (Satisfaction Rating)</strong></td>
+        <td><strong>Satisfaction Rating</strong></td>
         <td><code>at0005</code></td>
-        <td><code>DV_COUNT</code><br><em>(Ganzzahliger Zählwert)</em></td>
+        <td><code>DV_COUNT</code><br><em>(Ganzzahl)</em></td>
       </tr>
       <tr>
-        <td><strong>Freunden empfehlen? (Recommend to a Friend?)</strong></td>
+        <td><strong>Recommend to a Friend?</strong></td>
         <td><code>at0006</code></td>
-        <td><code>DV_BOOLEAN</code><br><em>(Wahr/Falsch-Indikator)</em></td>
+        <td><code>DV_BOOLEAN</code><br><em>(True / False Flag)</em></td>
       </tr>
       <tr>
-        <td><strong>Kundenfeedback (Customer Feedback)</strong></td>
+        <td><strong>Customer Feedback</strong></td>
         <td><code>at0007</code></td>
         <td><code>DV_TEXT</code><br><em>(Freitext-String)</em></td>
       </tr>
       <tr>
         <td><strong>Order ID</strong> (in Protocol)</td>
         <td><code>at0002</code></td>
-        <td><code>DV_IDENTIFIER</code><br><em>(Geschäftsschlüssel / UUID)</em></td>
+        <td><code>DV_IDENTIFIER</code><br><em>(Formaler fachlicher Schlüssel/UUID)</em></td>
       </tr>
     </tbody>
   </table>
 </div>
 
-<p>Damit bauen wir die zugehörige JSON-Struktur mit konkreten Werten für <code>data</code> und <code>protocol</code> auf:</p>
-
+<p>Vor diesem Hintergrund erstellen wir die entsprechende JSON-Struktur mit ausgefüllten Werten für <code>data</code> und <code>protocol</code>:</p>
 <pre><code class="language-json">...
 "protocol": {
   "_type": "ITEM_TREE",
@@ -721,10 +736,10 @@
 <!-- ============================================================ -->
 <!-- Step 9 The Full Assembled Composition -->
 <!-- ============================================================ -->
-<h3>Schritt 8 – Das vollständige JSON-Dokument</h3>
+<h3>Schritt 8 – Der vollständig zusammengesetzte JSON-Payload</h3>
 
 <p>
-  Fügen wir alle Puzzleteile zusammen, erhalten wir unsere vollständige, absolut valide Canonical openEHR-Komposition:
+  Fügen wir all diese Puzzleteile zusammen, erhalten wir unsere vollständige, gültige kanonische openEHR-Komposition:
 </p>
 
 <pre><code class="language-json">{
@@ -885,8 +900,8 @@
 
 <hr>
 
-<h3>Direkt einsetzbare Beispieldateien</h3>
-<p>Sie können die JSON-Payloads für alle drei Workflow-Templates direkt ansehen oder herunterladen:</p>
+<h3>Einsatzbereite Beispieldateien</h3>
+<p>Sie können die JSON-Payloads für alle drei Workflow-Templates einsehen oder herunterladen:</p>
 <ul>
   <li><a href="docs/Customer_Review_v0_COMPOSITION_EXAMPLE.json" download>Customer_Review_v0_COMPOSITION_EXAMPLE.json</a></li>
   <li><a href="docs/Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json" download>Online_Customer_Order_v0_COMPOSITION_EXAMPLE.json</a></li>
@@ -895,93 +910,99 @@
 
 <hr>
 
-<h2>Eine Komposition an das CDR übermitteln (persistieren)</h2>
+<h2>9.4 Eine Komposition an das CDR übermitteln</h2>
 
 <p>
-  Um eine Komposition zu speichern, senden wir einen HTTP-<code>POST</code>-Request an den Endpunkt der spezifischen <code>ehr_id</code>:
+  Um eine Komposition zu persistieren, senden wir einen HTTP-<code>POST</code>-Request gezielt an den <code>ehr_id</code>-Endpunkt des jeweiligen Patienten:
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>POST</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
-  <tr><td><strong>Parameter (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code></td></tr>
-  <tr><td><strong>Body</strong></td><td>Die vollständige Komposition im Canonical JSON-Format.</td></tr>
+  <tr><td><strong>Headers</strong></td><td><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
+  <tr><td><strong>Params</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code></td></tr>
+  <tr><td><strong>Body</strong></td><td>Die vollständige kanonische JSON-Komposition.</td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>201 Created</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Die gespeicherte Komposition inklusive der zugewiesenen versionierten <code>uid</code>.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Die persistierte Komposition einschließlich ihrer zugewiesenen versionierten <code>uid</code>.</td></tr>
 </table>
 
 <div class="callout note">
-  <strong>Die Kompositions-UID verstehen:</strong> In openEHR erhalten Kompositionen eine <code>OBJECT_VERSION_ID</code> im Format <code>{UUID}::{system_id}::{version}</code> (z. B.: <code>c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code>).
+  <strong>Die Kompositions-UID verstehen:</strong> In openEHR erhalten Kompositionen eine <code>OBJECT_VERSION_ID</code> im Format <code>{UUID}::{system_id}::{version}</code> (beispielsweise: <code>c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code>).
 </div>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026135957.png" alt="Übermitteln einer Komposition in Postman" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.14: Erfolgreich erstellte Komposition mit Rückgabe der Version 1.</p>
+  <img src="images/Pasted image 20261026135957.png" alt="Komposition in Postman einreichen" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 9.9: Erfolgreiche Erstellung der Komposition mit Rückgabe von Version 1.</p>
 </div>
 
 <hr>
 
-<h2>Eine Komposition über ihre ID abrufen</h2>
+<h2>9.5 Eine Komposition anhand ihrer ID abrufen</h2>
 
 <p>
-  Wenn Sie die Ziel-<code>ehr_id</code> und die <code>composition_id</code> kennen, können Sie die vollständige Komposition per HTTP-<code>GET</code> laden:
+  Wenn Sie die Ziel-<code>ehr_id</code> und <code>composition_id</code> kennen, können Sie die vollständige Komposition über einen HTTP-<code>GET</code>-Request abrufen:
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>GET</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
-  <tr><td><strong>Parameter (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
+  <tr><td><strong>Params</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Die aktuellste Version der gespeicherten Komposition.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Die neueste Version der gespeicherten Komposition.</td></tr>
 </table>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026141946.png" alt="Abrufen einer Komposition per ID" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.15: Abrufen eines bestehenden Kompositionsdatensatzes.</p>
+  <img src="images/Pasted image 20261026141946.png" alt="Komposition anhand der ID abrufen" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 9.10: Abrufen eines bestehenden Kompositionsdatensatzes.</p>
 </div>
 
-<h2>Eine bestehende Komposition aktualisieren</h2>
+<h2>9.6 Ändern einer bestehenden Komposition</h2>
 
 <p>
-  openEHR-Repositoren pflegen eine revisionssichere und lückenlose Versionshistorie: Kompositionen werden niemals direkt überschrieben. Für ein Update senden wir einen HTTP-<code>PUT</code>-Request und übergeben die aktuelle Versions-ID im <code>If-Match</code>-Header, um Konflikte bei gleichzeitigen Schreibzugriffen zu verhindern (optimistisches Sperren):
+  openEHR-Repositories führen eine permanente, revisionssichere Versionshistorie: Kompositionen werden niemals direkt überschrieben. Um einen Datensatz zu aktualisieren, senden wir einen HTTP-<code>PUT</code>-Request und übergeben die aktuelle Versions-ID im <code>If-Match</code>-Header, um Konflikte bei gleichzeitigen Schreibvorgängen zu verhindern (optimistische Sperrung / Optimistic Locking):
 </p>
 
 <table class="data-table">
   <tr><td><strong>Methode</strong></td><td><code>PUT</code></td></tr>
   <tr><td><strong>URL</strong></td><td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/ehr/:ehr_id/composition/:composition_id</code></td></tr>
-  <tr><td><strong>Header</strong></td><td><code>If-Match: c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code><br><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
-  <tr><td><strong>Parameter (Params)</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
+  <tr><td><strong>Headers</strong></td><td><code>If-Match: c9214ddc-97eb-4c19-821a-e0aee11d3043::local.ehrbase.org::1</code><br><code>Prefer: return=representation</code><br><code>Content-Type: application/json</code></td></tr>
+  <tr><td><strong>Params</strong></td><td><code>ehr_id = 7fab0168-e79f-456f-b271-02050dabaa43</code><br><code>composition_id = c9214ddc-97eb-4c19-821a-e0aee11d3043</code></td></tr>
   <tr><td><strong>Body</strong></td><td>Das aktualisierte JSON der Komposition.</td></tr>
   <tr><td><strong>Erwarteter Status</strong></td><td><code>200 OK</code></td></tr>
-  <tr><td><strong>Response-Body</strong></td><td>Der aktualisierte Datensatz mit inkrementierter Version auf <code>::2</code>.</td></tr>
+  <tr><td><strong>Response Body</strong></td><td>Der aktualisierte Datensatz mit auf <code>::2</code> hochgezählter Version.</td></tr>
 </table>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261026143522.png" alt="Aktualisieren einer Komposition per PUT" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
-  <p class="img-caption">Abbildung 3.16: Aktualisieren einer Komposition mit Versionierungs-Inkrement auf ::2.</p>
+  <img src="images/Pasted image 20261026143522.png" alt="Komposition mit PUT bearbeiten" class="guide-img" style="max-width: 700px; cursor: pointer;" onclick="openImg(this)">
+  <p class="img-caption">Abbildung 9.11: Aktualisierung einer Komposition und Hochzählen der Version auf ::2.</p>
 </div>
 
 <hr>
 
-<h2>AQL – Gezielte Abfrage klinischer Daten</h2>
+<h1>Kapitel 10: Gezielte klinische Daten mit AQL abfragen</h1>
+
+<p class="chapter-intro">
+  Klinische Daten zu speichern, ist nur die halbe Miete; präzise Werte über mehrere Patientenkontakte hinweg herauszulesen, ist der Punkt, an dem openEHR seinen größten Nutzen entfaltet. In diesem Kapitel führen wir die Archetype Query Language (AQL) ein – den herstellerneutralen Abfragestandard für klinische Strukturen. Wir analysieren den Aufbau von AQL-Statements, führen Abfragen über die REST-API aus und demonstrieren praxisnahe Muster wie Parametrisierung, Pfadprüfung und das Verknüpfen mehrerer zusammenhängender Dokumente.
+</p>
+
+<h2>10.1 Gezielte Datenabfrage über AQL</h2>
 
 <p>
-  In den vorangegangenen Schritten haben wir Daten im CDR persistiert und gesehen, wie man ein ganzes Dokument per API lädt, wenn man dessen ID kennt. In der Praxis weiß man diese ID jedoch selten im Voraus oder benötigt gezielt einzelne Werte (z. B. nur den Pizzanamen oder den systolischen Blutdruckwert) quer über viele Einträge hinweg. Hierfür bietet openEHR die <strong>Archetype Query Language (AQL)</strong>.
+  In den vorherigen Schritten haben wir Daten im CDR gespeichert und gesehen, wie man eine komplette Komposition über die API abruft, wenn deren eindeutige Kennung bekannt ist. In realen medizinischen Anwendungen kennen Sie die Kompositions-ID vorab jedoch selten oder benötigen lediglich bestimmte Datenpunkte (z.&nbsp;B. nur den Namen der Pizza oder nur den systolischen Blutdruckwert) über viele verschiedene Kontakte hinweg. Hierfür stellt openEHR die <strong>Archetype Query Language (AQL)</strong> bereit.
 </p>
 
 <p>
-  AQL ist in den offiziellen openEHR-Spezifikationen genormt:
-  <a href="https://specifications.openehr.org/releases/QUERY/latest/AQL.html" target="_blank" rel="noopener noreferrer">openEHR AQL-Spezifikationen</a>.
+  AQL ist in den offiziellen openEHR-Spezifikationen standardisiert: 
+  <a href="https://specifications.openehr.org/releases/QUERY/latest/AQL.html" target="_blank" rel="noopener noreferrer">openEHR AQL Spezifikationen</a>.
 </p>
 
 <p>
-  In diesem Abschnitt behandeln wir praxisnahe Beispiele, die Ihnen einen intuitiven Ersteinstieg in AQL vermitteln.
+  In diesem Abschnitt führen wir Sie durch praktische Beispiele, um Ihnen einen intuitiven, praxisnahen Ersteinstieg in AQL zu geben.
 </p>
 
 <h3>Ausführen einer AQL-Abfrage über die REST-API</h3>
 
-<p>AQL-Abfragen werden per HTTP-<code>POST</code> an den Abfrage-Endpunkt von EHRbase übermittelt:</p>
+<p>AQL-Abfragen werden an EHRbase über einen HTTP-<code>POST</code>-Request an den Abfrageendpunkt übermittelt:</p>
 
 <table class="data-table">
   <tr>
@@ -993,24 +1014,24 @@
     <td><code>https://sandkiste.ehrbase.org/ehrbase/rest/openehr/v1/query/aql</code></td>
   </tr>
   <tr>
-    <td><strong>Header</strong></td>
+    <td><strong>Headers</strong></td>
     <td><code>Content-Type: application/json</code></td>
   </tr>
   <tr>
     <td><strong>Body</strong></td>
-    <td>Nutzdaten: Der AQL-Envelope im JSON-Format.</td>
+    <td>Payload – Der AQL-Abfrage-Umschlag im JSON-Format.</td>
   </tr>
   <tr>
     <td><strong>Erwarteter Status</strong></td>
     <td><code>200 OK</code></td>
   </tr>
   <tr>
-    <td><strong>Response-Body</strong></td>
-    <td>Spalten und Zeilen des Abfrageergebnisses in JSON.</td>
+    <td><strong>Response Body</strong></td>
+    <td>Abfrageergebnis mit Spalten und Zeilen im JSON-Format.</td>
   </tr>
 </table>
 
-<p>Der Request-Body folgt dieser Struktur:</p>
+<p>Der im Anfragekörper übermittelte JSON-Payload folgt dieser Struktur:</p>
 
 <pre><code class="language-json">{
   "q": "SELECT ...",
@@ -1020,14 +1041,14 @@
 }</code></pre>
 
 <ul>
-  <li><code>q</code>: Der eigentliche AQL-Query-String (verpflichtend).</li>
-  <li><code>offset</code>: Anzahl der zu überspringenden Zeilen zu Beginn (wichtig für Paginierung).</li>
-  <li><code>fetch</code>: Maximale Zeilenanzahl der Rückgabe (kann auch in der Abfrage per <code>LIMIT</code> definiert werden).</li>
-  <li><code>query_parameters</code>: Ein Dictionary aus Schlüssel-Wert-Paaren, die Variablen in der Abfrage ersetzen (gekennzeichnet durch <code>$</code>).</li>
+  <li><code>q</code>: Der AQL-Abfragestring (obligatorisch).</li>
+  <li><code>offset</code>: Anzahl der zu überspringenden Zeilen zu Beginn (nützlich für Paginierung).</li>
+  <li><code>fetch</code>: Maximale Anzahl der zurückzugebenden Zeilen (kann auch direkt in der Abfrage mittels <code>LIMIT</code> definiert werden).</li>
+  <li><code>query_parameters</code>: Ein Dictionary aus Schlüssel-Wert-Parametern, die in deklarierte Variablen der Abfrage eingesetzt werden (gekennzeichnet durch das Präfix <code>$</code>).</li>
 </ul>
 
 <p>
-  Standardmäßige AQL-Query-Strings in JSON müssen einzeilig formatiert sein. Um komplexe mehrzeilige Abfragen übersichtlich zu strukturieren, zu testen und zu dokumentieren, können Sie den quelloffenen <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a> nutzen.
+  Standardmäßige AQL-Abfragestrings in JSON müssen einzeilig formatiert sein. Um mehrzeilige Abfragen visuell zu prüfen, zu formatieren und zu dokumentieren, können Sie den quelloffenen <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a> nutzen.
 </p>
 
 <hr>
@@ -1035,10 +1056,10 @@
 <h3>Die Anatomie einer AQL-Abfrage</h3>
 
 <p>
-  Im Grunde formuliert eine AQL-Abfrage an das CDR: <em>„Gib mir bitte ein bestimmtes Set an Datenpunkten basierend auf spezifischen Archetyp-Pfaden und Kriterien zurück.“</em>
+  In groben Zügen formuliert eine AQL-Abfrage an das CDR: <em>„Bitte gib mir eine Reihe klinischer Datenelemente zurück, basierend auf bestimmten Archetyp-Pfaden und Kriterien.“</em>
 </p>
 
-<p>Vergleichen wir eine natürlichsprachliche Frage mit ihrer Entsprechung in AQL (bezogen auf unser Pizzabeispiel):</p>
+<p>Vergleichen wir beispielsweise eine umgangssprachliche Fragestellung mit dem äquivalenten AQL-Statement (angewandt auf unsere Pizzalieferdienst-Analogie):</p>
 
 <div class="callout note">
   <strong>Fragestellung:</strong> Welche Kunden haben eine Bestellung aufgegeben?
@@ -1047,27 +1068,27 @@
 <table class="data-table">
   <thead>
     <tr>
-      <th>Natürlichsprachliche Frage</th>
+      <th>Umgangssprachliche Frage</th>
       <th>AQL-Klausel</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td>„Nenne mir bitte alle EHR-IDs...“</td>
+      <td>„Bitte nenne mir alle EHR-IDs...“</td>
       <td><code>SELECT e/ehr_id/value</code></td>
     </tr>
     <tr>
-      <td>„...aus Akten, die Kompositionen enthalten...“</td>
+      <td>„...von Datensätzen, die Kompositionen enthalten...“</td>
       <td><code>FROM EHR e CONTAINS COMPOSITION c</code></td>
     </tr>
     <tr>
-      <td>„...basierend auf dem Template 'Online_Customer_Order_v0'.“</td>
+      <td>„...basierend auf dem Template ‚Online_Customer_Order_v0‘.“</td>
       <td><code>WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></td>
     </tr>
   </tbody>
 </table>
 
-<p>Zusammengefügt zu einer vollständigen Abfrage:</p>
+<p>Zusammengefügt ergibt sich die vollständige Abfrage:</p>
 
 <pre><code class="language-sql">SELECT e/ehr_id/value 
 FROM EHR e 
@@ -1076,10 +1097,12 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 
 <hr>
 
-<h3>Testdatensatz</h3>
+<h2>10.2 Praktische Beispiele für AQL-Abfragen</h2>
+
+<h3>Der Test-Datensatz</h3>
 
 <p>
-  Um diese Abfragen zu testen, wurden drei Beispielbestellungen in unserer Testakte (<code>ehr_id: 7fab0168-e79f-456f-b271-02050dabaa43</code>) gespeichert. Da öffentliche Sandboxes regelmäßig zurückgesetzt werden, können Sie die Beispieldaten bei Bedarf erneut hochladen:
+  Um diese Abfragen auszuprobieren, wurden drei Beispielbestellungen in unserer Test-EHR persistiert (<code>ehr_id: 7fab0168-e79f-456f-b271-02050dabaa43</code>). Da öffentliche Sandboxes regelmäßig zurückgesetzt werden, können Sie das vollständige Paket der Beispiel-Kompositionen herunterladen, um sie bei Bedarf erneut hochzuladen:
 </p>
 
 <p>
@@ -1087,7 +1110,7 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 </p>
 
 <p>
-  Folgende Bestellungen wurden erfasst:
+  Folgende Bestellungen wurden übermittelt:
 </p>
 
 <table class="data-table">
@@ -1119,7 +1142,7 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
       <td>Carrer Major 234, 3r 2a, 08008 Barcelona</td>
     </tr>
     <tr>
-      <td><strong>Telefonnummer</strong></td>
+      <td><strong>Kontakttelefon</strong></td>
       <td>+34 612 345 678</td>
       <td>+34 698 765 432</td>
       <td>+34 655 555 555</td>
@@ -1137,28 +1160,28 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
       <td>Large (<code>at0010</code>)</td>
     </tr>
     <tr>
-      <td><strong>Küchenhinweise</strong></td>
+      <td><strong>Küchennotizen</strong></td>
       <td>Glutenfrei</td>
       <td>Keine</td>
       <td>Keine Extras!</td>
     </tr>
     <tr>
-      <td><strong>Zusatzbelag</strong></td>
+      <td><strong>Belag</strong></td>
       <td>Champignons (<code>at0006</code>)</td>
       <td>Jalapeños (<code>at0008</code>)</td>
       <td>-</td>
     </tr>
     <tr>
       <td><strong>Menge</strong></td>
-      <td>Doppelt (<code>2|at0004</code>)</td>
-      <td>Normal (<code>1|at0003</code>)</td>
+      <td>Double (<code>2|at0004</code>)</td>
+      <td>Regular (<code>1|at0003</code>)</td>
       <td>-</td>
     </tr>
   </tbody>
 </table>
 
 <p>
-  Beim Anlegen dieser Datensätze wurden die UIDs der Bestell-Kompositionen festgehalten und als <code>Order ID</code> an die nachfolgenden Status- und Bewertungs-Kompositionen übergeben.
+  Beim Erstellen dieser Datensätze wurden die versionierten Kompositions-UIDs der Bestellungen notiert und als <code>Order ID</code> in nachfolgende Tracking- und Bewertungs-Kompositionen übernommen.
 </p>
 
 <hr>
@@ -1169,15 +1192,15 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 <h3>AQL 1 – Alle Bestellungen eines Kunden auflisten</h3>
 
 <p>
-  Unser Ziel ist es, alle Bestellungen unseres Kunden abzurufen und die eindeutige UUID jeder auf <code>Online_Customer_Order_v0</code> basierenden Komposition zurückzuerhalten.
+  Unser Ziel ist es, alle von unserem Kunden aufgegebenen Bestellungen zu ermitteln und die eindeutige UUID jeder auf <code>Online_Customer_Order_v0</code> basierenden Komposition zurückzuerhalten.
 </p>
 
-<p>Wir beginnen mit dem Basisgerüst:</p>
+<p>Wir beginnen mit unserem grundlegenden Containment-Gerüst:</p>
 
 <pre><code class="language-sql">SELECT ... FROM EHR e CONTAINS COMPOSITION c ...</code></pre>
 
 <p>
-  Im openEHR-Referenzmodell liegt der versionierte Bezeichner der Komposition im Attribut <code>uid</code>. Selektieren wir <code>c/uid</code> direkt, liefert das CDR das vollständige <code>OBJECT_VERSION_ID</code>-Objekt:
+  Im openEHR-Referenzmodell befindet sich die versionierte Kennung der Komposition im <code>uid</code>-Attribut. Wenn wir <code>c/uid</code> direkt selektieren, gibt das CDR das gesamte <code>OBJECT_VERSION_ID</code>-Objekt zurück:
 </p>
 
 <pre><code class="language-json">{
@@ -1186,14 +1209,14 @@ WHERE c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code><
 }</code></pre>
 
 <p>
-  Benötigt unsere Client-Anwendung lediglich den Textwert, können wir direkt auf <code>c/uid/value</code> verweisen.
+  Wenn unsere Client-Anwendung lediglich den eigentlichen String benötigt, können wir direkt auf <code>c/uid/value</code> verweisen.
 </p>
 
 <div class="callout tip">
-  <strong>Vollständiges Objekt oder reiner Wert?</strong> Die Selektion des gesamten Objekts erhält wertvolle Metadaten (wie Datentypen und Terminologie-IDs). Der direkte Zugriff auf <code>/value</code> liefert hingegen eine schlankere Payload und spart Parsing-Arbeit auf Clientseite. In diesen Beispielen selektieren wir direkt die einfachen Werte.
+  <strong>Sollten Sie das gesamte Objekt oder nur den Wert selektieren?</strong> Die Auswahl des gesamten Objekts erhält wertvolle Metadaten (wie Datentypen und Terminologie-Bezeichner). Das direkte Auswählen von <code>/value</code> liefert hingegen einen schlankeren Payload und vereinfacht das clientseitige Parsen. In diesen Beispielen selektieren wir die primitiven Werte direkt.
 </div>
 
-<p>Als Nächstes schränken wir die Abfrage über die EHR-ID auf unseren Kunden ein (abrufbar unter <code>ehr_id/value</code> der EHR):</p>
+<p>Als Nächstes schränken wir die Abfrage über die EHR-ID auf unseren spezifischen Kundendatensatz ein (zu finden unter <code>ehr_id/value</code> der EHR):</p>
 
 <pre><code class="language-sql">SELECT c/uid/value 
 FROM EHR e 
@@ -1201,7 +1224,7 @@ CONTAINS COMPOSITION c
 WHERE e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43'</code></pre>
 
 <p>
-  Um keine anderen Kompositionen (wie Reviews oder Tracker-Einträge) mit einzubeziehen, filtern wir zusätzlich auf die Template-ID (zu finden unter <code>archetype_details/template_id/value</code> der Komposition):
+  Schließlich filtern wir gezielt nach der Template-ID (unter <code>archetype_details/template_id/value</code> der Komposition), um andere Kompositionen (wie Bewertungen oder Tracking-Einträge) auszuschließen:
 </p>
 
 <pre><code class="language-sql">SELECT c/uid/value 
@@ -1212,11 +1235,11 @@ WHERE
     AND 
     c/archetype_details/template_id/value = 'Online_Customer_Order_v0'</code></pre>
 
-<p>Die Ausführung dieses Requests in Postman liefert die drei gespeicherten Bestellungen:</p>
+<p>Das Ausführen dieser Abfrage in Postman gibt unsere drei gespeicherten Bestellungen zurück:</p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027115836.png" alt="AQL-1-Antwort in Postman" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.17: Ergebnis von AQL 1 mit den drei UIDs der Kompositionen.</p>
+  <img src="images/Pasted image 20261027115836.png" alt="AQL 1 Antwort in Postman" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.1: Ergebnis von AQL 1 mit den drei Kompositions-UIDs.</p>
 </div>
 
 <hr>
@@ -1224,35 +1247,35 @@ WHERE
 <!-- ============================================================ -->
 <!-- AQL 2 -->
 <!-- ============================================================ -->
-<h3>AQL 2 – Zubereitungsstatus der Bestellungen prüfen</h3>
+<h3>AQL 2 – Zubereitungsstatus der Bestellung prüfen</h3>
 
 <p>
-  In diesem Beispiel wollen wir den aktuellen Bearbeitungsstatus unserer Bestellungen ermitteln. Diese Information liegt in den Kompositionen des Templates <code>Kitchen_And_Delivery_Tracker_v0</code>.
+  In diesem Beispiel möchten wir den Zubereitungsstatus unserer Bestellungen ermitteln. Diese Information liegt in Kompositionen, die auf dem Template <code>Kitchen_And_Delivery_Tracker_v0</code> basieren.
 </p>
 
 <p>
-  Um die exakten AQL-Pfade für diese Datenelemente zu ermitteln, schauen wir in den <strong>openEHR Archetype Designer</strong>. In den Knotendetails finden wir den aufgelösten Pfad für die <strong>Order ID</strong>:
+  Um die exakten AQL-Pfade dieser Elemente herauszufinden, konsultieren wir den <strong>openEHR Archetype Designer</strong>. Unter den Knotendetails finden wir den aufgelösten Pfad für die <strong>Order ID</strong>:
 </p>
 
 <pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]</code></pre>
 
 <div class="img-container">
   <img src="images/Pasted image 20261027120325.png" alt="Aufgelöster Pfad für Order ID im Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.18: Ermittlung des aufgelösten Pfads für die Order ID im Archetype Designer.</p>
+  <p class="img-caption">Abbildung 10.2: Nachschlagen des aufgelösten Pfads für die Order ID im Archetype Designer.</p>
 </div>
 
 <p>
-  Genauso ermitteln wir den Pfad für den ISM-Status der Aktion (den Zubereitungsstatus):
+  Ebenso ermitteln wir den Pfad für den ISM-Statusübergang der Action (den Zubereitungsstatus):
 </p>
 
 <pre><code class="language-text">/content[openEHR-EHR-ACTION.pizza_preparation.v0]/ism_transition</code></pre>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027120403.png" alt="Aufgelöster Pfad für ISM-Transition im Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.19: Lokalisierung des Pfads für den ISM-Übergangsstatus.</p>
+  <img src="images/Pasted image 20261027120403.png" alt="Aufgelöster Pfad für ISM-Übergang im Archetype Designer" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.3: Ermitteln des Pfads für den ISM-Statusübergang.</p>
 </div>
 
-<p>Daraus setzen wir die vollständige AQL-Anweisung zusammen:</p>
+<p>Wir fügen die vollständige AQL-Anweisung zusammen:</p>
 
 <pre><code class="language-sql">SELECT 
   c/content[openEHR-EHR-ACTION.pizza_preparation.v0]/protocol[at0006]/items[at0011]/value/id, 
@@ -1261,11 +1284,11 @@ FROM EHR e
 CONTAINS COMPOSITION c 
 WHERE 
     e/ehr_id/value = '7fab0168-e79f-456f-b271-02050dabaa43' 
-    AND 
+    AND
     c/archetype_details/template_id/value = 'Kitchen_And_Delivery_Tracker_v0'</code></pre>
 
 <p>
-  Feste Werte direkt in lange AQL-Strings zu schreiben, birgt Fehlerquellen. Indem wir statische Werte durch Parameter (wie <code>$ehr_id</code> und <code>$template_id</code>) ersetzen, wird unsere Abfrage sauber, dynamisch und wiederverwendbar:
+  Das feste Einprogrammieren von Parametern in lange AQL-Strings wird schnell fehleranfällig. Indem wir literale Werte durch Parameter ersetzen (wie <code>$ehr_id</code> und <code>$template_id</code>), machen wir unsere Abfrage sauber, dynamisch und wiederverwendbar:
 </p>
 
 <pre><code class="language-json">{
@@ -1278,20 +1301,20 @@ WHERE
   }
 }</code></pre>
 
-<p>Die Ausführung liefert die Order ID gepaart mit dem aktuellen Status:</p>
+<p>Das Ausführen der Anfrage liefert die Order-ID und den aktuellen Bearbeitungsstatus zurück:</p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027121236.png" alt="AQL-2-Ergebnisse mit Order ID und Status" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.20: Die abgerufenen Bestell-IDs zusammen mit ihrem aktuellen Zubereitungsstatus.</p>
+  <img src="images/Pasted image 20261027121236.png" alt="AQL 2 Ergebnisse mit Order ID und Status" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.4: Abgerufene Bestell-IDs mit ihrem aktuellen Zubereitungsstatus.</p>
 </div>
 
 <p>
-  Da das Formatieren einzeiliger AQL-Queries unübersichtlich sein kann, hilft Ihnen der inoffizielle <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a>, mehrzeilige Abfragen visuell zu erstellen, zu testen und zu formatieren:
+  Da das Formatieren langer, einzeiliger AQL-Abfragen mühsam sein kann, ermöglicht Ihnen der inoffizielle <a href="https://martinkochdesign.github.io/openEHR_AQL_manager/" target="_blank" rel="noopener noreferrer">openEHR AQL Manager</a>, Ihre Abfragen visuell zu gliedern, zu testen und zu dokumentieren:
 </p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027121542.png" alt="Benutzeroberfläche des openEHR AQL Managers" class="guide-img" width="906px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.21: Formatieren und Validieren von mehrzeiligen AQL-Abfragen im openEHR AQL Manager.</p>
+  <img src="images/Pasted image 20261027121542.png" alt="openEHR AQL Manager Oberfläche" class="guide-img" width="906px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.5: Formatieren und Validieren mehrzeiliger AQL-Abfragen im openEHR AQL Manager.</p>
 </div>
 
 <hr>
@@ -1299,22 +1322,22 @@ WHERE
 <!-- ============================================================ -->
 <!-- AQL 3 -->
 <!-- ============================================================ -->
-<h3>AQL 3 – Bewertungen nach Pizzanamen analysieren</h3>
+<h3>AQL 3 – Bewertungen nach Pizzaname auswerten</h3>
 
 <p>
-  Schließlich möchten wir herausfinden, welche Pizza die beste Zufriedenheitsbewertung von unserem Kunden erhalten hat.
+  Schließlich wollen wir herausfinden, welche Pizza die höchste Kundenzufriedenheit erzielt hat.
 </p>
 
 <p>
-  Hier begegnen wir einer typischen Modellierungsaufgabe in openEHR: Der Name der Pizza wurde zum Bestellzeitpunkt in <code>Online_Customer_Order_v0</code> hinterlegt, die Bewertung hingegen später in <code>Customer_Review_v0</code> abgegeben. Während fortgeschrittene AQL-Techniken verknüpfte Suchen erlauben, ist es in Produktivumgebungen oft performanter und robuster, zwei fokussierte Abfragen auszuführen und diese über den gemeinsamen Bezeichner (die <strong>Order ID</strong>) zu verknüpfen:
+  Hier begegnen wir einer realistischen Herausforderung der openEHR-Modellierung: Der Pizzaname wurde zum Zeitpunkt der Bestellung in <code>Online_Customer_Order_v0</code> erfasst, während das Zufriedenheitsrating später in <code>Customer_Review_v0</code> abgegeben wurde. Obwohl fortgeschrittene AQL-Techniken verknüpfte Einträge verbinden können, ist es in Produktivumgebungen oft performanter und robuster, zwei gezielte Abfragen auszuführen und diese über den gemeinsamen Schlüssel (die <strong>Order ID</strong>) zusammenzuführen:
 </p>
 
 <ol>
-  <li><strong>Abfrage 1:</strong> Abrufen des Pizzanamens zu jeder Order ID.</li>
-  <li><strong>Abfrage 2:</strong> Abrufen der Kundenbewertung zu jeder Order ID.</li>
+  <li><strong>Abfrage 1:</strong> Abrufen des Pizzanamens für jede Order ID.</li>
+  <li><strong>Abfrage 2:</strong> Abrufen des Kundenratings für jede Order ID.</li>
 </ol>
 
-<h4>Abfrage 1: Pizzanamen über die Order ID abrufen</h4>
+<h4>Abfrage 1: Pizzanamen nach Order ID abrufen</h4>
 
 <pre><code class="language-json">{
   "q": "SELECT c/uid/value AS order_id, c/content[openEHR-EHR-INSTRUCTION.pizza_order.v0]/activities[at0001]/description[at0002]/items[at0004]/value/value AS pizza_name FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
@@ -1327,11 +1350,11 @@ WHERE
 }</code></pre>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027122531.png" alt="AQL-Ergebnisse: Zuordnung von Order IDs zu Pizzanamen" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.22: Ausgabe mit Zuordnung der Bestell-IDs zu den konkreten Pizzanamen.</p>
+  <img src="images/Pasted image 20261027122531.png" alt="AQL-Ergebnisse zur Zuordnung von Order ID zu Pizzaname" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.6: Ausgabe der Zuordnung von Bestell-IDs zu bestimmten Pizzanamen.</p>
 </div>
 
-<h4>Abfrage 2: Bewertungen über die Order ID abrufen</h4>
+<h4>Abfrage 2: Ratings nach Order ID abrufen</h4>
 
 <pre><code class="language-json">{
   "q": "SELECT c/content[openEHR-EHR-EVALUATION.customer_review.v0]/protocol[at0001]/items[at0002]/value/id AS order_id, c/content[openEHR-EHR-EVALUATION.customer_review.v0]/data[at0003]/items[at0005]/value/magnitude AS rating FROM EHR e CONTAINS COMPOSITION c WHERE e/ehr_id/value=$ehr_id AND c/archetype_details/template_id/value=$template_id",
@@ -1344,12 +1367,12 @@ WHERE
 }</code></pre>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261027123305.png" alt="AQL-Ergebnisse: Zuordnung von Order IDs zu Bewertungen" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Abbildung 3.23: Ausgabe mit Verknüpfung der Bestell-IDs zu den numerischen Zufriedenheitsscores.</p>
+  <img src="images/Pasted image 20261027123305.png" alt="AQL-Ergebnisse zur Zuordnung von Order ID zu Ratings" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
+  <p class="img-caption">Abbildung 10.7: Ausgabe der Zuordnung von Bestell-IDs zu numerischen Zufriedenheitswerten.</p>
 </div>
 
 <p>
-  Verknüpft man beide Ergebnisse über die <code>order_id</code>, wird deutlich: Die <strong>„Archetype Supreme“</strong> war die absolute Lieblingspizza dieses Kunden mit der Bestnote von <strong>5</strong> Punkten!
+  Verbindet man die Ergebnisse über <code>order_id</code>, wird deutlich, dass <strong>„Archetype Supreme“</strong> die am besten bewertete Pizza für diesen Kunden war – mit einer perfekten Bewertung von <strong>5</strong>!
 </p>
 
 <hr>
@@ -1357,10 +1380,10 @@ WHERE
 <!-- ============================================================ -->
 <!-- Postman Collection Section -->
 <!-- ============================================================ -->
-<h2>Einsatzbereite Postman-Collection</h2>
+<h3>Einsatzbereite Postman-Sammlung</h3>
 
 <p>
-  Damit Sie lange URLs, komplexe Pfade und Header nicht von Hand eingeben müssen, sind alle in Teil 3 demonstrierten Anfragen in einer vorkonfigurierten Postman-Collection zusammengefasst:
+  Um Ihnen das mühsame manuelle Eintippen langer URLs, komplexer Pfade und Header zu ersparen, sind alle in Teil 3 demonstrierten Anfragen in einer vorkonfigurierten Postman-Collection-Datei gebündelt:
 </p>
 
 <p>
@@ -1369,24 +1392,24 @@ WHERE
   </a>
 </p>
 
-<h3>Import in Postman</h3>
+<h4>Importieren in Postman</h4>
 
-<h4>Methode A: Drag &amp; Drop (am schnellsten)</h4>
+<h5>Methode A: Drag &amp; Drop (Am schnellsten)</h5>
 <ol>
   <li>Öffnen Sie Postman auf Ihrem Computer.</li>
-  <li>Ziehen Sie die heruntergeladene Datei <code>openEHR_Pizza_Tutorial.postman_collection.json</code> einfach in das Postman-Fenster.</li>
+  <li>Ziehen Sie die heruntergeladene Datei <code>openEHR_Pizza_Tutorial.postman_collection.json</code> direkt in das Postman-Fenster.</li>
+  <li>Klicken Sie bei der Eingabeaufforderung auf <strong>Import</strong>.</li>
+</ol>
+
+<h5>Methode B: Die Import-Schaltfläche</h5>
+<ol>
+  <li>Klicken Sie oben links in der Menüleiste von Postman auf die Schaltfläche <strong>Import</strong>.</li>
+  <li>Wählen Sie <strong>Files</strong> und navigieren Sie zur heruntergeladenen Sammlungsdatei.</li>
   <li>Bestätigen Sie mit einem Klick auf <strong>Import</strong>.</li>
 </ol>
 
-<h4>Methode B: Der Import-Button</h4>
-<ol>
-  <li>Klicken Sie oben links in der Werkzeugleiste auf den <strong>Import</strong>-Button.</li>
-  <li>Wählen Sie <strong>Files</strong> und navigieren Sie zur heruntergeladenen Datei.</li>
-  <li>Klicken Sie zur Bestätigung auf <strong>Import</strong>.</li>
-</ol>
-
 <p>
-  Nach dem Import finden Sie die Collection in Ihrer linken Seitenleiste – alle Requests sind in logischer Reihenfolge vorkonfiguriert, damit Sie direkt loslegen und sie gegen EHRbase ausführen können!
+  Sobald die Sammlung importiert ist, erscheint sie in Ihrer linken Seitenleiste mit allen Anfragen in logischer Reihenfolge – bereit zum Erkunden, Testen und Ausführen gegen EHRbase!
 </p>
 
 </section>

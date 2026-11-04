@@ -1,324 +1,376 @@
 <section>
 
-<h1>Modellering av et forløp med arketyper og templat</h1>
+<h1>Kapittel 4: Utforming av arbeidsflyten med arketyper og templat</h1>
 
-<p>Som vi har lært, modellerer openEHR kliniske data i to klart adskilte lag: kliniske konsepter (arketyper) og klinisk kontekst (templat).</p>
-<p>For å komme i gang med praktisk modellering skal vi bruke en analogi til en klinisk arbeidsprosess som dekker de ulike arketypeklassene.</p>
-<p>Vi fortsetter med de kulinariske sammenligningene og modellerer prosessen for <strong>bestilling og levering av en pizza</strong>.</p>
-<p>Vi bruker pizza-analogien slik at vi kan fokusere helt på modelleringsmekanismene uten å bli distrahert av reelle medisinske fagdiskusjoner.</p>
-<p>Til dette modellerer vi følgende arbeidsflyt:</p>
-<ul>
-  <li>Kunden sender en bestilling til pizzeriaen via et nettskjema. Det opprettes en Order ID for å knytte all etterfølgende dokumentasjon direkte tilbake til denne konkrete bestillingen.</li>
-  <li>Kjøkkenet tilbereder pizzaen og følger statusen helt frem til levering. Hvert steg i denne prosessen dokumenteres.</li>
-  <li>Etter å ha mottatt og nytt pizzaen, fyller kunden ut et tilbakemeldingsskjema om kundetilfredshet.</li>
-</ul>
-
-<div class="img-container">
-  <img src="images/Pasted image 20261023112056.png" alt="Pizzaprosess" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.1: Leveringsprosessen for pizza og de tre dokumentasjonene som springer ut av den.</p>
-</div>
-
-<h2>Strukturering av prosessen</h2>
-<p>Templatene og arketypene vi skal utvikle for denne arbeidsflyten er:</p>
-<ul>
-  <li><strong>Templat 1: «Nettbestilling fra kunde» (Online Customer Checkout)</strong></li>
-  <li><strong>Templat 2: «Kjøkken- og leveringssporing» (Kitchen and Courier Tracker)</strong></li>
-  <li><strong>Templat 3: «Kundeanmeldelse» (Customer Review)</strong></li>
-</ul>
-
-<p>I de neste avsnittene kartlegger vi hvilke templat som skal inneholde hvilke arketyper, og hvilke dataelementer vi må modellere inne i arketypene.</p>
-
-<h3>Basisarketypen</h3>
-<p>For å holde det enkelt baserer vi alle våre templat på én felles arketype: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. I praktisk helseinformatikk ville du valgt eller opprettet en spesifikk komposisjonsarketype avhengig av det tiltenkte formålet, for eksempel for å modellere en konsultasjon (encounter), en persistent liste eller en rapport.</p>
-<p>
-  Denne basiskomposisjonen lages ved å opprette en ny COMPOSITION-arketype med <code>openEHR-EHR-COMPOSITION.example_base.v0</code> som ID og lagre den. Ingen ytterligere endringer er nødvendig.
+<p class="chapter-intro">
+ Før vi åpner noen programvareverktøy, starter et vellykket klinisk modelleringsarbeid alltid med en tydelig plan. I dette kapittelet skisserer vi en komplett prosess fra start til slutt ved hjelp av en gjenkjennelig analogi fra serveringsbransjen: bestilling, tilberedning og vurdering av en pizza. Vi deler arbeidsflyten inn i distinkte kliniske dokumentasjonssteg, identifiserer de nødvendige arketypeklassene og planlegger de tre templatene som skal dekke hver fase av forløpet.
 </p>
 
-<h3>Templat 1: Nettbestilling fra kunde (Online Customer Order)</h3>
+<h2>4.1 Pizzaleverings-analogien</h2>
+
+<p>Som vi har lært, modellerer openEHR kliniske data i to distinkte lag: kliniske konsepter (arketyper) og klinisk kontekst (templat).</p>
+<p>For å begynne å modellere i praksis skal vi bruke en analogi til en klinisk arbeidsprosess som omfatter de ulike arketypeklassene.</p>
+<p>Vi holder oss til matrelaterte analogier og modellerer prosessen for en <strong>pizzabestilling og -levering</strong>.</p>
+<p>Vi bruker pizza-analogien slik at vi kan fokusere på modelleringsmekanikken uten å bli distrahert av reelle kliniske diskusjoner.</p>
+<p>Til dette modellerer vi følgende arbeidsflyt:</p>
 <ul>
-  <li><strong>Arketype:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
-    <ul>
-      <li>Dataelement: <strong>Kundenavn</strong> — Type: <code>DV_TEXT</code></li>
-      <li>Dataelement: <strong>Leveringsadresse (gate og nummer)</strong> — Type: <code>DV_TEXT</code></li>
-      <li>Dataelement: <strong>Kontakttelefon</strong> — Type: <code>DV_TEXT</code></li>
-    </ul>
-  </li>
-  <li><strong>Arketype:</strong> <code>INSTRUCTION.pizza_order.v0</code>
-    <ul>
-      <li>Dataelement: <strong>Pizzanavn</strong> — Type: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
-      <li>Dataelement: <strong>Størrelse</strong> — Type: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
-      <li>Dataelement: <strong>Spesielle kjøkkenmerknader</strong> — Type: <code>DV_TEXT</code> (f.eks. «Godt stekt, takk»)</li>
-      <li>Slot (luke): <strong>Ekstra fyll</strong> (inkluderer <code>CLUSTER.pizza_topping.v0</code> nedenfor)</li>
-    </ul>
-  </li>
-  <li><strong>Arketype:</strong> <code>CLUSTER.pizza_topping.v0</code> (kobles inn i <code>INSTRUCTION.pizza_order.v0</code>)
-    <ul>
-      <li>Dataelement: <strong>Navn på fyll</strong> — Type: <code>DV_CODED_TEXT</code> (f.eks. Sopp, Ekstra mozzarella, Jalapeños)</li>
-      <li>Dataelement: <strong>Mengde</strong> — Type: <code>DV_ORDINAL</code> (1: Normal, 2: Dobbel, 3: Trippel)</li>
-    </ul>
-  </li>
+ <li>Kunden sender en bestilling til pizzeriaen via et nettskjema. Det opprettes en bestillings-ID (Order ID) for å koble all påfølgende dokumentasjon tilbake til denne konkrete bestillingen.</li>
+ <li>Kjøkkenet tilbereder og sporer pizzaen frem til levering. Hvert trinn i denne sporingen dokumenteres.</li>
+ <li>Etter å ha mottatt og nytt pizzaen, fyller kunden ut et skjema for kundetilfredshet.</li>
 </ul>
 
-<h3>Templat 2: Kjøkken- og leveringssporing (Kitchen and Delivery Tracker)</h3>
+ <div class="img-container">
+ <img src="images/Pasted image 20261023112056.png" alt="Pizzaprosessen" class="guide-img" width="700px" onclick="openImg(this)" style="cursor:pointer;" >
+ <p class="img-caption">Figur 4.1: Pizzaleveringsprosessen og de tre dokumentasjonsformene som oppstår fra den.</p>
+ </div>
+
+<h2>4.2 De tre templatene</h2>
+
+<h3>Strukturering av prosessen</h3>
+<p>Templatene og arketypene vi skal utvikle for denne arbeidsflyten er:</p>
 <ul>
-  <li><strong>Arketype:</strong> <code>ACTION.pizza_preparation.v0</code>
-    <ul>
-      <li>Dataelement: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (UUID for bestillingen)</li>
-      <li>Dataelement: <strong>ISM-livssyklustilstand</strong> — Type: <code>ISM_TRANSITION</code> (Planlagt → I ovnen → Sendt → Levert, eller Avbrutt)</li>
-      <li>Dataelement: <strong>Steketemperatur</strong> — Type: <code>DV_QUANTITY</code> (f.eks. 320 °C)</li>
-      <li>Dataelement: <strong>Merknader</strong> — Type: <code>DV_TEXT</code> (f.eks. «Overlevert til kunde ved inngangsdøren»)</li>
-      <li>Slot (luke): <strong>Verifisert fyll</strong> (gjenbruker <code>CLUSTER.pizza_topping.v0</code> for å kontrollere hva som faktisk ble stekt)</li>
-    </ul>
-  </li>
+ <li><strong>Templat 1: «Online Customer Checkout»</strong></li>
+ <li><strong>Templat 2: «Kitchen and Courier Tracker»</strong></li>
+ <li><strong>Templat 3: «Customer Review»</strong></li>
 </ul>
 
-<h3>Templat 3: Kundeanmeldelse (Customer Review)</h3>
+<p>I de følgende avsnittene skal vi kartlegge hvilke templat som skal inneholde hvilke arketyper, og hvilke dataelementer vi må modellere i arketypene.</p>
+
+<h4>Basisarketypen</h4>
+<p>For å holde det enkelt baserer vi alle templatene våre på én enkelt arketype: <code>openEHR-EHR-COMPOSITION.example_base.v0</code>. I praktisk arbeid ville du valgt eller opprettet en spesifikk composition-arketype avhengig av det tiltenkte formålet, for eksempel modellering av en pasientkontakt (encounter), en persistent liste eller en rapport.</p>
+<p>
+ Denne basiskomposisjonen lages ved å opprette en ny COMPOSITION-arketype med <code>openEHR-EHR-COMPOSITION.example_base.v0</code> som ID og lagre den. Ingen endringer er nødvendige.
+</p>
+
+<h4>Templat 1: Nettbestilling for kunde (Online Customer Order)</h4>
 <ul>
-  <li><strong>Arketype:</strong> <code>EVALUATION.customer_review.v0</code>
-    <ul>
-      <li>Dataelement: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (UUID for bestillingen)</li>
-      <li>Dataelement: <strong>Tilfredshetsskår</strong> — Type: <code>DV_COUNT</code> (begrenset mellom 1 og 5)</li>
-      <li>Dataelement: <strong>Anbefale til en venn?</strong> — Type: <code>DV_BOOLEAN</code> (Sant / Usant)</li>
-      <li>Dataelement: <strong>Kundetilbakemelding</strong> — Type: <code>DV_TEXT</code> (Fritekst-kommentarer)</li>
-    </ul>
-  </li>
+ <li><strong>Arketype:</strong> <code>ADMIN_ENTRY.delivery_address.v0</code>
+ <ul>
+ <li>Dataelement: <strong>Customer Name</strong> — Type: <code>DV_TEXT</code></li>
+ <li>Dataelement: <strong>Delivery Street and Number</strong> — Type: <code>DV_TEXT</code></li>
+ <li>Dataelement: <strong>Contact Phone</strong> — Type: <code>DV_TEXT</code></li>
+ </ul>
+ </li>
+ <li><strong>Arketype:</strong> <code>INSTRUCTION.pizza_order.v0</code>
+ <ul>
+ <li>Dataelement: <strong>Pizza Name</strong> — Type: <code>DV_CODED_TEXT</code> (Archetype Supreme, Semantic Quattro, Midnight Special)</li>
+ <li>Dataelement: <strong>Size</strong> — Type: <code>DV_CODED_TEXT</code> (Small, Medium, Large)</li>
+ <li>Dataelement: <strong>Special Kitchen Notes</strong> — Type: <code>DV_TEXT</code> (f.eks. «Godt stekt, takk»)</li>
+ <li>Spor (slot): <strong>Extra Toppings</strong> (inkluderer <code>CLUSTER.pizza_topping.v0</code> nedenfor)</li>
+ </ul>
+ </li>
+ <li><strong>Arketype:</strong> <code>CLUSTER.pizza_topping.v0</code> (plassert i <code>INSTRUCTION.pizza_order.v0</code>)
+ <ul>
+ <li>Dataelement: <strong>Topping Name</strong> — Type: <code>DV_CODED_TEXT</code> (f.eks. Sopp, Ekstra mozzarella, Jalapeños)</li>
+ <li>Dataelement: <strong>Amount</strong> — Type: <code>DV_ORDINAL</code> (1: Regular, 2: Dobbel, 3: Trippel)</li>
+ </ul>
+ </li>
 </ul>
 
-<h2>La oss starte med å modellere arketypene</h2>
-<p>Nå som planen er klar, kan vi opprette arketypene. De nøyaktige klikkene avhenger litt av verktøyet du benytter. I disse eksemplene bruker vi <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, utviklet av Better).</p>
+<h4>Templat 2: Kjøkken- og leveringssporing (Kitchen and Delivery Tracker)</h4>
+<ul>
+ <li><strong>Arketype:</strong> <code>ACTION.pizza_preparation.v0</code>
+ <ul>
+ <li>Dataelement: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (bestillingens UUID)</li>
+ <li>Dataelement: <strong>ISM Lifecycle State</strong> — Type: <code>ISM_TRANSITION</code> (Planlagt → I ovnen → Sendt → Levert, eller Kansellert)</li>
+ <li>Dataelement: <strong>Baking Temperature</strong> — Type: <code>DV_QUANTITY</code> (f.eks. 320 °C)</li>
+ <li>Dataelement: <strong>Notes</strong> — Type: <code>DV_TEXT</code> (f.eks. «Overlevert kunden ved porten»)</li>
+ <li>Spor (slot): <strong>Toppings Verified</strong> (gjenbruker <code>CLUSTER.pizza_topping.v0</code> for å kryssjekke hva som faktisk ble stekt)</li>
+ </ul>
+ </li>
+</ul>
 
-<h3>Modellere COMPOSITION.example_base.v0</h3>
-<p>Som grunnmur for alle templatene våre trenger vi en COMPOSITION-arketype. For å holde det rent og ryddig oppretter vi en COMPOSITION og lagrer den direkte uten å legge til noen egne elementer.</p>
+<h4>Templat 3: Kundevurdering (Customer Review)</h4>
+<ul>
+ <li><strong>Arquetyp:</strong> <code>EVALUATION.customer_review.v0</code>
+ <ul>
+ <li>Dataelement: <strong>Order ID</strong> — Type: <code>DV_IDENTIFIER</code> (bestillingens UUID)</li>
+ <li>Dataelement: <strong>Satisfaction Rating</strong> — Type: <code>DV_COUNT</code> (begrenset mellom 1 og 5)</li>
+ <li>Dataelement: <strong>Recommend to Friend?</strong> — Type: <code>DV_BOOLEAN</code> (Sant / Usant)</li>
+ <li>Dataelement: <strong>Customer Feedback</strong> — Type: <code>DV_TEXT</code> (fritekstkommentarer)</li>
+ </ul>
+ </li>
+</ul>
+
+<h1>Kapittel 5: Modellering av openEHR-arketyper og -templat</h1>
+
+<p class="chapter-intro">
+ Med planen på plass er det på tide å gå fra teori til praktisk utforming. I dette kapittelet bygger vi arketypene våre fra bunnen av ved hjelp av den nettbaserte openEHR Archetype Designer. Vi går gjennom oppsett av datatyper, konfigurasjon av interne koder, opprettelse av cluster-spor og sporing av aktivitetens livssyklus via handlingstilstander, før vi setter disse komponentene sammen til våre tre operative templat klare til bruk.
+</p>
+
+<h2>5.1 La oss begynne å modellere arketyper</h2>
+<p>Nå som vi har en plan, kan vi opprette arketypene. De nøyaktige klikkene avhenger litt av verktøyet du bruker. I disse eksemplene benytter vi <strong>Archetype Designer</strong> (<a href="https://tools.openehr.org/designer/" target="_blank" rel="noopener noreferrer">https://tools.openehr.org/designer/</a>, utviklet av Better).</p>
+
+<h3>Modellering av COMPOSITION.example_base.v0</h3>
+<p>Som basis for alle templatene våre trenger vi en COMPOSITION-arketype. For å holde det rent og minimalistisk oppretter vi ganske enkelt en COMPOSITION og lagrer den uten å legge til noen tilpassede elementer.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020151218.png" alt="Modellering av COMPOSITION.example_base.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.2: Opprettelse av basisarketypen for komposisjoner.</p>
+ <img src="images/Pasted image 20261020151218.png" alt="Opprettelse av basiskomposisjon" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.1: Opprettelse av basiskomposisjonsarketypen COMPOSITION.example_base.v0.</p>
 </div>
 
-<h3>Modellere ADMIN_ENTRY.delivery_address.v0</h3>
+<h3>Modellering av ADMIN_ENTRY.delivery_address.v0</h3>
 <p>Vi oppretter en ADMIN_ENTRY-arketype og legger til 3 <code>DV_TEXT</code>-elementer under <code>data</code>-attributtet.</p>
 
 <div class="img-container">
-  <img src="images/Pasted image 20261020135043.png" alt="Modellering av ADMIN_ENTRY.delivery_address.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.3: Oppbygning av arketypen for leveringsadresse.</p>
+ <img src="images/Pasted image 20261020135043.png" alt="Struktur for leveringsadresse" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.2: Strukturen til arketypen ADMIN_ENTRY.delivery_address.v0.</p>
 </div>
 
-<p>Merk at vi her lagrer kontaktinformasjon for pizzaleveringen. I virkelige kliniske openEHR-installasjoner <strong>lagrer vi aldri direkte personidentifiserende pasientopplysninger</strong> inne i pasientjournalen.</p>
+<p>Legg merke til at vi her lagrer kundens kontaktinformasjon for pizzaleveringen. I reelle kliniske openEHR-implementeringer <strong>lagrer vi aldri direkte identifiserende pasientopplysninger</strong> inne i selve journalnotatet.</p>
 
-<h3>Modellere INSTRUCTION.pizza_order.v0</h3>
-<p>Vi oppretter en INSTRUCTION-arketype og endrer navnet på «Current Activity» til «Order».</p>
-<p>Under <code>description</code> legger vi til en <code>DV_CODED_TEXT</code> for pizzanavn og størrelse, en <code>DV_TEXT</code> for spesielle kjøkkenmerknader, samt en CLUSTER-luke for ekstra fyll.</p>
+<h3>Modellering av INSTRUCTION.pizza_order.v0</h3>
+<p>Vi oppretter en INSTRUCTION-arketype og gir «Current Activity» det nye navnet «Order».</p>
+<p>Under <code>description</code> legger vi til en <code>DV_CODED_TEXT</code> for Pizza Name og Size, en <code>DV_TEXT</code> for Special Kitchen Notes, og et CLUSTER-spor for Extra Toppings.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135237.png" alt="Modellering av INSTRUCTION.pizza_order.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.4: Struktur for bestillingsinstruksjonen.</p>
+ <img src="images/Pasted image 20261020135237.png" alt="Struktur for pizzabestilling" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.3: Strukturen til arketypen INSTRUCTION.pizza_order.v0.</p>
 </div>
 
-<p>Ved å velge <strong>Pizza Name</strong> konfigurerer vi interne kodede termer for våre tre pizzavarianter:</p>
+<p>Når vi velger <strong>Pizza Name</strong>, konfigurerer vi interne kodede termer for våre tre pizzaalternativer:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135603.png" alt="Koder for pizzanavn" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.5: Konfigurasjon av verdisett for pizzavalg.</p>
+ <img src="images/Pasted image 20261020135603.png" alt="Interne koder for pizzanavn" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.4: Definering av interne koder for pizzanavnalternativene.</p>
 </div>
-<p>Legg merke til at en intern kode (som starter med <code>at</code>) opprettes automatisk for hvert valg.</p>
+
+<p>Legg merke til at det automatisk genereres en intern kode (som starter med <code>at</code>) for hvert valg.</p>
 
 <p>På samme måte legger vi til alternativer for størrelsene:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020135750.png" alt="Alternativer for størrelser" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.6: Definisjon av størrelseskategorier.</p>
+ <img src="images/Pasted image 20261020135750.png" alt="Interne koder for pizzastørrelser" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.5: Definering av interne koder for pizzastørrelsene.</p>
 </div>
 
-<p>I cluster-luken for fyll kan vi definere hvilke arketyper som aksepteres. Vi bruker et åpent jokertegnmønster (<code>.*</code>), som tillater at enhver CLUSTER-arketype kan hektes på på templatnivå.</p>
-<div class="img-container">
-  <img src="images/Pasted image 20261020135901.png" alt="Cluster-luke for ekstra fyll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.7: Konfigurasjon av cluster-luke.</p>
-</div>
-<p>Legg merke til at forekomster (occurrences) på denne cluster-luken er satt til <code>0..*</code>. Dette sikrer at kundene kan legge til flere ulike typer ekstra fyll.</p>
+<p>I cluster-sporet for fyll kan vi spesifisere hvilke arketyper som aksepteres. Vi bruker her et åpent jokertegnmønster (<code>.*</code>), som tillater at enhver CLUSTER-arketype kan hektes på på templatnivå.</p>
 
-<h3>Modellere CLUSTER.pizza_topping.v0</h3>
-<p>Vi oppretter en CLUSTER-arketype. Direkte på rotnivå legger vi til en <code>DV_CODED_TEXT</code> for fyllnavn og en <code>DV_ORDINAL</code> for mengde.</p>
 <div class="img-container">
-  <img src="images/Pasted image 20261020143746.png" alt="Modellering av CLUSTER.pizza_topping.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.8: Struktur for fyll-clusteret.</p>
+ <img src="images/Pasted image 20261020135901.png" alt="Cluster-spor for ekstra fyll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.6: Konfigurering av det åpne cluster-sporet for ekstra fyll.</p>
 </div>
 
-<p>Når vi velger <strong>Topping Name</strong>, legger vi inn interne koder for de 3 fyllalternativene våre:</p>
+<p>Legg merke til at forekomstene (occurrences) på dette cluster-sporet er satt til <code>0..*</code>. Dette sikrer at kundene kan legge til flere ulike typer ekstra fyll.</p>
+
+<h3>Modellering av CLUSTER.pizza_topping.v0</h3>
+<p>Vi oppretter en CLUSTER-arketype. Direkte på rotnivået legger vi til en <code>DV_CODED_TEXT</code> for fyllnavnet og en <code>DV_ORDINAL</code> for fyllmengden.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144047.png" alt="Koder for fyll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.9: Interne koder for fyll.</p>
+ <img src="images/Pasted image 20261020143746.png" alt="Struktur for pizzafyll-cluster" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.7: Strukturen til arketypen CLUSTER.pizza_topping.v0.</p>
 </div>
 
-<p>I ordinalfeltet <strong>Amount</strong> legger vi til verdi-tekst-par for hvert mengdenivå. Husk at ordinaler krever heltall for den numeriske verdien (f.eks. 1 = Normal, 2 = Dobbel, 3 = Trippel):</p>
+<p>Når vi velger <strong>Topping Name</strong>, legger vi til interne koder for våre 3 fyllalternativer:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144107.png" alt="Konfigurasjon av mengde-ordinal" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.10: Verdinivåer for mengde-ordinalet.</p>
+ <img src="images/Pasted image 20261020144047.png" alt="Interne koder for fyllnavn" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.8: Definering av interne koder for fyllnavnene.</p>
 </div>
 
-<h3>Modellere ACTION.pizza_preparation.v0</h3>
-<p>Vi oppretter en ACTION-arketype for å følge tilberedningens livssyklus fra planlagt til fullført via <code>ism_transition</code>.</p>
-<p>Under <code>description</code> legger vi til en <code>DV_QUANTITY</code> for steketemperatur, og angir <code>Cel</code> som eneste tillatte enhet.</p>
+<p>I ordinalen <strong>Amount</strong> legger vi til verdi-tekst-par for hvert mengdenivå. Merk at ordinaler krever heltall for sin numeriske verdi (f.eks. 1 = Regular, 2 = Dobbel, 3 = Trippel):</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144924.png" alt="Steketemperatur i ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.11: DV_QUANTITY for temperatur.</p>
+ <img src="images/Pasted image 20261020144107.png" alt="Ordinalverdier for fyllmengde" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.9: Ordinalverdier og etiketter for fyllmengde.</p>
 </div>
 
-<p>Vi legger til en <code>DV_TEXT</code> for merknader:</p>
+<h3>Modellering av ACTION.pizza_preparation.v0</h3>
+<p>Vi oppretter en ACTION-arketype for å spore tilberedningens livssyklus fra planlagt til fullført via <code>ism_transition</code>.</p>
+<p>Under <code>description</code> legger vi til en <code>DV_QUANTITY</code> for Baking Temperature, med <code>Cel</code> som eneste tillatte enhet.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144904.png" alt="Merknadsfelt i ACTION" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.12: DV_TEXT for notater.</p>
+ <img src="images/Pasted image 20261020144924.png" alt="Steketemperatur som kvantitet" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.10: Tilføying av steketemperatur som DV_QUANTITY med Cel-enheter.</p>
 </div>
 
-<p>Deretter legger vi til en CLUSTER-luke for «Toppings verified», og holder også denne tilkoblingsluken åpen:</p>
+<p>Vi legger til en <code>DV_TEXT</code> for Notes:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144848.png" alt="Cluster-luke for verifisert fyll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.13: Tilkoblingsluke for verifisering av fyll.</p>
+ <img src="images/Pasted image 20261020144904.png" alt="Merknadstekst for tilberedning" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.11: Tilføying av notatfeltet som DV_TEXT.</p>
 </div>
 
-<p>Under <code>protocol</code> legger vi til en <code>DV_IDENTIFIER</code> for <strong>Order ID</strong>. Det er her vi skal lagre UID-en til den opprinnelige bestillingskomposisjonen, slik at handlingen kan spores direkte tilbake til instruksjonen den springer ut fra:</p>
+<p>Deretter legger vi til et CLUSTER-spor for «Toppings verified», der vi igjen holder inkluderingssporet åpent:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144831.png" alt="Order ID i protokollen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.14: DV_IDENTIFIER for Order ID.</p>
+ <img src="images/Pasted image 20261020144848.png" alt="Cluster-spor for verifisert fyll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.12: Tilføying av cluster-spor for verifisert fyll.</p>
 </div>
 
-<p>Under <code>ism_transition</code> definerer vi 5 operative prosesstilstander. Selv om vi kan navngi tilstandene med fagspråket i vårt eget domene, må hver enkelt tilordnes en offisiell openEHR-statuskode. Vår tilstand «Planned» tilordnes for eksempel openEHR-koden 526 (<code>planned</code>):</p>
+<p>Under <code>protocol</code> legger vi til en <code>DV_IDENTIFIER</code> for <strong>Order ID</strong>. Det er her vi lagrer UID-en til den opprinnelige Order-komposisjonen, slik at handlingen kan knyttes tilbake til instruksjonen:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020144720.png" alt="ISM-tilstandsoverganger" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.15: Konfigurasjon av prosesstilstander i ism_transition.</p>
+ <img src="images/Pasted image 20261020144831.png" alt="Protokollidentifikator for Order ID" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.13: Tilføying av Order ID i protokollen som DV_IDENTIFIER.</p>
+</div>
+
+<p>I <code>ism_transition</code> definerer vi 5 operative tilstander. Selv om vi kan navngi tilstandene med terminologi fra vårt eget domene, må hver enkelt tilstand tilordnes en offisiell openEHR-statuskode. For eksempel tilordnes tilstanden vår «Planned» til openEHR-kode 526 (<code>planned</code>):</p>
+
+<div class="img-container">
+ <img src="images/Pasted image 20261020144720.png" alt="Tilordning av ISM-overgangstilstander" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.14: Definering av ISM-overgangstilstander og tilordning til openEHR-statuskoder.</p>
 </div>
 
 <p>Kodene for våre 5 tilstander er:</p>
 <ul>
-  <li>Planlagt — <code>526::planned</code></li>
-  <li>I ovnen — <code>524::initial</code></li>
-  <li>Sendt — <code>245::active</code></li>
-  <li>Levert — <code>531::completed</code></li>
-  <li>Avbrutt — <code>528::cancelled</code></li>
+ <li>Planned — <code>526::planned</code></li>
+ <li>In Oven — <code>524::initial</code></li>
+ <li>Dispatched — <code>245::active</code></li>
+ <li>Delivered — <code>531::completed</code></li>
+ <li>Cancelled — <code>528::cancelled</code></li>
 </ul>
-<p>Hele standardkatalogen over openEHRs tilstandskoder for instruksjoner og handlinger kan slås opp i <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Specification</a>.</p>
+<p>Den fullstendige standardkatalogen over openEHR-statuskoder for instruksjoner og handlinger finnes i <a href="https://specifications.openehr.org/releases/TERM/latest/SupportTerminology.html#_instruction_states" target="_blank" rel="noopener noreferrer">openEHR Support Terminology Specification</a>.</p>
 
-<h3>Modellere EVALUATION.customer_review.v0</h3>
-<p>Som vår siste arketype oppretter vi evalueringen for kundeanmeldelsen:</p>
+<h3>Modellering av EVALUATION.customer_review.v0</h3>
+<p>Som vår siste arketype oppretter vi evalueringen for kundevurdering:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150118.png" alt="Modellering av EVALUATION.customer_review.v0" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.16: Opprettelse av EVALUATION-arketypen for anmeldelse.</p>
+ <img src="images/Pasted image 20261020150118.png" alt="Struktur for kundevurderingsevaluering" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.15: Strukturen til arketypen EVALUATION.customer_review.v0.</p>
 </div>
 
-<p>Under <code>data</code> legger vi til en <code>DV_COUNT</code> for <strong>Tilfredshetsskår</strong>. Vi begrenser det tillatte verdiområdet ved å definere:</p>
+<p>Under <code>data</code> legger vi til en <code>DV_COUNT</code> for <strong>Satisfaction Rating</strong>. Vi begrenser det tillatte området ved å definere:</p>
 <ul>
-  <li>Min: <code>&gt;=0</code></li>
-  <li>Maks: <code>&lt;=5</code></li>
+ <li>Min: <code>&gt;=0</code></li>
+ <li>Maks: <code>&lt;=5</code></li>
 </ul>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150242.png" alt="Begrensning av verdiområde for skår" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.17: Begrensning av verdiområdet for tellingen.</p>
+ <img src="images/Pasted image 20261020150242.png" alt="Tellebegrensninger for tilfredshetsvurdering" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.16: Begrensing av tilfredshetsvurdering til DV_COUNT mellom 0 og 5.</p>
 </div>
 
-<p>Vi legger til en <code>DV_BOOLEAN</code> for å angi om pizzaen anbefales til en venn (<code>true</code> eller <code>false</code>):</p>
+<p>Vi legger til en <code>DV_BOOLEAN</code> for å anbefale pizzaen til en venn (<code>sant</code> eller <code>usant</code>):</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150310.png" alt="Bolske element for anbefaling" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.18: Boolske indikator for anbefaling.</p>
+ <img src="images/Pasted image 20261020150310.png" alt="Boolsk anbefalingsflagg" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.17: Tilføying av anbefalingsflagg som DV_BOOLEAN.</p>
 </div>
 
-<p>Til slutt legger vi til et fritekstfelt <code>DV_TEXT</code> for <strong>Kundetilbakemelding</strong>:</p>
+<p>Til slutt legger vi til et <code>DV_TEXT</code>-fritekstelement for <strong>Customer Feedback</strong>:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150329.png" alt="Kundetilbakemelding som fritekst" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.19: DV_TEXT for fri tilbakemelding.</p>
+ <img src="images/Pasted image 20261020150329.png" alt="Fritekst for tilbakemelding fra kunde" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.18: Tilføying av kundetilbakemelding som et fritekst-DV_TEXT-element.</p>
 </div>
 
-<p>Under <code>protocol</code> legger vi til en <code>DV_IDENTIFIER</code> for <strong>Order ID</strong>, slik at denne vurderingen kan knyttes til den opprinnelige bestillingen:</p>
+<p>Under <code>protocol</code> legger vi til en <code>DV_IDENTIFIER</code> for <strong>Order ID</strong> slik at denne vurderingen kan spores tilbake til den opprinnelige bestillingen:</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020150345.png" alt="Order ID i anmeldelsesprotokollen" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.20: DV_IDENTIFIER for kobling av anmeldelsen.</p>
+ <img src="images/Pasted image 20261020150345.png" alt="Order ID i vurderingsprotokoll" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.19: Tilføying av Order ID i protokollen for vurderingssporing.</p>
 </div>
 
-<h2>Sette sammen våre 3 templat</h2>
-<p>Nå som alle arketypene er definert, kan vi sette dem sammen i våre 3 templat.</p>
+<h2>5.2 Modellering av våre 3 templat</h2>
+<p>Nå som alle arketypene våre er definert, kan vi sette dem sammen til våre 3 templat.</p>
 
-<h3>Modellere Templat 1: «Nettbestilling fra kunde» (Online Customer Checkout)</h3>
-<p>Med utgangspunkt i <code>openEHR-EHR-COMPOSITION.example_base.v0</code> oppretter vi templatet <code>Online_Customer_Order_v0</code>.</p>
-<p>Under <code>content</code> legger vi til:</p>
+<h3>Modellering av templat 1: «Online Customer Checkout»</h3>
+<p>Basert på <code>openEHR-EHR-COMPOSITION.example_base.v0</code> oppretter du templatet <code>Online_Customer_Order_v0</code>.</p>
+<p>Under <code>content</code> legger du til:</p>
 <ul>
-  <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
-  <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
+ <li><code>openEHR-EHR-ADMIN_ENTRY.delivery_address.v0</code></li>
+ <li><code>openEHR-EHR-INSTRUCTION.pizza_order.v0</code></li>
 </ul>
-<p>Velg CLUSTER-luken <strong>Extra Toppings</strong> inne i instruksjonen og sett inn <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
-<div class="img-container">
-  <img src="images/Pasted image 20261020151744.png" alt="Struktur for Templat 1" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.21: Oppbygging av Templat 1 i Archetype Designer.</p>
-</div>
-<p>Det var det hele! La oss gå videre til neste templat.</p>
+<p>Velg CLUSTER-sporet <strong>Extra Toppings</strong> inne i instruksjonen og sett inn <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
 
-<h3>Modellere Templat 2: «Kjøkken- og leveringssporing» (Kitchen and Courier Tracker)</h3>
-<p>Etter samme fremgangsmåte med <code>openEHR-EHR-COMPOSITION.example_base.v0</code> oppretter vi templatet <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
-<p>Under <code>content</code> legger vi til:</p>
+<div class="img-container">
+ <img src="images/Pasted image 20261020151744.png" alt="Tre for templat 1 i Archetype Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.20: Trestruktur for templat 1 i Archetype Designer.</p>
+</div>
+
+<p>Det var det! La oss gå videre til neste templat.</p>
+
+<h3>Modellering av templat 2: «Kitchen and Courier Tracker»</h3>
+<p>Følg samme fremgangsmåte med <code>openEHR-EHR-COMPOSITION.example_base.v0</code> og opprett templatet <code>Kitchen_And_Delivery_Tracker_v0</code>.</p>
+<p>Under <code>content</code> legger du til:</p>
 <ul>
-  <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
+ <li><code>openEHR-EHR-ACTION.pizza_preparation.v0</code></li>
 </ul>
-<p>Velg CLUSTER-luken <strong>Toppings Verified</strong> og sett inn <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+<p>Velg CLUSTER-sporet <strong>Toppings Verified</strong> og sett inn <code>openEHR-EHR-CLUSTER.pizza_topping.v0</code>.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261020151841.png" alt="Struktur for Templat 2" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.22: Oppbygging av Templat 2.</p>
+ <img src="images/Pasted image 20261020151841.png" alt="Tre for templat 2 i Archetype Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.21: Trestruktur for templat 2 i Archetype Designer.</p>
 </div>
 
-<h3>Modellere Templat 3: «Kundeanmeldelse» (Customer Review)</h3>
-<p>Og nå til det siste templatet: Med utgangspunkt i <code>openEHR-EHR-COMPOSITION.example_base.v0</code> oppretter vi <code>Customer_Review_v0</code>.</p>
-<p>Under <code>content</code> legger vi til:</p>
+<h3>Modellering av templat 3: «Customer Review»</h3>
+<p>Nå til vårt siste templat: Basert på <code>openEHR-EHR-COMPOSITION.example_base.v0</code> oppretter du <code>Customer_Review_v0</code>.</p>
+<p>Under <code>content</code> legger du til:</p>
 <ul>
-  <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
+ <li><code>openEHR-EHR-EVALUATION.customer_review.v0</code></li>
 </ul>
-<div class="img-container">
-  <img src="images/Pasted image 20261020151821.png" alt="Struktur for Templat 3" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.23: Oppbygging av Templat 3.</p>
-</div>
-<p>Ferdig! Vi har planlagt og modellert et komplett sett med arketyper og templat for arbeidsflyten vår.</p>
 
-<h2>Eksempelfiler</h2>
+<div class="img-container">
+ <img src="images/Pasted image 20261020151821.png" alt="Tre for templat 3 i Archetype Designer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 5.22: Trestruktur for templat 3 i Archetype Designer.</p>
+</div>
+
+<p>Og ferdig! Vi har planlagt og modellert et komplett sett med arketyper og templat for arbeidsflyten vår.</p>
+
+<h3>Eksempelfiler</h3>
 <p>Du kan laste ned hele settet med eksempelfiler her:</p>
-<p><a href="docs/A_total_beginners_guide_Example_files.zip" class="btn-download" download>Nybegynnerveiledning – Eksempelfiler.zip</a></p>
+<p><a href="docs/A_total_beginners_guide_Example_files.zip">A total beginners guide - Example files.zip</a></p>
 
-<h2>Vent, det er mer! Begrense arketyper i templat</h2>
-<p>Som vi så i eksempelet vårt, var det ganske rett frem å sette sammen et templat fra eksisterende arketyper. Det ser ut som å bygge med gjenbrukbare klosser for å skape en struktur. Dette er en analogi som ofte brukes når man snakker om openEHR.</p>
-<p>I praksis er ikke dette hele sannheten. Arketyper lages med mange elementer og alternativer som ikke trengs, eller som må justeres i det konkrete templatet. Det betyr at vi ikke bare monterer byggeklosser, vi tilpasser klossene underveis i monteringen. Det var derfor jeg introduserte bildet med å «bake» templatet, der «ingrediensene» (arketypene) transformeres underveis i prosessen.</p>
-<p>Denne modifiseringen kan gjøres på flere måter, inkludert:</p>
+<h1>Kapittel 6: Vent, det er mer! – Begrensning av arketyper i templat</h1>
+
+<p class="chapter-intro">
+ Å sette sammen et templat handler sjelden bare om å koble sammen uendrede byggeklosser. I dette kapittelet utforsker vi konseptet med å ta maksimale, universelle arketyper og begrense dem til din nøyaktige lokale kontekst. Vi undersøker mekanismene for å endre ledetekster, klone elementer, snevre inn tillatte verdisett og stramme til forekomster, samtidig som vi belyser forholdsreglene enhver modellerer må kjenne til.
+</p>
+
+<p>Som vi har sett i eksempelet vårt, var det ganske enkelt å sette sammen et templat fra eksisterende arketyper. Det ser ut som å bruke gjenbrukbare byggeklosser for å skape en struktur. Dette er en analogi vi ofte støter på når vi snakker om openEHR.</p>
+
+<p>I praksis er ikke dette hele sannheten. Arketyper opprettes for å ha mange elementer og alternativer som ikke er nødvendige eller som må endres i templatet. Dette betyr at vi ikke bare monterer byggeklosser, vi modifiserer klossene under monteringen. Det er grunnen til at jeg – på mitt oppdrag om å relatere alt til mat – introduserte ideen om å «bake» templatet, der «ingrediensene» (arketypene) endres i prosessen.</p>
+
+<p>Denne tilpasningen kan ta ulike former. Dette inkluderer, men er ikke begrenset til:</p>
 <ul>
-  <li>Endre navn på elementer</li>
-  <li>Klone elementer</li>
-  <li>Klone arketyper</li>
-  <li>Begrense valgmuligheter</li>
-  <li>Begrense antall forekomster (occurrences)</li>
+ <li>Endre elementnavn</li>
+ <li>Klone elementer</li>
+ <li>Klone arketyper</li>
+ <li>Begrense alternativer</li>
+ <li>Begrense antall instanser</li>
 </ul>
-<p>Vær oppmerksom på at enhver endring innebærer en risiko for å endre den faglige betydningen av dataelementet eller arketypen, og kan skape tekniske utfordringer senere i forløpet.</p>
+<p>Vær oppmerksom på at enhver endring medfører en risiko for å endre betydningen av dataelementet eller arketypen, og det kan føre til tekniske utfordringer lenger ned i løypa.</p>
 
-<h3>Endre navn på elementer</h3>
-<p>Du kan enkelt endre navnet på et dataelement eller en arketype. Vær påpasselig så du ikke endrer navnet til noe som strider mot elementets tiltenkte kliniske formål.</p>
+<h2>6.1 Endre elementnavn</h2>
+<p>Du kan enkelt endre navnet på et dataelement eller en arketype. Vær forsiktig så du ikke endrer navnet til noe som strider mot den tiltenkte bruken av dette elementet.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021083407.png" alt="Endre navn på et element" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.24: Endring av nodenavn i templatet.</p>
+ <img src="images/Pasted image 20261021083407.png" alt="Endre etiketter på elementer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 6.1: Endring av element- og arketypeetiketter i templatet.</p>
 </div>
 
-<h3>Klone elementer</h3>
-<p>Dersom forekomsten («occurrences») til et dataelement tillater flere instanser, kan dette dataelementet klones.</p>
+<h2>6.2 Klone elementer</h2>
+<p>Hvis «forekomsten» (occurrence) til et dataelement tillater flere instanser, kan dette dataelementet klones.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021101127.png" alt="Kloning av elementer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.25: Kloning av et dataelement i templatet.</p>
+ <img src="images/Pasted image 20261021101127.png" alt="Kloning av dataelementer" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 6.2: Kloning av dataelementer med flere forekomster.</p>
 </div>
 
-<h3>Klone arketyper</h3>
-<p>Dersom forekomsten («occurrences») til en arketype tillater flere instanser, kan hele arketypen klones.</p>
+<h2>6.3 Klone arketyper</h2>
+<p>Hvis «forekomsten» til en arketype tillater flere instanser, kan denne arketypen klones.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021093844.png" alt="Kloning av arketyper" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.26: Kloning av en hel arketype i templatet.</p>
+ <img src="images/Pasted image 20261021093844.png" alt="Kloning av arketyper" class="guide-img" width="600px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 6.3: Kloning av hele arketyper i templattreet.</p>
 </div>
 
-<h3>Begrense valgmuligheter</h3>
-<p>Når en liste over interne koder følger med fra arketypen, kan vi «velge bort» alternativer i templatet. Dette er alltid restriktivt: Vi kan aldri legge til nye alternativer i en lukket liste i templatet.</p>
+<h2>6.4 Begrense alternativer</h2>
+<p>Når en liste over interne koder leveres av arketypen, kan vi i templatet «fravolge» alternativer. Dette er alltid restriktivt: Vi kan ikke legge til et nytt alternativ i et utvalg i templatet.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021083213.png" alt="Begrense valgmuligheter" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.27: Innsnevring av tillatte alternativer i utvalgslisten.</p>
+ <img src="images/Pasted image 20261021083213.png" alt="Begrense kodevalg" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 6.4: Begrense interne kodevalg ved å fravolge alternativer.</p>
 </div>
 
-<h3>Begrense antall forekomster</h3>
-<p>Dersom forekomsten (occurrences) for en arketype eller et dataelement er «åpen» og tillater flere instanser, kan vi begrense dette.</p>
+<h2>6.5 Begrense antall instanser</h2>
+<p>Dersom en forekomst av en arketype eller et dataelement er «åpen» og tillater flere instanser, kan vi begrense dette.</p>
+
 <div class="img-container">
-  <img src="images/Pasted image 20261021082906.png" alt="Begrense forekomster" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-  <p class="img-caption">Figur 2.28: Innstramming av forekomster (occurrences) i templatet.</p>
+ <img src="images/Pasted image 20261021082906.png" alt="Begrense forekomster" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;" />
+ <p class="img-caption">Figur 6.5: Begrense antall forekomster i templatet.</p>
 </div>
-<p>Denne justeringen kan kun være innstrammende («restriktiv»), altså fra mer til mindre. Du kan aldri «åpne opp» forekomster ved å endre for eksempel <code>0..1</code> (valgfri, men maksimalt 1 forekomst) til <code>0..*</code> (valgfri, uendelig mange forekomster tillatt).</p>
+
+<p>Denne begrensningen av forekomster kan bare være «restriktiv», altså gå fra mer til mindre. Du kan ikke «åpne opp» forekomster ved for eksempel å endre 0..1 (valgfritt, men maksimalt 1 forekomst) til 0..* (valgfritt, med uendelig antall tillatte forekomster).</p>
 </section>

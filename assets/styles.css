@@ -854,3 +854,23 @@ body {
 #image-zoom-overlay .zoom-btn.zoom-close:hover {
   background: rgba(222, 53, 11, 1);
 }
+
+p.chapter-intro {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: darkblue; /* #475569; /* slate-600 */
+  background: #f8fafc; /* slate-50 */
+  border-left: 4px solid #0284c7; /* openEHR blue / cyan accent */
+  padding: 1rem 1.25rem;
+  border-radius: 0 8px 8px 0;
+  margin: 1rem 0 2.25rem 0;
+}
+
+/* Inline code inside intro (e.g., DV_*, CKM) */
+p.chapter-intro code {
+  background: #e2e8f0;
+  color: #0f172a;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
