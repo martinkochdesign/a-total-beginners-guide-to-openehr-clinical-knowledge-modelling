@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</title>
+
+  <!-- Google Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Font Stylesheet: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+
+  <style>
+    /* In-page styling additions for search highlights and scroll offset */
+    h1[id], h2[id], h3[id], h4[id], h5[id], h6[id], section[id] {
+      scroll-margin-top: calc(var(--topbar-height, 64px) + 1.5rem);
+    }
+
+    .search-highlight {
+      animation: searchPulse 2s ease-out;
+    }
+
+    @keyframes searchPulse {
+      0% { background-color: rgba(2, 132, 199, 0.35); border-radius: 4px; }
+      100% { background-color: transparent; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button id="sidebarToggle" class="icon-btn" title="Toggle Table of Contents" aria-label="Toggle Table of Contents">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
+      <div class="brand">
+        <span class="brand-badge">openEHR</span>
+        <span class="brand-title">A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</span>
+      </div>
+    </div>
+
+    <div class="topbar-search">
+      <div class="search-box">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search headings and text (e.g., AQL, OPT)..." autocomplete="off">
+        <span id="searchClear" class="search-clear hidden">&times;</span>
+      </div>
+      <div id="searchResults" class="search-dropdown hidden"></div>
+    </div>
+
+    <div class="topbar-right">
+      <!-- Language Switcher -->
+      <div class="lang-selector">
+        <label for="langSelect" class="sr-only">Language</label>
+        <select id="langSelect" class="select-input">
+          <option value="en" selected>English</option>
+          <option value="ca">Català</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+          <option value="nb">Bokmål</option>
+        </select>
+      </div>
+
+      <!-- About Modal Trigger -->
+      <button id="aboutBtn" class="btn btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        About
+      </button>
+
+      <!-- Print / PDF Button -->
+      <button id="printBtn" class="btn btn-primary" title="Print or save as PDF">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 6 2 18 2 18 9"></polyline>
+          <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+          <rect x="6" y="14" width="12" height="8"></rect>
+        </svg>
+        Download PDF
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Multi-Panel Layout -->
+  <div class="layout-container">
+
+    <!-- Collapsible Sidebar: Table of Contents & Part Switcher -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Table of Contents</span>
+        <button id="sidebarCloseBtn" class="icon-btn mobile-only" aria-label="Close sidebar">&times;</button>
+      </div>
+
+      <!-- Parts Navigation (Allows selecting individual parts or reading All) -->
+      <div class="parts-nav">
+        <div class="parts-nav-label">GUIDE PARTS</div>
+        <button class="part-pill active" data-part="all">All Parts (Full Guide)</button>
+        <button class="part-pill" data-part="part0">About this document</button>
+        <button class="part-pill" data-part="part1">Part I: Introduction to basic concepts</button>
+        <button class="part-pill" data-part="part2">Part II: Practical modelling</button>
+        <button class="part-pill" data-part="part3">Part III: Storing and querying data in the CDR</button>
+        <button class="part-pill" data-part="part4">Part IV: Next Steps</button>
+      </div>
+
+      <!-- Automatically Populated Heading Tree -->
+      <nav id="tocNav" class="toc-nav" aria-label="Table of Contents">
+        <!-- Generated on the fly by app.js -->
+      </nav>
+    </aside>
+
+    <!-- Content Stage -->
+    <main id="mainContent" class="main-content">
+      <div class="content-wrapper">
+        <div id="contentStage">
+          <div class="loading-state">Loading guide parts...</div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- About / License Modal Dialog -->
+  <div id="aboutModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle">About This Guide</h2>
+        <button id="modalCloseBtn" class="modal-close" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="author-badge">
+          <div class="author-avatar">MK</div>
+          <div>
+            <h3 class="author-name">Dr. Martin Andreas Koch</h3>
+            <p class="author-bio">PhD in Biomedical Engineering &middot; Clinical Knowledge Modeller at CatSalut</p>
+          </div>
+        </div>
+
+        <p class="modal-text">
+          <strong>A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</strong> was written to provide an intuitive, pragmatic, and approachable entry point into health informatics and semantic data modelling without getting lost in technical jargon or specifications.
+        </p>
+
+        <hr class="modal-divider">
+
+        <h4 class="license-title">Context & Standards</h4>
+        <ul class="specs-list">
+          <li><strong>Release Date:</strong> November 2026</li>
+          <li><strong>openEHR Reference Model (RM):</strong> Version 1.1.0</li>
+          <li><strong>openEHR Archetype Designer:</strong> Version 1.25.14</li>
+          <li><strong>Clinical Knowledge Manager (CKM):</strong> Version 1.21.0</li>
+        </ul>
+
+        <h4 class="license-title">License & Open Sharing</h4>
+        <p class="modal-text">
+          This educational guide is distributed under the <strong><a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank" rel="noopener noreferrer">Apache License, Version 2.0</a></strong>. You are free to use, reproduce, modify, translate, and distribute this material for personal, academic, institutional, or commercial purposes, subject to the terms and conditions of the license.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button id="modalDoneBtn" class="btn btn-primary">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="imgModal" class="modal-backdrop hidden" style="display:none; justify-content:center; align-items:center; z-index:9999;" onclick="closeImg()">
+    <img id="modalImg" src="" alt="Enlarged preview" style="max-width:92%; max-height:92vh; border-radius:8px; box-shadow:0 12px 36px rgba(0,0,0,0.45); background:#fff;">
+  </div>
+
+  <!-- Inline Helper Scripts: Lightbox & Search Navigation Resolver -->
+  <script>
+    // Lightbox modal opener
+    function openImg(img) {
+      const modal = document.getElementById('imgModal');
+      const modalImg = document.getElementById('modalImg');
+      if (modal && modalImg) {
+        modalImg.src = img.src;
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeImg() {
+      const modal = document.getElementById('imgModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+      }
+    }
+
+    // Global scroll helper to ensure consistent search navigation across parts
+    window.navigateToTarget = function(targetId, targetPart) {
+      // 1. Hide search UI
+      const searchResults = document.getElementById('searchResults');
+      const searchInput = document.getElementById('searchInput');
+      if (searchResults) searchResults.classList.add('hidden');
+      if (searchInput) searchInput.blur();
+
+      // 2. Ensure target part is active if the app supports switchPart / part pills
+      const activePill = document.querySelector('.part-pill.active');
+      const currentPart = activePill ? activePill.getAttribute('data-part') : 'all';
+
+      if (targetPart && targetPart !== currentPart && currentPart !== 'all' && typeof window.switchPart === 'function') {
+        window.switchPart(targetPart, function() {
+          executeSmoothScroll(targetId);
+        });
+      } else {
+        executeSmoothScroll(targetId);
+      }
+    };
+
+    function executeSmoothScroll(targetId) {
+      requestAnimationFrame(() => {
+        let cleanId = targetId.startsWith('#') ? targetId.slice(1) : targetId;
+        let el = document.getElementById(cleanId) || document.querySelector(`[name="${cleanId}"]`);
+
+        // If ID does not exist directly, try matching by text if slug was provided
+        if (!el) {
+          const headings = document.querySelectorAll('#contentStage h1, #contentStage h2, #contentStage h3, #contentStage h4');
+          for (let h of headings) {
+            const slug = h.textContent.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+            if (slug === cleanId || h.textContent.trim().toLowerCase().includes(cleanId.toLowerCase())) {
+              el = h;
+              break;
+            }
+          }
+        }
+
+        if (!el) {
+          console.warn('Target element not found for scroll:', targetId);
+          return;
+        }
+
+        // Calculate offset position accounting for topbar
+        const topbar = document.querySelector('.topbar');
+        const topbarHeight = topbar ? topbar.offsetHeight : 64;
+        const mainContent = document.getElementById('mainContent') || window;
+
+        if (mainContent === window || mainContent === document.body) {
+          const elPos = el.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: elPos - topbarHeight - 20,
+            behavior: 'smooth'
+          });
+        } else {
+          const containerRect = mainContent.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const relativeTop = elRect.top - containerRect.top + mainContent.scrollTop;
+
+          mainContent.scrollTo({
+            top: relativeTop - 20,
+            behavior: 'smooth'
+          });
+        }
+
+        // Visual flash highlight
+        el.classList.add('search-highlight');
+        setTimeout(() => el.classList.remove('search-highlight'), 2000);
+      });
+    }
+  </script>
+
+  <!-- Main Application Script -->
+  <script src="assets/app.js"></script>
+</body>
+</html>

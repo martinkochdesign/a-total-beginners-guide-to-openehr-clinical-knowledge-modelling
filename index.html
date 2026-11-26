@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>A Total Beginner's Guide to openEHR Clinical Knowledge Modelling</title>
-  
+
   <!-- Google Fonts Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles.css">
 
+  <style>
+    /* In-page styling additions for search highlights and scroll offset */
+    h1[id], h2[id], h3[id], h4[id], h5[id], h6[id], section[id] {
+      scroll-margin-top: calc(var(--topbar-height, 64px) + 1.5rem);
+    }
+
+    .search-highlight {
+      animation: searchPulse 2s ease-out;
+    }
+
+    @keyframes searchPulse {
+      0% { background-color: rgba(2, 132, 199, 0.35); border-radius: 4px; }
+      100% { background-color: transparent; }
+    }
+  </style>
 </head>
 <body>
 
@@ -45,7 +60,7 @@
 
     <div class="topbar-right">
       <!-- Language Switcher -->
-      <div class="lang-selector" >
+      <div class="lang-selector">
         <label for="langSelect" class="sr-only">Language</label>
         <select id="langSelect" class="select-input">
           <option value="en" selected>English</option>
@@ -128,7 +143,7 @@
           <div class="author-avatar">MK</div>
           <div>
             <h3 class="author-name">Dr. Martin Andreas Koch</h3>
-            <p class="author-bio">PhD in Biomedical Engineering &middot; Clinical Knowledge Modeller</p>
+            <p class="author-bio">PhD in Biomedical Engineering &middot; Clinical Knowledge Modeller at CatSalut</p>
           </div>
         </div>
 
@@ -157,7 +172,105 @@
     </div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Image Lightbox Modal -->
+  <div id="imgModal" class="modal-backdrop hidden" style="display:none; justify-content:center; align-items:center; z-index:9999;" onclick="closeImg()">
+    <img id="modalImg" src="" alt="Enlarged preview" style="max-width:92%; max-height:92vh; border-radius:8px; box-shadow:0 12px 36px rgba(0,0,0,0.45); background:#fff;">
+  </div>
+
+  <!-- Inline Helper Scripts: Lightbox & Search Navigation Resolver -->
+  <script>
+    // Lightbox modal opener
+    function openImg(img) {
+      const modal = document.getElementById('imgModal');
+      const modalImg = document.getElementById('modalImg');
+      if (modal && modalImg) {
+        modalImg.src = img.src;
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+      }
+    }
+
+    function closeImg() {
+      const modal = document.getElementById('imgModal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+      }
+    }
+
+    // Global scroll helper to ensure consistent search navigation across parts
+    window.navigateToTarget = function(targetId, targetPart) {
+      // 1. Hide search UI
+      const searchResults = document.getElementById('searchResults');
+      const searchInput = document.getElementById('searchInput');
+      if (searchResults) searchResults.classList.add('hidden');
+      if (searchInput) searchInput.blur();
+
+      // 2. Ensure target part is active if the app supports switchPart / part pills
+      const activePill = document.querySelector('.part-pill.active');
+      const currentPart = activePill ? activePill.getAttribute('data-part') : 'all';
+
+      if (targetPart && targetPart !== currentPart && currentPart !== 'all' && typeof window.switchPart === 'function') {
+        window.switchPart(targetPart, function() {
+          executeSmoothScroll(targetId);
+        });
+      } else {
+        executeSmoothScroll(targetId);
+      }
+    };
+
+    function executeSmoothScroll(targetId) {
+      requestAnimationFrame(() => {
+        let cleanId = targetId.startsWith('#') ? targetId.slice(1) : targetId;
+        let el = document.getElementById(cleanId) || document.querySelector(`[name="${cleanId}"]`);
+
+        // If ID does not exist directly, try matching by text if slug was provided
+        if (!el) {
+          const headings = document.querySelectorAll('#contentStage h1, #contentStage h2, #contentStage h3, #contentStage h4');
+          for (let h of headings) {
+            const slug = h.textContent.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
+            if (slug === cleanId || h.textContent.trim().toLowerCase().includes(cleanId.toLowerCase())) {
+              el = h;
+              break;
+            }
+          }
+        }
+
+        if (!el) {
+          console.warn('Target element not found for scroll:', targetId);
+          return;
+        }
+
+        // Calculate offset position accounting for topbar
+        const topbar = document.querySelector('.topbar');
+        const topbarHeight = topbar ? topbar.offsetHeight : 64;
+        const mainContent = document.getElementById('mainContent') || window;
+
+        if (mainContent === window || mainContent === document.body) {
+          const elPos = el.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: elPos - topbarHeight - 20,
+            behavior: 'smooth'
+          });
+        } else {
+          const containerRect = mainContent.getBoundingClientRect();
+          const elRect = el.getBoundingClientRect();
+          const relativeTop = elRect.top - containerRect.top + mainContent.scrollTop;
+
+          mainContent.scrollTo({
+            top: relativeTop - 20,
+            behavior: 'smooth'
+          });
+        }
+
+        // Visual flash highlight
+        el.classList.add('search-highlight');
+        setTimeout(() => el.classList.remove('search-highlight'), 2000);
+      });
+    }
+  </script>
+
+  <!-- Main Application Script -->
   <script src="assets/app.js"></script>
 </body>
 </html>

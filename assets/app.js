@@ -8,6 +8,8 @@ let startX = 0;
 let startY = 0;
 let hasDragged = false;
 
+
+
 function openImg(img) {
   const source = img.src;
   const altText = img.alt || 'Image preview';
@@ -508,7 +510,7 @@ function closeImgOverlay() {
       });
     });
   }
-
+/*
   function performSearch(query) {
     if (!query || query.trim().length < 2) {
       searchResults.classList.add('hidden');
@@ -566,6 +568,161 @@ function closeImgOverlay() {
 
     searchResults.classList.remove('hidden');
   }
+    */
+
+// --- 1. Robust Scroll Resolver Function ---
+// --- Precision Scroll & Highlight Function ---
+function scrollToSearchResult(rawTargetId, query, snippetText, targetPart) {
+  function executeScroll() {
+    let targetEl = null;
+    const cleanId = (rawTargetId || '').replace(/^#/, '').trim();
+    const searchWord = (query || '').trim().toLowerCase();
+
+    // 1. Locate the parent section or heading if targetId is provided
+    let sectionEl = null;
+    if (cleanId) {
+      sectionEl = document.getElementById(cleanId);
+    }
+
+    // 2. Look for the EXACT paragraph, list item, or heading containing the query
+    // Search within the section if known, otherwise search the whole content stage
+    const searchScope = sectionEl ? (sectionEl.closest('section') || sectionEl.parentElement || document.getElementById('contentStage')) : document.getElementById('contentStage');
+    
+    if (searchScope && searchWord.length >= 2) {
+      const candidates = searchScope.querySelectorAll('p, li, td, h1, h2, h3, h4, h5, h6, pre, code');
+      
+      // Try finding the closest element matching snippet or query word
+      for (const el of candidates) {
+        // Skip hidden or dropdown elements
+        if (el.closest('.search-dropdown') || el.closest('.sidebar')) continue;
+
+        if (el.textContent.toLowerCase().includes(searchWord)) {
+          targetEl = el;
+          break;
+        }
+      }
+    }
+
+    // 3. Fallback: If no exact text node matched, use the section heading
+    if (!targetEl && sectionEl) {
+      targetEl = sectionEl;
+    }
+
+    // 4. Final Fallback: Search snippet text across all elements
+    if (!targetEl && snippetText) {
+      const cleanSnippet = snippetText.replace(/\.\.\./g, '').trim().toLowerCase().slice(0, 25);
+      const allTextNodes = document.querySelectorAll('#contentStage p, #contentStage li, #contentStage td, #contentStage pre');
+      for (const el of allTextNodes) {
+        if (el.textContent.toLowerCase().includes(cleanSnippet)) {
+          targetEl = el;
+          break;
+        }
+      }
+    }
+
+    if (!targetEl) {
+      console.warn('Could not locate element for search query:', query, rawTargetId);
+      return;
+    }
+
+    // 5. Scroll directly to the element. 
+    // Using block: 'center' prevents the fixed topbar from covering it!
+    targetEl.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+
+    // 6. Visual Pulse Highlight
+    targetEl.classList.remove('search-highlight');
+    void targetEl.offsetWidth; // Force DOM reflow to re-trigger CSS animation
+    targetEl.classList.add('search-highlight');
+    setTimeout(() => targetEl.classList.remove('search-highlight'), 2500);
+
+    // Update URL hash without jumping
+    if (cleanId) {
+      history.pushState(null, null, `#${cleanId}`);
+    }
+  }
+
+  // Handle switching part tab if the item is in another part
+  const activePill = document.querySelector('.part-pill.active');
+  const currentPart = activePill ? activePill.getAttribute('data-part') : 'all';
+
+  if (targetPart && targetPart !== currentPart && currentPart !== 'all' && typeof window.switchPart === 'function') {
+    window.switchPart(targetPart, () => {
+      // Wait for DOM to finish rendering after part switch
+      setTimeout(executeScroll, 120);
+    });
+  } else {
+    // Small delay ensures search dropdown animation/close has completed
+    setTimeout(executeScroll, 40);
+  }
+}
+// --- 2. Updated performSearch Function ---
+function performSearch(query) {
+  if (!query || query.trim().length < 2) {
+    searchResults.classList.add('hidden');
+    searchResults.innerHTML = '';
+    return;
+  }
+
+  const q = query.toLowerCase().trim();
+  const matches = [];
+
+  for (const item of state.searchIndex) {
+    const text = item.text || '';
+    const idx = text.toLowerCase().indexOf(q);
+    if (idx !== -1) {
+      const start = Math.max(0, idx - 40);
+      const end = Math.min(text.length, idx + q.length + 60);
+      let snippet = text.substring(start, end);
+      if (start > 0) snippet = '...' + snippet;
+      if (end < text.length) snippet = snippet + '...';
+
+      // Highlight match
+      const escapedQuery = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const highlightedSnippet = snippet.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark>$1</mark>');
+
+      matches.push({
+        targetId: item.targetId || item.id || '',
+        partKey: item.partKey || item.part || 'all',
+        partTitle: item.partTitle || item.title || '',
+        rawSnippet: snippet,
+        displaySnippet: highlightedSnippet
+      });
+
+      if (matches.length >= 8) break;
+    }
+  }
+
+  if (matches.length === 0) {
+    searchResults.innerHTML = `<div class="search-result-item"><div class="search-result-snippet">No matches found for "${query}"</div></div>`;
+  } else {
+    searchResults.innerHTML = matches.map(m => `
+      <div class="search-result-item" data-target="${m.targetId}" data-part="${m.partKey}" data-snippet="${encodeURIComponent(m.rawSnippet)}">
+        <div class="search-result-title">${m.partTitle}</div>
+        <div class="search-result-snippet">${m.displaySnippet}</div>
+      </div>
+    `).join('');
+
+    searchResults.querySelectorAll('.search-result-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const targetId = item.getAttribute('data-target');
+    const targetPart = item.getAttribute('data-part');
+    const snippetText = decodeURIComponent(item.getAttribute('data-snippet') || '');
+    // Hide search UI
+    searchResults.classList.add('hidden');
+    searchInput.value = '';
+    searchClear.classList.add('hidden');
+    searchInput.blur();
+    // Scroll to the exact matching paragraph/element
+    scrollToSearchResult(targetId, q, snippetText, targetPart);
+  });
+});
+  }
+
+  searchResults.classList.remove('hidden');
+}
 
   // --------------------------------------------------------------------------
   // Event Listeners & UI Controls
