@@ -2,7 +2,7 @@
   <h1>Chapter 1: Clinical Knowledge Modelling</h1>
 
   <p class="chapter-intro">
-  Welcome to the trailhead! Before we open any modeling tools or wrestle with specifications, we need to answer a deceptively simple question: <em>Why bother modeling clinical data at all?</em>  In this chapter, we have a general look ar the journey of health information across healthcare systems and understand the need for data models. We examine the distinct role of the Clinical Knowledge Modeller as the bridge between clinical practice and technical systems, and provide an initial overview of openEHR's multi-tier architecture.
+  Welcome to the trailhead! Before we open any modeling tools or wrestle with specifications, we need to answer a deceptively simple question: <em>Why bother modeling clinical data at all?</em>  In this chapter, we have a general look at the journey of health information across healthcare systems and understand the need for data models. We examine the distinct role of the Clinical Knowledge Modeller as the bridge between clinical practice and technical systems, and provide an initial overview of openEHR's multi-tier architecture.
   </p>
   
   <h2>1.1 Why model clinical data?</h2>
@@ -19,6 +19,8 @@
     <li><strong>Action:</strong> The clinician makes a treatment decision based on that interpretation.</li>
   </ol>
 
+  <p>This journey is depicted in simplified form in Figure 1.1. Information from a blood lab test is generated, stored, and sent to a different healthcare setting. There, the lab data is retrieved and shown to the healthcare professional. Based on this information, the clinician determines the patient's treatment.</p>
+
   <p>It is of vital importance that during this process, no clinical data is altered or lost in translation.</p>
 
   <div class="img-container">
@@ -26,11 +28,11 @@
     <p class="img-caption">Figure 1.1: The clinical data lifecycle from generation to clinical action.</p>
   </div>
 
-  <p>When every hospital, department, or software vendor invents their own database tables and data formats, the translation of clinical data from one to another impacts the data quality. A field meant for "systolic blood pressure" in System A might get shoehorned into a generic "observation value" field in System B, stripping away important context like patient position, cuff size, or exertion.</p>
+  <p>When every hospital, department, or software vendor invents their own data formats and database tables, the translation of clinical data from one to another impacts the data quality. A field meant for "systolic blood pressure" in System A might get shoehorned into a generic "observation value" field in System B, stripping away important context like patient position, cuff size, or exertion.</p>
 
-  <p>To prevent data corruption and loss of meaning, we need agreed-upon data models. If everyone uses the same model, no translation is necessary between systems and a total interoperability is achieved.</p>
+  <p>To prevent loss of meaning of our health data, we need agreed-upon data models. If everyone uses the same model, no translation is necessary between systems and a total interoperability is achieved.</p>
   
-  <p>For a data model to succeed in real-world healthcare, it should:</p>
+  <p>For a data model to succeed in real-world healthcare, it should at least:</p>
   <ul>
     <li><strong>Use Reusable Structures:</strong> Avoid reinventing the wheel. A single, comprehensive model for a "Blood Pressure" observation should be reusable in primary care, intensive care, research, and home monitoring.</li>
     <li><strong>Be Vendor-Neutral:</strong> The model must not belong to or depend on any single software vendor or proprietary database. Any health application developer should be able to build on top of it.</li>
@@ -52,13 +54,15 @@
 
   <h2>1.3 Why openEHR might be the right candidate for Clinical Knowledge Modelling</h2>
 
+ <p>As noted earlier, preventing health data from being altered or degraded across healthcare settings requires common, agreed-upon specifications for clinical data models. One leading example of such a specification is openEHR.</p>
+
   <p>Being open source, openEHR provides vendor-neutral, openly accessible specifications for managing, storing, querying, and exchanging Electronic Health Record (EHR) data. Thats what openEHR stands for: <strong>open</strong> specifications for <strong>EHR</strong>s.</p>
 
   <p>This makes it possible to provide interoperable data models that can be shared and improved in a community of different developers.</p>
 
   <h3>The basic openEHR architecture</h3>
 
-  <p>openEHR uses a multi-tier architecture that separates technical specifications from clinical knowledge. This includes a reference model (RM) on the technical level, archetypes and templates on the clinical knowledge level and to some extent compositions. In the following paragraphs we will have a look at these basic levels.</p>
+ <p>openEHR employs a multi-tier architecture that cleanly separates technical specifications from clinical knowledge. This structure comprises a technical Reference Model (RM), archetypes and templates at the clinical knowledge layer, and—at the data instance level—compositions. As illustrated in Figure 1.2, these layers build upon one another. In the following sections, we examine each of these fundamental levels.</p>
 
   <div class="img-container">
     <img src="images/Pasted image 20260928122912.png" alt="Multi-tier architecture" class="guide-img" width="400px"  onclick="openImg(this)" style="cursor:pointer;">
@@ -66,7 +70,6 @@
   </div>
 
   
-
   <h4>The Reference Model (RM)</h4>
 
   <p>At the base of openEHR are the foundational definitions of how data can be saved and which functions should be provided in applications to transform or receive information about the data. This is the <strong>Reference Model</strong>, which is essential for software engineers building applications, repositories, and services. It is disconnected from the clinical context because the software code does not need to change every time a new clinical protocol or guideline emerges.</p>
@@ -92,7 +95,7 @@
 
   <h5>Compositions</h5>
 
-  <p>When clinicians record data in a clinical application, the application they use generates Compositions that strictly conform to the rules defined in a template and the Reference Model. These documents are what actually store the patient's data in the Clinical Data Repository (CDR).</p>
+  <p>When clinicians record data in a clinical application, the application they use generates "compositions" that strictly conform to the rules defined in a template and the Reference Model. These documents are what actually store the patient's data in the Clinical Data Repository (CDR).</p>
 
   <p>In theory, compositions fall outside the day-to-day scope of a Clinical Knowledge Modeller. In the end it is the software engineer that is responsible for the creation of compositions based on the Clinical Knowledge Modellers templates.</p>
 
@@ -126,14 +129,15 @@
     <li><strong>Intervals</strong> (ranges across quantities, dates, or counts)</li>
   </ul>
 
+  <p>Figure 2.1 provides an overview of the core Data Value types available in openEHR. You can find the specificcations of the data value classes here: <strong><a href="https://specifications.openehr.org/releases/RM/latest/data_types.html#_data_value_class" target="_blank" rel="noopener">Data Value Classes</a></strong>.
+  </p>
+
   <div class="img-container">
     <img src="images/Data Value Types.png" alt="Data Value Types Table" class="guide-img" width="650px"  onclick="openImg(this)" style="cursor:pointer;">
     <p class="img-caption">Figure 2.1: Overview of openEHR Data Value types.</p>
   </div>
 
-  <p>As a Clinical Knowledge Modeller, one of your primary responsibilities is deciding how each clinical data element should be represented.</p>
-
-  <p>When modelling a data element, you need to choose the appropriate data value type from openEHR's Reference Model (RM).</p>
+  <p>As a Clinical Knowledge Modeller, one of your primary responsibilities is deciding how each clinical data element should be represented. When modelling a data element, you need to <strong>choose the appropriate data value type</strong> from openEHR's Reference Model (RM).</p>
 
   <p>Let's look at an example to see how this works in practice by observing the <code>DV_QUANTITY</code> class. To read the specifications, depending on your preferences, several resources are available:</p>
   <ul>
@@ -142,12 +146,14 @@
     <li><strong><a href="https://neoehr.com/openehr/uml/rm110/c/dv-quantity" target="blank" rel="noopener">NeoEHR UML Diagrams</a>:</strong> A visual UML representation showing the inheritance tree and structural relationships for DV_QUANTITY.</li>
   </ul>
 
+  <p>Figure 2.2 demonstrates how different resources provide distinct perspectives on the openEHR specifications.</p>
+
   <div class="img-container">
     <img src="images/Pasted image 20260928153556.png" alt="DV_QUANTITY UML" class="guide-img" width="900px"  onclick="openImg(this)" style="cursor:pointer;">
     <p class="img-caption">Figure 2.2: Reference Model structure for DV_QUANTITY.</p>
   </div>
 
-  <p>At first glance, a quantitative clinical measurement seems straightforward: just a number paired with a unit.
+  <p>At first glance, a quantitative clinical measurement seems straightforward: just a number paired with a unit. For example:
     <ul>
       <li>Weight: <code>82 kg</code></li>
       <li>Blood Pressure: <code>120 mmHg</code></li>
@@ -160,27 +166,26 @@
   <p>
     But the Reference Model also allows for optional attributes:
     <ul>
-      <li><code>normal_range</code></li>
-      <li><code>other_reference_ranges</code></li>
-      <li><code>precision</code></li>
-      <li><code>units_display_name</code></li>
-      <li><code>units_system</code></li>
-      <li><code>accuracy</code> (inherited from <code>DV_AMOUNT</code>)</li>
-      <li><code>accuracy_is_percent</code> (inherited from <code>DV_AMOUNT</code>)</li>
-      <li><code>magnitude_status</code> (inherited from <code>DV_QUANTIFIED</code>)</li>
-      <li><code>normal_status</code> (inherited from <code>DV_ORDERED</code>)</li>
+      <li><code>normal_range</code>: Defines the expected normal interval for the quantity (e.g. standard physiological laboratory reference limits).</li>
+      <li><code>other_reference_ranges</code>: Stores additional tagged reference ranges beyond the normal range, such as critical, therapeutic, or toxic thresholds.</li>
+      <li><code>precision</code>: Specifies the number of decimal places to preserve (a precision of <code>0</code> indicates an integer, <code>1</code> indicates one decimal place, while <code>-1</code> means arbitrary/floating precision).</li>
+      <li><code>units_display_name</code>: A localized or user-friendly display label for the unit string (e.g. "mmHg" or "beats/min") to tailor presentation in clinical interfaces.</li>
+      <li><code>units_system</code>: Identifies the terminology or unit system used to define the unit (typically Unified Code for Units of Measure / UCUM).</li>
+      <li><code>accuracy</code> (inherited from <code>DV_AMOUNT</code>): Quantitative measurement error or tolerance limit expressed either in units or as a percentage.</li>
+      <li><code>accuracy_is_percent</code> (inherited from <code>DV_AMOUNT</code>): A boolean flag indicating whether the value in <code>accuracy</code> is a percentage (<code>true</code>) or given in the physical units of the quantity (<code>false</code>).</li>
+      <li><code>magnitude_status</code> (inherited from <code>DV_QUANTIFIED</code>): Indicates whether the magnitude is exact or an approximation (e.g. <code>=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>~=</code>).</li>
+      <li><code>normal_status</code> (inherited from <code>DV_ORDERED</code>): A coded term indicating where the value falls relative to the normal range (e.g. normal, low, high, critically high).</li>
     </ul>
 
-    As you can see, a lot of care has been put into making the attributes as versatile as possible.
+    As you can see, a lot of care has been put into making the class as versatile as possible with a lot of attributes.
   </p>
     
-
   <h5>The Data Value family tree</h5>
 
   <p>In practice, the data value classes are not isolated categories as the figure above might suggest. Instead, they form an inheritance hierarchy branching from a shared base class (<code>DATA_VALUE</code>).</p>
 
   <p>
-    If you are interested in how these classes relate to each other and inherit attributes across the Reference Model, here is the complete "family tree":
+    If you are interested in how these classes relate to each other and inherit attributes across the Reference Model, here is the complete "family tree" (Figure 2.3):
   </p>
 
   <div class="img-container">
@@ -188,34 +193,22 @@
     <p class="img-caption">Figure 2.3: Inheritance tree branching from the DATA_VALUE base class.</p>
   </div>
 
+
+
   <h3>Archetypes</h3>
 
   <p>Now that we know about data value types, we can imagine that we can use those to represent a clinical concept.</p>
 
-  <p>Take blood pressure for example. We can create a simple archetype by joining two <code>DV_QUANTITY</code>, one for diastolic pressure and another for systolic pressure. Hmm... maybe we also should add a <code>DV_TEXT</code>, so we can store a comment. Maybe something for the device used... and the condition of the patient... and so on.</p>
+  <p>Take blood pressure for example. We can create a simple archetype by joining two <code>DV_QUANTITY</code>, one for diastolic pressure and another for systolic pressure. Hmm... maybe we also should add a <code>DV_TEXT</code>, so we can store a comment. Maybe some element for the device used... and the condition of the patient... and so on.</p>
 
   <p>You can see that the clinical concept of "blood pressure" becomes quite complex, as we want to keep it as broad as possible to fit into different clinical contexts. That's why we say that archetypes are <strong>maximal</strong>. Later, when putting them into context (i.e. a template), we can constrain anything that does not apply (and is modeled as optional in the archetype). This makes archetypes reusable, which is one of the main goals of openEHR.</p>
 
-  <p>Here is a representation of an archetype for the measurement of blood pressure. Can you see how many clinical parameters are included?</p>
+  <p>In Figure 2.4 you can see a representation of an archetype for the measurement of blood pressure. Can you see how many clinical parameters are included? I think we can agree that there is a lot more than anticipated.</p>
 
   <div class="img-container">
     <img src="images/Pasted image 20260929122300.png" alt="Blood Pressure Archetype in CKM" class="guide-img" width="900px"  onclick="openImg(this)" style="cursor:pointer;">
     <p class="img-caption">Figure 2.4: A representation of the blood pressure archetype in the international CKM. <a href="https://ckm.openehr.org/ckm/archetypes/1013.1.3574" target="_blank" rel="noopener">View blood pressure archetype in international CKM</a></p>
   </div>
-
-
-  <h4>Multilingual archetypes</h4>
-  <p>
-    Archetypes are multilingual in nature, which means they carry official translations within the model itself. This is great news for Clinical Knowledge Modellers, as we often have several official languages that we might want to model in.
-  </p>
-  <p>
-    At the same time, it means that <strong> archetypes sharing the same language </strong> can be combined to create templates. So it might be necessary to add a translation to an archetype before being able to use it in your local context. It is recommended to start archetypes in English, because they can then be added to the international CKM.
-  </p>
-
-  <h4>Can I read an archetype file?</h4>
-  <p>Archetypes are written in a human-readable format called <strong>ADL</strong> (Archetype Definition Language). This means we can open the <code>.adl</code> file and read the content directly. It is a bit complex though, as ADL contains several distinct sections and syntaxes. Luckily, we as Clinical Knowledge Modellers do not have to hand-code these files thanks to modern visual tools.</p>
-
-  <p>You can find more information on the structure of an archetype here: <a href="https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl" target="_blank" rel="noopener">https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl</a></p>
 
   <h4>Anatomy of an Archetype ID</h4>
 
@@ -234,7 +227,27 @@
     <li><code>v2</code> &rarr; Major version</li>
   </ul>
 
-  <h4>Where do archetypes come from ? - A short word about the international CKM</h4>
+  <h4>Behind the Scenes: The ADL Format and Multilingual Design</h4>
+
+  <h5>Multilingual archetypes</h5>
+  <p>
+    Apart from containing data element that provide a place to store health data, archetypes contain the clinical definition of every element to ensure that the archetype is used correctly.
+  </p>
+  <p>
+      Archetypes are multilingual in nature, which means they carry official translations within the model itself. This is great news for Clinical Knowledge Modellers, as we often have several official languages that we might want to model in.
+  </p>
+  <p>
+    At the same time, it means that <strong> only archetypes sharing the same language </strong> can be combined to create templates. So it might be necessary to add a translation to an archetype before being able to use it in your local context. It is recommended to start archetypes in English, because they can then be added to the international CKM.
+  </p>
+
+  <h5>Can I read an archetype file?</h5>
+  <p>Archetypes are written in a human-readable format called <strong>ADL</strong> (Archetype Definition Language). This means we can open the <code>.adl</code> file and read the content directly. It is a bit complex though, as ADL contains several distinct sections and syntaxes. Luckily, we as Clinical Knowledge Modellers do not have to hand-code these files thanks to modern visual tools.</p>
+
+  <p>You can find more information on the structure of an archetype here: <a href="https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl" target="_blank" rel="noopener">https://specifications.openehr.org/releases/AM/latest/Overview.html#_archetype_definition_language_adl</a></p>
+
+ 
+
+  <h4>Where do archetypes come from? - A short word about the international CKM</h4>
 
   <p>Before you even think about creating an archetype from scratch: <strong>Don't reinvent the wheel.</strong> The <a href="https://ckm.openehr.org/ckm/" target="_blank" rel="noopener">International Clinical Knowledge Manager (CKM)</a> is the global library and governance hub for openEHR archetypes.</p>
 
@@ -287,92 +300,117 @@
 <h4>What is so "special" in the different archetype flavors?</h4> 
 
 <p>
-The different archetype classes have special attributes that make them fit for the intended purpose. 
-The attributes can be filled with content either during the editing of the archetype or once the archetype gets put into a template. 
-To differentiate between both (editing in archetype or in template) we will mark them in the following descriptions with <strong>in Archetype</strong> or <strong>in Template</strong>. 
+The different archetype classes have special attributes that make them fit for their intended purpose. 
+The attributes can be filled with content either during the editing of the archetype or once the archetype gets put into a template.  
 </p>
 
 <em>Be aware that we only look at the elements that can be added by the Clinical Knowledge Modeller. There is a lot more information that can be added in the final composition that is defined by the Reference Model.</em> 
 
+<style>
+  .badge-arch {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .badge-tpl {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    background-color: #fef3c7;
+    color: #92400e;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+  .archetype-card {
+    border-left: 3px solid #0284c7;
+    background: #f8fafc;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    border-radius: 0 6px 6px 0;
+  }
+</style>
+
 <h5>Structural Archetypes</h5>
 
-<h6><code>COMPOSITION</code> - The Base Archetype</h6>
-<p>A <code>COMPOSITION</code> has a <code>context</code> and a <code>content</code> attribute:</p>
-<ul>
-  <li>
-    In <code>context</code>, a slot for <code>other_context</code> allows for the inclusion of data elements or cluster slots (<strong>in Archetype</strong>). If a cluster slot has been added, a CLUSTER archetype can be inserted (<strong>in Template</strong>).
-  </li>
-  <li>
-    In <code>content</code>, you can insert a list of archetypes which comprise the content of the composition (<strong>in Template</strong>).
-  </li>
-</ul>
+<div class="archetype-card">
+  <h6><code>COMPOSITION</code> — The Root Document Container</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> In <code>context/other_context</code>, you can add administrative elements or define CLUSTER slots.</li>
+    <li><span class="badge-tpl">In Template</span> Under <code>content</code>, you assemble the list of clinical entries and sections that form the document.</li>
+    <li><span class="badge-tpl">In Template</span> Slot specific CLUSTER archetypes into any slots defined in <code>other_context</code>.</li>
+  </ul>
+</div>
 
-<h6><code>SECTION</code> - The Structuring Archetype</h6>
-<p>
-  The <code>SECTION</code> archetype has an attribute <code>items</code>. In <code>items</code>, you can insert a list of archetypes (<strong>in Template</strong>).
-</p>
+<div class="archetype-card">
+  <h6><code>SECTION</code> — Document Organizer</h6>
+  <ul>
+    <li><span class="badge-tpl">In Template</span> Under <code>items</code>, nest entry archetypes or subordinate sections to create structured headings.</li>
+  </ul>
+</div>
 
-<h6><code>CLUSTER</code> - The Reusable Data Element Collection Archetype</h6>
-<p>
-  The <code>CLUSTER</code> archetype is simple: you can add any data element right up from the base level (<strong>in Archetype</strong>). If a cluster slot has been added, a CLUSTER archetype can be attached (<strong>in Template</strong>).
-</p>
+<div class="archetype-card">
+  <h6><code>CLUSTER</code> — Reusable Modular Elements</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> Define data elements and nested cluster slots starting directly from the root level.</li>
+    <li><span class="badge-tpl">In Template</span> Attach this cluster into an open slot in any Entry or Composition.</li>
+  </ul>
+</div>
 
-<h5>Entry Archetypes</h5>
+<h5>Clinical Entry Archetypes</h5>
 
-<h6><code>ACTION</code> - Recording an Action That Has Been Done</h6>
-<p>An <code>ACTION</code> archetype has three specific sections - <code>description</code>, <code>protocol</code>, and <code>ism_transition</code>:</p>
-<ul>
-  <li>In <code>description</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>In <code>protocol</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>
-    In the <code>ism_transition</code> section, you can add a list of ordinal data value elements (<strong>in Archetype</strong>). The ordinals correspond to openEHR state codes for the state of the actions (for example, <code>"526::planned"</code>, <code>"245::active"</code>, or <code>"532::completed"</code>).
-  </li>
-  <li>
-    If a cluster slot has been added (in <code>description</code> or <code>protocol</code>), a CLUSTER archetype can be attached (<strong>in Template</strong>).
-  </li>
-</ul>
+<div class="archetype-card">
+  <h6><code>OBSERVATION</code> — Measurements & Scores</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> <code>data</code>: Define events (point, interval, summary) and clinical elements. Subsequent events inherit elements from the primary event definition.</li>
+    <li><span class="badge-arch">In Archetype</span> <code>protocol</code>: Record measurement metadata (e.g. instrument calibration, patient position).</li>
+    <li><span class="badge-tpl">In Template</span> Attach CLUSTER archetypes into slots defined in <code>data</code> or <code>protocol</code>.</li>
+  </ul>
+</div>
 
-<h6><code>EVALUATION</code> - The Summary Archetype</h6>
-<p>An <code>EVALUATION</code> archetype has two specific sections: <code>data</code> and <code>protocol</code>:</p>
-<ul>
-  <li>In <code>data</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>In <code>protocol</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>
-    If a cluster slot has been added (in <code>data</code> or <code>protocol</code>), a CLUSTER archetype can be attached (<strong>in Template</strong>).
-  </li>
-</ul>
+<div class="archetype-card">
+  <h6><code>EVALUATION</code> — Diagnoses & Summaries</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> <code>data</code>: Document opinions, clinical evaluations, or diagnostic assessments.</li>
+    <li><span class="badge-arch">In Archetype</span> <code>protocol</code>: Document criteria, guidelines, or scoring methods.</li>
+    <li><span class="badge-tpl">In Template</span> Attach CLUSTER archetypes into slots defined in <code>data</code> or <code>protocol</code>.</li>
+  </ul>
+</div>
 
-<h6><code>INSTRUCTION</code> - What Has to Be Done in the Future</h6>
-<p>An <code>INSTRUCTION</code> archetype has two specific sections - <code>activities</code> and <code>protocol</code>:</p>
-<ul>
-  <li>In <code>protocol</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>
-    In <code>activities</code>, there is a "Current Activity". You can rename this activity (for example, "Order") and it is recommended to set its occurrence to <code>0..*</code> when creating the archetype to be able to persist a list of planned activities (<strong>in Template</strong>). The activity has a <code>description</code> section to add any Data Value element (<strong>in Archetype</strong>).
-  </li>
-  <li>
-    If a cluster slot has been added to the activity description, a CLUSTER archetype can be attached (<strong>in Template</strong>).
-  </li>
-</ul>
+<div class="archetype-card">
+  <h6><code>INSTRUCTION</code> — Orders & Plans</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> <code>activities</code>: Configure the activity description (e.g. "Order") with clinical elements.</li>
+    <li><span class="badge-arch">In Archetype</span> <code>protocol</code>: Capture request identifiers and order tracking details.</li>
+    <li><span class="badge-tpl">In Template</span> Set activity occurrence (e.g. <code>0..*</code>) to allow multiple orders within one instruction, and attach CLUSTER archetypes into activity slots.</li>
+  </ul>
+</div>
 
-<h6><code>OBSERVATION</code> - A Measurement or Score</h6>
-<p>An <code>OBSERVATION</code> archetype has two specific sections: <code>data</code> and <code>protocol</code>:</p>
-<ul>
-  <li>
-    In <code>data</code>, point events, interval events, or any events can be added (<strong>in Archetype</strong>). The first event holds a <code>data</code> section in which any Data Value element can be added. When adding subsequent events to the data section, you do not have to add data elements one by one; they get copied over from the original event definition.
-  </li>
-  <li>In <code>protocol</code>, any Data Value element can be added (<strong>in Archetype</strong>).</li>
-  <li>
-    If a cluster slot has been added (in <code>data</code> or <code>protocol</code>), a CLUSTER archetype can be attached (<strong>in Template</strong>).
-  </li>
-</ul>
+<div class="archetype-card">
+  <h6><code>ACTION</code> — Performed Activities</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> <code>description</code>: Record details of the action performed.</li>
+    <li><span class="badge-arch">In Archetype</span> <code>protocol</code>: Store procedure metadata and linked Order IDs.</li>
+    <li><span class="badge-arch">In Archetype</span> <code>ism_transition</code>: Map activity steps to official openEHR state codes (e.g. <code>526::planned</code>, <code>245::active</code>, <code>531::completed</code>).</li>
+    <li><span class="badge-tpl">In Template</span> Attach CLUSTER archetypes to verify executed details (e.g. actual medication dose or pizza toppings baked).</li>
+  </ul>
+</div>
 
 <h5>Administrative Archetypes</h5>
 
-<h6><code>ADMIN_ENTRY</code></h6>
-<p>
-  In the <code>data</code> section, any administrative Data Value element can be added (<strong>in Archetype</strong>).
-</p>
-
+<div class="archetype-card">
+  <h6><code>ADMIN_ENTRY</code> — Operational Metadata</h6>
+  <ul>
+    <li><span class="badge-arch">In Archetype</span> <code>data</code>: Record non-clinical operational data elements (e.g. bed management, admission/discharge details).</li>
+  </ul>
+</div>
 
 <h4>Cluster vs. Cluster vs. Cluster</h4>
 
@@ -392,15 +430,14 @@ To differentiate between both (editing in archetype or in template) we will mark
   </li>
 </ol>
 
+<p>In Figure 2.5 you can see where to identify the different cluster in the Archetype Designer during developing archetypes.</p>
+
   <div class="img-container">
     <img src="images/Pasted image 20261023081154.png" alt="Three meanings of Cluster in openEHR" style="width:400px; height: auto;cursor:pointer;"  onclick="openImg(this)" >
    <p class="img-caption">
       <em>Figure 2.5: A cluster can refer to (1) an archetype class, (2) an internal cluster of items grouped inside an archetype, or (3) a slot modeled in an archetype for including cluster archetypes when creating a template.</em>
    </p>
 </div>
-
-
-
 
 
   <h3>Templates</h3>
@@ -424,13 +461,15 @@ In a template, we do basically two things:
 
 <p>For the creation of a template, different archetypes are inserted into each other, starting with a COMPOSITION archetype as base.</p>
 
+<p>As shown in Figure 2.6, the template starts from a root <code>COMPOSITION</code> archetype, using <code>SECTION</code> archetypes to structure the document. Clinical Entry archetypes are then nested within these sections and extended using modular <code>CLUSTER</code> archetypes. As this tree-like hierarchy expands, its structure can quickly grow in complexity.</p>
+
 
   <div class="img-container">
     <img src="images/Pasted image 20260929115414.png" alt="International Patient Summary in CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
     <p class="img-caption">Figure 2.6: Example of a template structure made of different archetypes (based on <a href="https://ckm.openehr.org/ckm/templates/1013.26.376" target="_blank" rel="noopener">View International Patient Summary in the international CKM</a>).</p>
   </div>
 
-<p>  Not all archetype flavors can be arbitrarily connected between themselves:
+<p>  Be aware that not all archetype flavors can be arbitrarily connected between themselves:
   <ul>
     <li> A <code>COMPOSITION</code> can contain <code>CLUSTER</code>s (if a slot has been modeled in <code>other_context</code>), <code>ENTRY</code>s, and <code>SECTION</code>s.
 </li>
@@ -468,7 +507,7 @@ Another important thing to be aware of: We can create one single template that i
 
 <h4>Constraining archetypes and data elements</h4>
 
-<p>As mentioned before, archetypes are modeled <strong> maximal</strong>, to be applicable to as many clinical contexts possible. This measn that in a specific context, not all modeled data elements are needed. Therefore, in the template, archetypes have to be constrained.</p>
+<p>As mentioned before, archetypes are modeled <strong>maximal</strong>, to be applicable to as many clinical contexts possible. This measn that in a specific context, not all modeled data elements are needed. Therefore, in the template, archetypes have to be constrained.</p>
 
 <p>The constraints applied to archetypes in a template are usually:</p>
 <ul>
@@ -538,32 +577,32 @@ This recipe for creating the template is the OET file. It is the official instru
 With this recipe in hand, we can then create the template. Basically, we bake the cupcake, so its ingredients cannot be changed afterwards. The resulting OPT file is the final template that is uploaded to the Clinical Data Repository (CDR). It does not contain the original archetypes separately, but rather their final form with all the changes and constraints baked in. There is no possibility to know the exact revision or version of the archetypes used. It is the non-editable, runtime version of the template.
 </p>
 
-<p>
-⚠️ Watch out! The <strong>OET</strong> format is not canonical, but it is crucial in practice:
-  <ol>
-    <li>It is the only template format that can be imported into the CKM (Clinical Knowledge Manager).</li>
-    <li>It is the only format that connects specific archetypes to the template.</li>
-  </ol>
+<div class="callout note">
+  ⚠️ Watch out! The <strong>OET</strong> format is not canonical, but it is crucial in practice:
+    <ol>
+      <li>It is the only template format that can be imported into the CKM (Clinical Knowledge Manager).</li>
+      <li>It is the only format that connects specific archetypes to the template.</li>
+    </ol>
 
-Let's see why this matters:
-<br><br>
- 
-Imagine a "Vital Signs" template that contains the "Body Mass Index" archetype. An archetype is uniquely identified by three things: ID, Revision and Hash. For example :
-<br>
-<ul>
-<li>ID: openEHR-EHR-OBSERVATION.body_mass_index.v2</li>
-<li>Revision: 2.1.0</li>
-<li>Integrity Hash: MD5-CAM-1.0.1 = 45CDA8C2180DDA3CAB6EBB6AF603493D</li>
-</ul>
- 
-Archetypes evolve, and different templates often rely on specific revisions.
-<br><br>
+  Let's see why this matters:
+  <br><br>
+  
+  Imagine a "Vital Signs" template that contains the "Body Mass Index" archetype. An archetype is uniquely identified by three things: ID, Revision and Hash. For example :
+  <br>
+  <ul>
+  <li>ID: openEHR-EHR-OBSERVATION.body_mass_index.v2</li>
+  <li>Revision: 2.1.0</li>
+  <li>Integrity Hash: MD5-CAM-1.0.1 = 45CDA8C2180DDA3CAB6EBB6AF603493D</li>
+  </ul>
+  
+  Archetypes evolve, and different templates often rely on specific revisions.
+  <br><br>
 
-The <strong>OET file</strong> contains an integrity check at the end that identifies the specific revision by both the ID and hash.
-<br><br>
- 
-The <strong>OPT file</strong>, in contrast, only identifies the archetype by its ID. This means that with only the OPT file in hand, it is impossible to reconnect or trace the exact revision of the archetype that was used to build the template.
-</p>
+  The <strong>OET file</strong> contains an integrity check at the end that identifies the specific revision by both the ID and hash.
+  <br><br>
+  
+  The <strong>OPT file</strong>, in contrast, only identifies the archetype by its ID. This means that with only the OPT file in hand, it is impossible to reconnect or trace the exact revision of the archetype that was used to build the template.
+</div>
 
 
 <h4>A word about multi-lingual templates</h4>
