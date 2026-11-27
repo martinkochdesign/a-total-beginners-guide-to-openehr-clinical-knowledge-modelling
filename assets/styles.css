@@ -789,7 +789,8 @@ body {
 #image-zoom-overlay .zoom-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(9, 30, 66, 0.85);
+  /*background: rgba(9, 30, 66, 0.85);*/
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(4px);
   pointer-events: none; /* Let clicks pass directly to stage */
 }
