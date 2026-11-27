@@ -432,320 +432,356 @@
     </p>
   </div>
 
-  <h3>Plantilles</h3>
+  
+    <h3>Plantilles</h3>
   <p>
-    Fins ara hem examinat els arquetips com a conceptes clínics reutilitzables i universalment consensuats. Per poder-los utilitzar realment en una aplicació clínica, hem d'estructurar-los en <strong>plantilles</strong>.
+    Fins ara hem vist els arquetips com a conceptes clínics universals, consensuats i reutilitzables. Per poder-los utilitzar realment en una aplicació clínica, hem d'estructurar-los en <strong>plantilles</strong>.
   </p>
 
-  <p>
-  En una plantilla fem bàsicament dues coses:
-  <ol>
-    <li>
-      Organitzar els arquetips en estructures jeràrquiques.
-    </li>
-    <li>
-      Restringir els arquetips maximals fins a adaptar-los a les necessitats exactes de la nostra aplicació.
-    </li>
-  </ol>
-  </p>
+<p>
+En una plantilla fem bàsicament dues coses:
+<ol>
+  <li>
+    Organitzar els arquetips en estructures jeràrquiques.
+  </li>
+  <li>
+    Restringir els arquetips maximals per ajustar-los a les necessitats exactes de la nostra aplicació.
+  </li>
+</ol>
+</p>
 
-  <h4>Una plantilla: una estructura d'arquetips</h4>
+<h4>La plantilla: una estructura d'arquetips</h4>
 
-  <p>Per a la creació d'una plantilla, s'insereixen diferents arquetips els uns dins dels altres, prenent com a base un arquetip COMPOSITION.</p>
+<p>Per crear una plantilla s'insereixen diversos arquetips els uns dins dels altres, partint d'un arquetip COMPOSITION com a base.</p>
 
-  <p>Com es mostra a la Figura 2.6, la plantilla parteix d'un arquetip arrel <code>COMPOSITION</code> i utilitza arquetips <code>SECTION</code> per estructurar el document. Els arquetips d'entrada clínica (Entry) s'ubiquen dins d'aquestes seccions i s'estenen mitjançant arquetips modulars <code>CLUSTER</code>. A mesura que aquesta jerarquia en arbre s'expandeix, l'estructura pot guanyar complexitat ràpidament.</p>
+<p>Com es mostra a la Figura 2.6, la plantilla comença a partir d'un arquetip arrel <code>COMPOSITION</code>, emprant arquetips <code>SECTION</code> per estructurar el document. Els arquetips d'entrada clínica (Entry) s'imbriquen dins d'aquestes seccions i s'amplien mitjançant arquetips modulars <code>CLUSTER</code>. A mesura que aquesta jerarquia en arbre s'expandeix, la seva estructura pot guanyar complexitat ràpidament.</p>
+
 
   <div class="img-container">
     <img src="images/Pasted image 20260929115414.png" alt="International Patient Summary al CKM" class="guide-img" width="900px" onclick="openImg(this)" style="cursor:pointer;">
-    <p class="img-caption">Figura 2.6: Exemple d'estructura de plantilla formada per diferents arquetips (basada en <a href="https://ckm.openehr.org/ckm/templates/1013.26.376" target="_blank" rel="noopener">International Patient Summary al CKM internacional</a>).</p>
+    <p class="img-caption">Figura 2.6: Exemple d'estructura de plantilla composta per diferents arquetips (basada en <a href="https://ckm.openehr.org/ckm/templates/1013.26.376" target="_blank" rel="noopener">Veure International Patient Summary al CKM internacional</a>).</p>
   </div>
 
-  <p>Tingueu present que no tots els sabors d'arquetips es poden connectar arbitràriament entre si:
-    <ul>
-      <li>Una <code>COMPOSITION</code> pot contenir <code>CLUSTER</code>s (si s'ha modelat una ranura a <code>other_context</code>), <code>ENTRY</code>s i <code>SECTION</code>s.</li>
-      <li>Una <code>SECTION</code> pot contenir una llista d'arquetips <code>ENTRY</code> i <code>SECTION</code> niades.</li>
-      <li>Un arquetip <code>ENTRY</code> pot contenir <code>CLUSTER</code>s si s'ha modelat una ranura a l'arquetip.</li>
-      <li>Un arquetip <code>CLUSTER</code> pot contenir altres <code>CLUSTER</code>s niats si s'hi ha modelat una ranura.</li>
-    </ul>
-  </p>
+<p> Tingueu en compte que no totes les classes d'arquetips es poden connectar de manera arbitrària entre si:
+  <ul>
+    <li> Una <code>COMPOSITION</code> pot contenir <code>CLUSTER</code>s (si s'ha modelat una ranura a <code>other_context</code>), <code>ENTRY</code>s i <code>SECTION</code>s.</li>
+    <li>Una <code>SECTION</code> pot contenir una llista d'arquetips <code>ENTRY</code> i <code>SECTION</code> imbricats.</li>
+    <li>Un arquetip <code>ENTRY</code> pot contenir <code>CLUSTER</code>s si s'ha modelat una ranura dins de l'arquetip.</li>
+    <li>Un arquetip <code>CLUSTER</code> pot contenir altres <code>CLUSTER</code>s imbricats si disposa d'una ranura modelada.</li>
+  </ul>
+ </p>
+
+ <p>La Figura 2.7 resumeix quines classes d'arquetips es poden incrustar o imbricar les unes dins de les altres.</p>
 
   <div class="img-container">
     <img src="images/Pasted image 20260929115611.png" alt="Interconnectivitat entre classes d'arquetips" class="guide-img" width="800px" onclick="openImg(this)" style="cursor:pointer;">
-    <p class="img-caption">Figura 2.7: Insercions possibles d'una classe d'arquetip dins d'una altra.</p>
+    <p class="img-caption">Figura 2.7: Possibles insercions d'una classe d'arquetip dins d'una altra.</p>
   </div>
 
-  <p>
-    Apreneu més sobre els patrons habituals de combinació d'arquetips:
-    <br>
-    <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener">https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/</a>
-  </p>
+<p>
+  Si us interessen les combinacions habituals d'arquetips en plantilles, he desenvolupat una eina molt pràctica per explorar plantilles d'accés públic. Podeu accedir-hi lliurement aquí:
+  <br>
+  <a href="https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/" target="_blank" rel="noopener noreferrer">https://martinkochdesign.github.io/openEHR_archetype_inclusion_patterns/</a>
+</p>
 
-  <p>
-    <em>
-      Tingueu en compte que l'estructura de la plantilla no només representa la lògica clínica, sinó que també determina les rutes de consulta que es faran servir posteriorment per cercar i recuperar dades de les composicions basades en les diferents plantilles.
-    </em>
-  </p>
+<h4>Estratègia de disseny de plantilles: formularis de treball vs. emmagatzematge de dades</h4>
+<p>En començar, és molt temptador dissenyar una plantilla exactament igual que un formulari en paper: un document únic i integral que reflecteixi tot un procés assistencial, des de l'ingrés fins a l'alta.</p>
+<p>Tanmateix, a openEHR una plantilla no és només un formulari de la interfície d'usuari: defineix com es persisteixen, es versionen i es recuperen les dades permanentment. Modelar una única plantilla gegant per a tot un flux de treball provoca dos problemes pràctics molt significatius:</p>
+<ol>
+  <li>
+    <strong>Versionat ineficient i duplicació de dades:</strong> 
+    A openEHR, qualsevol canvi en les dades que es vol enviar implica transmetre tota la composició amb el conjunt complet de dades. Si una plantilla conté les constants del triatge, les notes mèdiques i el pla de cures d'infermeria en un sol bloc, afegir una simple presa de temperatura requereix que el sistema clínic torni a enviar i versionar tot el document sencer, duplicant reiteradament informació que no ha canviat.
+  </li>
+  <li>
+    <strong>Consultes complexes i fràgils (AQL):</strong> 
+    Cada nivell d'imbricació que es crea en una plantilla conforma la ruta de dades utilitzada posteriorment per consultar-la. Les jerarquies profundes i recaragolades fan que redactar consultes en Archetype Query Language (AQL) sigui més difícil de mantenir i més lent d'executar.
+  </li>
+</ol>
+<div class="callout tip">
+  Pregunteu-vos: <em>Qui registra aquesta dada, i quan?</em> 
+  Si dues activitats tenen lloc en moments diferents o les executen rols diferents (per exemple, la presa rutinària de constants vitals davant d'un informe d'alta), modeleu-les com a <strong>plantilles modulars independents</strong>. Dissenyeu per al cicle de vida de les dades, no pas només per a la distribució d'una pantalla.
+</div>
 
-  <p>
-  Pot semblar intuïtiu dissenyar una estructura que calqui el flux de treball clínic, com si fos un formulari que s'emplena de dalt a baix. Nosaltres, com a modeladors de coneixement clínic, sabem que hem de vetllar per l'eficiència en l'emmagatzematge i la recuperació de les dades; per tant, hem de fer equilibris entre el circuit assistencial i la lògica de persistència.
-  </p>
 
-  <p>
-  Un altre aspecte rellevant: podríem crear una única plantilla que incorporés tota la informació d'un procés clínic, agrupant totes les instruccions, accions, observacions, etc. El problema és que cada cop que s'edita o s'afegeix una dada, el sistema emmagatzema la composició sencera, la qual cosa provoca que es guardi una gran quantitat de dades de manera redundant. És una bona pràctica planificar com modularitzar les plantilles per a les diferents parts d'un circuit de la forma més eficient possible.
-  </p>
+<h4>Restricció d'arquetips i elements de dades</h4>
 
-  <h4>Restricció d'arquetips i elements de dades</h4>
+<p>Com hem esmentat abans, els arquetips es modelen de forma <strong>maximal</strong> per poder-se aplicar a molts contextos clínics. Això significa que, en un context específic, no calen pas tots els elements de dades modelats. Per tant, a la plantilla cal aplicar restriccions als arquetips.</p>
 
-  <p>Com hem assenyalat abans, els arquetips es modelen de manera <strong>maximal</strong> per poder ser aplicables a tants contextos clínics com sigui possible. Això implica que en un context determinat no calen tots els elements modelats. Per tant, a la plantilla, els arquetips s'han de restringir.</p>
+<p>Les restriccions que s'apliquen habitualment als arquetips en una plantilla són:</p>
+<ul>
+  <li>
+    <strong>Eliminar elements de dades innecessaris:</strong> Ocultar o establir les ocurrències a <code>0</code> per a aquelles dades que no es recullen en el vostre flux de treball específic (p. ex., retirar la mida del braçal o l'angle d'inclinació en un control ambulatori rutinari de la pressió arterial).
+  </li>
+  <li>
+    <strong>Restringir conjunts de valors:</strong> Limitar les unitats o les opcions permeses (p. ex., restringir la temperatura exclusivament a <code>Cel</code>, o acotar un desplegable diagnòstic a codis concrets de SNOMED CT pertinents per al vostre servei).
+  </li>
+  <li>
+    <strong>Reanomenar nodes:</strong> Personalitzar les etiquetes de pantalla per adaptar-les al vocabulari clínic local o a les convencions del servei sense alterar la identitat de l'arquetip subjacent.
+  </li>
+  <li>
+    <strong>Clonar nodes:</strong> Duplicar una ranura d'arquetip genèrica o un element per recollir múltiples ocurrències estructurades (p. ex., clonar una secció genèrica de símptomes per diferenciar entre «Símptoma principal» i «Símptoma secundari»).
+  </li>
+  <li>
+    <strong>Fer obligatoris elements opcionals:</strong> Ajustar les cardinalitats d'opcional (<code>0..1</code>) a obligatori (<code>1..1</code>) per garantir que la informació crítica no s'ometi mai.
+  </li>
+</ul>
 
-  <p>Les restriccions aplicades als arquetips en una plantilla solen consistir en:</p>
+<p>Amb tot això, creem una plantilla que representa un context clínic concret i que satisfà els requisits específics d'una aplicació clínica, cas d'ús o formulari.</p>
+
+
+<h4>Representacions tècniques: OET vs. OPT (L'analogia de la magdalena)</h4>
+
+<p>A l'hora de treballar amb plantilles a openEHR, a la pràctica ens trobem amb dos formats de fitxer diferents:
+<ul>
+  <li><strong>openEHR Template (<code>.oet</code>):</strong> El format d'edició creat i desat per les eines de disseny de plantilles (com ara l'openEHR Archetype Designer).</li>
+  <li><strong>Operational Template (<code>.opt</code>):</strong> L'artefacte compilat i autocontingut generat a partir del <code>.oet</code> i dels seus arquetips subjacents.</li>
+</ul>
+</p>
+
+<div class="callout note">
+  <strong>⚠️ Atenció!</strong><br> 
+  El format <strong>OET</strong> no és canònic a openEHR, però a la pràctica és fonamental:
+    <ol>
+      <li>És l'únic format de plantilla que es pot importar al CKM (Clinical Knowledge Manager).</li>
+      <li>És l'únic format que vincula arquetips específics amb la plantilla.</li>
+    </ol>
+
+  <strong>Per què és tan important:</strong>
+  <br>  
+  Imagineu una plantilla de «Constants vitals» que conté l'arquetip «Índex de massa corporal». Un arquetip s'identifica de forma unívoca mitjançant diversos valors: ID, UID, revisió i hash. Per exemple:
+
   <ul>
-    <li>
-      <strong>Eliminar elements de dades innecessaris:</strong> Ocultar o establir les ocurrències a <code>0</code> per a dades que no es recullen en el vostre circuit específic (p. ex., ometre la mida del maneguet o l'angle d'inclinació en una presa de pressió arterial habitual a consultes externes).
-    </li>
-    <li>
-      <strong>Restringir conjunts de valors:</strong> Limitar les unitats o opcions permeses (p. ex., restringir la temperatura únicament a <code>Cel</code>, o acotar un desplegable diagnòstic a codis concrets de SNOMED CT rellevants per al vostre servei).
-    </li>
-    <li>
-      <strong>Reanomenar nodes:</strong> Personalitzar les etiquetes de pantalla per adaptar-les al vocabulari clínic local o als criteris del servei sense alterar la identitat de l'arquetip subjacent.
-    </li>
-    <li>
-      <strong>Clonar nodes:</strong> Duplicar una ranura d'arquetip genèrica o un element per capturar múltiples ocurrències estructurades (p. ex., clonar una secció genèrica de símptomes per distingir entre «Símptoma principal» i «Símptomes secundaris»).
-    </li>
-    <li>
-      <strong>Fer obligatoris elements opcionals:</strong> Ajustar les cardinalitats d'opcional (<code>0..1</code>) a obligatori (<code>1..1</code>) per assegurar que la informació crítica no s'ometi mai.
-    </li>
+  <li>ID: openEHR-EHR-OBSERVATION.body_mass_index.v2</li>
+  <li>UID: df5e3989-6b48-45e0-b3a0-185983a705a1</li>
+  <li>Revisió: 2.1.0</li>
+  <li>Hash d'integritat (MD5-CAM-1.0.1): 45CDA8C2180DDA3CAB6EBB6AF603493D</li>
   </ul>
+  
+  Els arquetips evolucionen, i sovint diferents plantilles es basen en revisions molt concretes. El <strong>fitxer OET</strong> conté una verificació d'integritat al final que identifica la revisió específica combinant tant l'ID com el hash.
+  <br><br>
+  
+  El <strong>fitxer OPT</strong>, en canvi, només identifica l'arquetip pel seu ID base. Això significa que, tenint només el fitxer OPT a les mans, resulta impossible reconnectar o traçar la revisió exacta de l'arquetip que es va utilitzar per construir la plantilla.
+</div>
 
-  <p>D'aquesta manera creem una plantilla que representa un context clínic concret i satisfà els requeriments específics d'una aplicació, cas d'ús o formulari assistencial.</p>
+<p>
+Una manera molt gràfica d'entendre l'acoblament dels arquetips en plantilles i el paper dels fitxers OET i OPT és imaginar el procés de preparar una magdalena (on la magdalena és la nostra plantilla final d'openEHR). 
+</p>
 
-  <h4>Representacions tècniques: OET vs. OPT (L'analogia de la magdalena)</h4>
-
-  <p>A l'hora de treballar amb plantilles a openEHR ens trobem habitualment amb dos formats de fitxer diferents:
-  <ul>
-    <li><strong>openEHR Template (<code>.oet</code>):</strong> El format d'edició generat i desat per les eines de disseny de plantilles (com l'openEHR Archetype Designer).</li>
-    <li><strong>Operational Template (<code>.opt</code>):</strong> L'artefacte compilat i autònom generat a partir de l'<code>.oet</code> i dels seus arquetips subjacents.</li>
-  </ul>
-  </p>
-
-  <p>
-  Una bona manera d'entendre com s'acoblen els arquetips en plantilles i quin paper juguen l'OET i l'OPT és imaginar que preparem una magdalena (cupcake), on la magdalena és la nostra plantilla d'openEHR.
-  </p>
-
-  <p>
-  Per preparar la magdalena necessitem uns ingredients determinats. Aquests ingredients estan clarament definits, tal com passa amb els arquetips. La definició de cada arquetip es formalitza en el seu fitxer <code>.adl</code> propi.
-  </p>
+<p>
+  La metàfora clàssica de les «peces de LEGO» funciona molt bé per explicar la modularitat a openEHR, però es queda curta a l'hora d'explicar les restriccions: al món de LEGO&reg;, modificar, tallar o repintar peces durant el muntatge és tabú. A openEHR, en canvi, muntar una plantilla implica restringir activament aquests blocs per adaptar-los a un context clínic específic. La Figura 2.8 il·lustra l'analogia de la magdalena, que explicarem amb detall en els següents apartats.
+</p>
   
   <div class="img-container">
-    <img src="images/Pasted image 20260928123744.png" alt="Formats de plantilles" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
+    <img src="images/Pasted image 20260928123744.png" alt="Formats de plantilla" class="guide-img" width="1000px" onclick="openImg(this)" style="cursor:pointer;">
     <p class="img-caption">Figura 2.8: L'analogia de la magdalena per entendre els formats de plantilla.</p>
   </div>
 
-  <p>
-  <strong>Els ingredients: els arquetips</strong> — 
-  De la mateixa manera que tenim farina, sucre, ous i nabius al rebost de la cuina, els arquetips són els nostres ingredients estàndard i universals. Cada arquetip és un concepte clínic autònom i ben definit en la seva forma més pura i reutilitzable. Per si sols no són un àpat complet ni un document clínic concret; són els blocs de construcció modulars preparats per ser combinats.
-  </p>
 
-  <p>
-  Quan combinem els nostres ingredients per elaborar la magdalena, necessitem una recepta a seguir. En el cas d'openEHR, aquesta recepta és un fitxer amb instruccions sobre quins arquetips cal incloure i quines modificacions s'hi han d'aplicar. Quan els arquetips s'integren en una plantilla es poden modificar diversos paràmetres: per exemple, el nom de les variables, la seva concurrència (algunes variables poden desaparèixer!) i restriccions a les llistes de valors permesos.
-  </p>
+<p>
+<strong>Els ingredients: els arquetips</strong> – 
+De la mateixa manera que tenim farina, sucre, ous i xips de xocolata al rebost de la cuina, els arquetips són els nostres ingredients estàndard i universals. Cada arquetip és un concepte clínic independent i ben definit en la seva forma més pura i reutilitzable. Per si sols, encara no són pas un àpat complet ni un document clínic específic. Són els blocs de construcció modulars que esperen ser combinats.
+</p>
 
-  <p>
-  <strong>La recepta: el fitxer OET</strong> — 
-  Aquesta recepta per confeccionar la plantilla és el fitxer OET. És la pauta oficial de construcció de la plantilla i es pot editar durant el desenvolupament. Els arquetips es poden actualitzar per versions més recents, i les restriccions es poden estrènyer o relaxar. En aquest format, la plantilla apunta inequívocament a la revisió exacta de cada arquetip emprat. És vital per al procés de disseny i per a la seva documentació. Hem de ser conscients que <em>una plantilla és més que la suma dels seus arquetips</em>.
-  </p>
+<p>
+    En combinar els nostres ingredients per elaborar la magdalena, necessitem seguir una recepta. En el cas d'openEHR, aquesta recepta és un fitxer amb instruccions sobre quins arquetips cal incloure i quins canvis cal fer-hi. Quan els arquetips s'integren en una plantilla es poden modificar diversos paràmetres, com ara el nom de les variables, la concurrència de les variables (algunes variables poden desaparèixer!) i restriccions a les llistes d'elements permesos.
+</p>
 
-  <p>
-  <strong>La magdalena enfornada: el fitxer OPT</strong> — 
-  Amb la recepta a la mà, podem crear la plantilla definitiva. Bàsicament, «enfornem» la magdalena, de manera que els seus ingredients ja no es poden alterar a posteriori. El fitxer OPT resultant és la plantilla final que es puja al Repositori de Dades Clíniques (CDR / RDC). Ja no conté els arquetips originals per separat, sinó la seva estructura final amb tots els canvis i restriccions consolidats. No hi ha manera de saber la revisió o versió exacta dels arquetips emprats. És la versió de temps d'execució de la plantilla, no editable.
-  </p>
+<p>
+<strong>La recepta: el fitxer OET</strong> – 
 
-  <div class="callout note">
-    ⚠️ Atenció! El format <strong>OET</strong> no és canònic, però a la pràctica és imprescindible:
-      <ol>
-        <li>És l'únic format de plantilla que es pot importar al CKM (Clinical Knowledge Manager).</li>
-        <li>És l'únic format que vincula arquetips específics amb la plantilla.</li>
-      </ol>
+La recepta per crear la plantilla és el fitxer OET. És la guia d'instruccions oficial sobre com construir la plantilla i es pot editar durant el desenvolupament. En aquest format, la plantilla fa referència explícita a la revisió exacta de cada arquetip utilitzat, juntament amb les restriccions específiques que se li apliquen. És vital per al procés de desenvolupament i la seva documentació. Hem de ser conscients que <strong>una plantilla és més que la suma dels seus arquetips</strong>.
+</p>
 
-    Vegem per què és tan rellevant:
-    <br><br>
-    
-    Imagineu una plantilla de «Constants vitals» que inclou l'arquetip de «Índex de massa corporal». Un arquetip s'identifica de forma unívoca mitjançant tres elements: ID, Revisió i Hash. Per exemple:
-    <br>
-    <ul>
-    <li>ID: openEHR-EHR-OBSERVATION.body_mass_index.v2</li>
-    <li>Revisió: 2.1.0</li>
-    <li>Hash d'integritat: MD5-CAM-1.0.1 = 45CDA8C2180DDA3CAB6EBB6AF603493D</li>
-    </ul>
-    
-    Els arquetips evolucionen i les diferents plantilles depenen sovint de revisions concretes.
-    <br><br>
+<p>
+<strong>La magdalena enfornada: el fitxer OPT</strong> – 
 
-    El <strong>fitxer OET</strong> conté una verificació d'integritat al final que identifica la revisió exacta tant per la ID com pel hash.
-    <br><br>
-    
-    En canvi, el <strong>fitxer OPT</strong> només identifica l'arquetip pel seu ID. Això significa que, disposant únicament del fitxer OPT, és impossible reconstruir o traçar la revisió exacta de l'arquetip que es va utilitzar per construir la plantilla.
-  </div>
+Amb aquesta recepta a la mà, podem crear la plantilla definitiva. Bàsicament, enfornem la magdalena, de manera que els seus ingredients ja no es poden modificar posteriorment. El fitxer OPT resultant és la plantilla final que es puja al Repositori de Dades Clíniques (RDC / CDR). No conté pas els arquetips originals per separat, sinó la seva forma final amb tots els canvis i restriccions consolidats al seu interior. No hi ha cap possibilitat de saber la revisió exacta dels arquetips que es van fer servir. És la versió de temps d'execució de la plantilla, no modificable.
+</p>
 
-  <h4>Sobre les plantilles multilingües</h4>
 
-  <p>Com hem comentat anteriorment, els arquetips són multilingües: a banda de la llengua principal, poden contenir traduccions per al concepte clínic i els seus elements de dades.
-  En crear plantilles, només ens és permès combinar arquetips que comparteixin les mateixes llengües.</p>
 
-  <p>
-  En teoria, la plantilla mateixa pot contenir les traduccions per als diferents elements de dades. A la pràctica hem detectat dificultats, ja que només la primera instància d'un arquetip manté les traduccions dins la plantilla. Si teniu diverses instàncies d'un mateix arquetip, la traducció no apareix al fitxer OPT.
-  </p>
-  <p>
-  Un altre inconvenient és que el fitxer OET no acostuma a especificar les llengües de traducció. El CKM, que només admet fitxers OET per pujar plantilles, només renderitza la plantilla en la llengua principal i només permet descarregar el fitxer OPT en un únic idioma.</p>
-    
-  <p>Per tant, no és recomanable treballar amb una única plantilla compilada que arrossegui múltiples traduccions alhora. La millor solució que hem trobat consisteix a mantenir la plantilla en la seva llengua principal i gestionar les traduccions oficials en un fitxer extern separat que puguin consultar les aplicacions que consumeixen la plantilla. La implementació d'aquest enfocament encara no està formalment estandarditzada i constitueix un excel·lent punt de debat per als experts d'openEHR.</p>
+<h4>Un apunt sobre les plantilles multilingües</h4>
 
-  <h3>Composicions</h3>
+<p>Com hem comentat anteriorment, els arquetips són multilingües per disseny: a banda de la llengua principal, poden contenir traduccions tant per al concepte clínic com per a cadascun dels seus elements de dades. En crear plantilles, <strong>només ens és permès combinar arquetips que comparteixin les mateixes llengües</strong>.</p>
 
-  <p>
-  Un cop definit un context clínic en una plantilla operativa (OPT), aquesta es puja al Repositori de Dades Clíniques (CDR / RDC). L'RDC no és només el lloc on custodiem la plantilla, sinó també on volem emmagatzemar les dades clíniques recollides dels pacients. Quan s'introdueixen dades en una aplicació assistencial, s'empaqueten en una <strong>composició</strong> seguint les regles determinades per la plantilla. Per fer-ho una mica més confús, també hi ha una classe d'arquetip anomenada «COMPOSITION» que defineix la base d'aquest document.
-  </p>
-  <p>
-  Una composició és el document clínic o la instància de registre real (p. ex., una valoració de triatge, un informe de laboratori o un informe d'alta). Tota composició està vinculada a una plantilla específica, es valida contra ella i pot contenir elements de dades definits pel Model de Referència.
-  </p>
-  <p>
-  Nosaltres, com a modeladors de coneixement clínic, no participem directament en la generació programada de la composició: aquesta tasca recau en els enginyers de programari.
-  <strong>Però</strong>, sovint hem de proporcionar criteris als desenvolupadors sobre elements de dades que es poden emmagatzemar en ubicacions que no estan explícitament definides a la plantilla.
-  </p>
-  <p>
-  La composició s'estructura en format JSON. Això és molt pràctic, ja que qualsevol pot obrir el document i explorar-ne el contingut. Novament, els modeladors no ens hem de perdre en el codi, però és necessari comprendre l'estructura de la informació que hem modelat.
-  </p>
+<p>
+En teoria, la plantilla mateixa pot emmagatzemar les traduccions de tots els elements de dades. A la pràctica, però, sorgeixen problemes quan una plantilla inclou múltiples instàncies d'un mateix arquetip. L'experiència demostra que, en compilar un fitxer OPT multilingüe, només la primera instància d'un arquetip conserva les traduccions. Com a resultat, <strong>les traduccions de les instàncies posteriors no apareixen</strong> al fitxer OPT generat.
+</p>
 
-  <h3>Contribucions</h3> 
+<p>
+Un altre inconvenient és que el <strong>format OET no especifica explícitament les llengües de traducció</strong>. El CKM —que només admet fitxers OET per pujar plantilles— renderitza les plantilles exclusivament en la seva llengua principal i només permet descarregar el fitxer OPT en un únic idioma cada vegada.
+</p>
+  
+<p>
+Per aquests motius, actualment no es recomana confeccionar una única plantilla que agrupi múltiples traduccions. La solució més fiable consisteix a mantenir la plantilla en la seva llengua principal i gestionar les traduccions oficials en un fitxer extern separat que puguin consultar les aplicacions consumidores. Com es podria estandarditzar això continua sent motiu de debat en la comunitat d'openEHR. Si mai ens trobem en persona, traieu el tema sense dubtar-ho: em fascinen les traduccions i, especialment, l'ús d'etiquetes a les rutes dels elements de dades (alerta espòiler: gens fan!).
+</p>
 
-  <p>
-  Quan diem que enviem les dades clíniques d'un pacient en un document de tipus <strong>composició</strong>, simplifiquem una mica el circuit.
-  </p>
-  <p>
-  D'alguna manera hem de comunicar a l'RDC què representa aquesta <strong>composició</strong>: es tracta d'un conjunt de dades nou? És una modificació de dades existents? O potser volem canviar l'estat del document a «obsolet»?
-  </p>
-  <p>
-  Per poder transmetre aquesta intenció a l'RDC, enviem la composició com un document versionat (de manera que sabem quina versió volem crear o modificar) dins d'una <strong>contribució</strong>. És comparable a introduir el formulari emplenat amb les dades del pacient dins d'un sobre que en detalla la versió, i col·locar després aquest sobre dins d'un altre sobre de tramesa (la contribució) abans de lliurar-lo a l'RDC.
-  </p>
+<p class="callout note">
+  Tingueu en compte que moltes d'aquestes particularitats dels formats de fitxer es deuen al fet que depenem d'ADL 1.4. Tot i que aquestes limitacions són conegudes i s'han resolt en especificacions més recents (com ara ADL 2), les eines de producció i els repositoris clínics actuals continuen arrelats majoritàriament a l'ecosistema d'ADL 1.4.
+</p>
+
+
+
+<h3>Composicions</h3>
+
+<p>
+Un cop definit un context clínic en una plantilla operativa (OPT), aquesta es puja al Repositori de Dades Clíniques (RDC / CDR). L'RDC no és només on guardem la plantilla, sinó també on s'emmagatzemen i es persisteixen les dades clíniques recollides dels pacients.
+</p>
+<p>
+Quan s'introdueixen dades assistencials en una aplicació clínica, s'empaqueten en una <strong>composició</strong> d'acord amb les regles determinades per la plantilla. Per afegir una mica de confusió terminològica, també existeix una classe d'arquetip anomenada <code>COMPOSITION</code> que defineix l'arrel d'aquest document.
+</p>
+<p>
+Una composició és el document clínic o la instància de registre pròpiament dita (p. ex., una valoració de triatge, un informe de laboratori o un informe d'alta). Tota composició està vinculada a una plantilla específica, es valida contra ella i pot contenir també elements de dades definits directament pel Model de Referència.
+</p>
+<p>
+Nosaltres, com a modeladors de coneixement clínic, no participem directament en la generació programada de les composicions: aquesta tasca recau en els enginyers de programari que desenvolupen les aplicacions encarregades d'estructurar les dades del pacient a partir de les plantilles openEHR.
+<strong>Tanmateix</strong>, de vegades hem d'orientar els desenvolupadors sobre elements de dades que no estan delimitats de forma explícita a la plantilla, però que es poden afegir perquè estan definits al Model de Referència.
+</p>
+<p>
+Les composicions s'estructuren habitualment en <strong>JSON</strong>. Això és molt pràctic, ja que qualsevol pot obrir el document i inspeccionar-ne el contingut. Tot i que els modeladors de coneixement clínic no ens hem de perdre en el codi, és imprescindible entendre l'estructura de les dades que hem modelat. Veurem exactament quin aspecte té a la Part III, on construirem una composició des de zero.
+</p>
+
+
+<h3>Contribucions</h3> 
+
+<p>
+Quan diem que enviem les dades clíniques del pacient en un document de <strong>composició</strong>, estem simplificant una mica el procés.
+</p>
+<p>
+Hem de comunicar d'alguna manera a l'RDC què representa aquesta <strong>composició</strong>: es tracta d'un conjunt de dades nou, és una modificació de dades existents o volem canviar l'estat del document a «obsolet», per exemple?
+</p>
+<p>
+Perquè puguem transmetre aquesta intenció a l'RDC, enviem la composició com un document versionat (de manera que sabem quina versió volem crear o modificar) dins d'una <strong>contribució</strong>.
+</p>
+<p>
+És com introduir el formulari emplenat amb les dades clíniques del pacient (la <em>composició</em>) dins d'un sobre on s'especifica la versió (formant la <em>composició versionada</em>), i després posar aquest sobre dins d'un altre sobre d'enviament (la <em>contribució</em>) abans de trametre'l a l'RDC. La Figura 2.9 il·lustra aquesta analogia del «sobre dins d'un sobre».
+</p>
 
   <div class="img-container">
     <img src="images/Pasted image 20261019143814.png" alt="Contribucions" class="guide-img" width="200px" onclick="openImg(this)" style="cursor:pointer;">
-    <p class="img-caption">Figura 2.9: Una composició sempre s'identifica com a versió d'un document i s'envia dins d'una contribució.</p>
+    <p class="img-caption">Figura 2.9: Una composició s'identifica sempre com a versió d'un document i s'envia dins d'una contribució.</p>
   </div>
 
-  <p>El gran avantatge de les contribucions és que poden contenir diverses composicions amb finalitats diferents. Per exemple, podeu trametre en una única transacció algunes composicions completament noves al costat d'altres que modifiquen registres anteriors. Això estalvia haver d'enviar les composicions una a una.</p>
+<p>El gran avantatge de les contribucions és que poden contenir diverses composicions amb propòsits diferents. Per exemple, es poden enviar algunes composicions completament noves i d'altres que són modificacions de registres previs, tot en una única tramesa. Això estalvia haver d'enviar les composicions d'una en una.</p>
 
-  <p>En molts casos, les llibreries client i les funcions de l'API que ens permeten enviar una composició a l'RDC encapsulen la composició i l'envien dins d'una contribució de manera automàtica, sense que calgui construir aquest sobre manualment.</p>
+<p>En molts casos, les llibreries client i les funcions de l'API que ens permeten enviar una composició a l'RDC l'empaqueten i la transmeten automàticament dins d'una contribució, sense que l'emissor hagi de confeccionar aquest sobre de manera manual.</p>
 
-  <h1>Capítol 3: Emmagatzematge i recuperació d'artefactes openEHR</h1>
+<h1>Capítol 3: Emmagatzematge i recuperació d'artefactes openEHR</h1>
 
-  <p class="chapter-intro">
-    Dissenyar models clínics en el pla teòric no és tot el que cal per fer-los funcionar; cal desplegar-los i gestionar-los. En aquest capítol examinem l'entorn d'execució on resideixen i operen els artefactes openEHR. Analitzem com el Repositori de Dades Clíniques (RDC / CDR) organitza els historials assistencials i introduïm l'Archetype Query Language (AQL) com a eina per consultar i recuperar dades clíniques.
+<p class="chapter-intro">
+  Dissenyar models clínics en la teoria no és tot el que cal per fer-los funcionar. Els models s'han de desplegar i gestionar en producció. En aquest capítol analitzem l'entorn d'execució on resideixen i operen els artefactes d'openEHR. Examinem com organitza les històries clíniques el Repositori de Dades Clíniques (RDC / CDR) i introduïm l'Archetype Query Language (AQL) per recuperar les dades clíniques guardades.
+</p>
+
+<h2>3.1 L'ecosistema del modelatge de coneixement clínic</h2>
+
+<p>
+  En el modelatge de coneixement clínic hem de crear, gestionar i portar a producció les plantilles d'openEHR. Per fer-ho, utilitzem tres entorns especialitzats:
+</p>
+
+<ol>
+  <li>Un entorn per <strong>crear i editar</strong> arquetips i plantilles.</li>
+  <li>Un entorn per <strong>gestionar, revisar i publicar</strong> els arquetips i plantilles (i artefactes relacionats) que s'hagin creat.</li>
+  <li>Un entorn per <strong>emmagatzemar</strong> les plantilles i <strong>persistir</strong> les composicions basades en aquestes plantilles.</li>
+</ol>
+
+<p>A la pràctica, utilitzem:</p>
+
+<ul>
+  <li>
+    <strong>Edició / autoria:</strong> L'<a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">openEHR Archetype Designer</a> desenvolupat per Better, gratuït i basat en web.
+  </li>
+  <li>
+    <strong>Governança i publicació:</strong> Un <a href="https://ckm.salut.gencat.cat/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a> local.
+  </li>
+  <li>
+    <strong>Producció i emmagatzematge:</strong> Un Repositori de Dades Clíniques (RDC / CDR), en el nostre cas basat en HIP EHRbase de vitagroup. Per fer proves i aprendre, podeu fer servir el <a href="https://sandkiste.ehrbase.org/" target="_blank" rel="noopener noreferrer">sandbox obert d'EHRbase</a>.
+  </li>
+</ul>
+
+<p>
+  La Figura 3.1 il·lustra l'entorn de modelatge de coneixement clínic. Utilitzem l'Archetype Designer per crear i editar arquetips, que posteriorment es gestionen tant en un CKM local com en el CKM internacional. A partir d'aquests arquetips seleccionats del CKM, construïm plantilles a l'Archetype Designer i les gestionem també al CKM, on el sistema traça la vinculació exacta entre els arquetips i la plantilla. Tot seguit, la plantilla s'exporta del CKM i es puja a l'RDC (CDR). Un cop publicada al repositori, les aplicacions clíniques poden enviar-hi composicions (estructurades dins de contribucions). Finalment, aquestes composicions emmagatzemades es poden consultar mitjançant l'Archetype Query Language (AQL).
+</p>
+
+ <div class="img-container">
+    <img src="images/Pasted image 20261019145141.png" alt="L'ecosistema típic per als modeladors de coneixement clínic d'openEHR" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
+  <p class="img-caption">
+  Figura 3.1: L'ecosistema típic per als modeladors de coneixement clínic d'openEHR amb els blocs constructius fonamentals.
+  </p>
+ </div>
+
+  <h3>Un cop d'ull a l'interior de l'RDC</h3>
+
+  <p>El Repositori de Dades Clíniques (RDC / CDR) és al bell mig del flux de dades de salut. Aquí persistim tant les dades clíniques com les plantilles. A més, l'RDC governa l'accés i gestiona l'enviament i la recepció de dades.</p>
+
+  <p><strong>Un concepte essencial: </strong>
+Quan un professional assistencial utilitza una aplicació per consultar les dades d'un pacient, la informació pot procedir de diferents repositoris, com ara un servidor documental, un servidor terminològic o l'índex mestre de pacients (vegeu la Figura 3.2).</p>
+
+  <p>És fonamental que, com a modeladors de coneixement clínic, siguem plenament conscients de què cal modelar a openEHR. A l'RDC d'openEHR <strong>només s'han de modelar les dades clíniques</strong>. Les dades identificatives del pacient, per exemple, no es desen a l'RDC d'openEHR, sinó que es referencien des de l'Índex Mestre de Pacients.
   </p>
 
-  <h2>3.1 L'ecosistema del modelatge de coneixement clínic</h2>
+ <div class="img-container">
+ <img src="images/Pasted image 20261019145220.png" alt="El que veu el professional sanitari" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+ <p class="img-caption">
+Figura 3.2: És important <strong>no</strong> modelar a openEHR tota la informació que el professional clínic vol veure. Part de la informació prové de fonts diverses.
+ </p>
+ </div>
 
-  <p>
-    En la gestió del coneixement clínic hem de crear, mantenir i posar en producció les plantilles d'openEHR. Per assolir-ho fem servir tres entorns especialitzats:
-  </p>
+<h3>Organització a l'RDC (EHR, composicions, plantilles, etc.)</h3>
 
-  <ol>
-    <li>Un entorn per <strong>crear i editar</strong> arquetips i plantilles.</li>
-    <li>Un entorn per <strong>governar, revisar i publicar</strong> els arquetips i les plantilles generats.</li>
-    <li>Un entorn per <strong>emmagatzemar</strong> les plantilles i <strong>persistir</strong> composicions basades en aquestes plantilles.</li>
-  </ol>
+<p>Quan s'arrenca amb openEHR, de vegades costa d'entendre què fa exactament l'RDC. Descrivim-ho d'una manera simplificada.</p>
 
-  <p>A la pràctica utilitzem:</p>
+<p>El nostre Repositori de Dades Clíniques (RDC / CDR) a openEHR funciona com un arxivador clàssic. Les seves funcions principals són custodiar dades i facilitar-ne la recuperació (vegeu la Figura 3.3).</p>
 
-  <ul>
-    <li>
-      <strong>Edició i autoria:</strong> L'<a href="https://tools.openehr.org/designer" target="_blank" rel="noopener noreferrer">openEHR Archetype Designer</a> desenvolupat per Better, gratuït i basat en web.
-    </li>
-    <li>
-      <strong>Governança i publicació:</strong> Un <a href="https://ckm.salut.gencat.cat/ckm/" target="_blank" rel="noopener noreferrer">Clinical Knowledge Manager (CKM)</a> institucional.
-    </li>
-    <li>
-      <strong>Producció i persistència:</strong> Un Repositori de Dades Clíniques (RDC / CDR), en el nostre cas basat en HIP EHRbase de vitagroup. Per aprendre i fer assajos podeu fer servir l'entorn de proves obert de la <a href="https://sandkiste.ehrbase.org/" target="_blank" rel="noopener noreferrer">sandbox d'EHRbase</a>.
-    </li>
-  </ul>
+ <div class="img-container">
+ <img src="images/cdr_drawer_analogy.png" alt="L'arxivador de l'RDC" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
+ <p class="img-caption">
+Figura 3.3: L'RDC vist com un arxivador. Una analogia que facilita entendre la gestió de l'EHR, les composicions i les plantilles.
+ </p>
+ </div>
 
-  <div class="img-container">
-    <img src="images/Pasted image 20261019145141.png" alt="L'ecosistema típic per als modeladors de coneixement clínic openEHR" style="max-width: 699px; width: 100%;cursor:pointer;" onclick="openImg(this)" >
-    <p class="img-caption">
-    Figura 3.1: L'ecosistema habitual per als modeladors de coneixement clínic d'openEHR amb les seves peces fonamentals.
-    </p>
-  </div>
+<p>
+  La història clínica d'un pacient s'emmagatzema a l'RDC en forma d'<strong>Electronic Health Record (EHR)</strong>. Cada pacient té un únic EHR que conserva tota la informació clínica al llarg de la seva vida. Imagineu l'EHR com la carpeta mestra, individual i perpètua del pacient dins de l'arxivador digital del repositori. S'identifica mitjançant un identificador pseudònim únic (<code>ehr_id</code>), mantenint les dades assistencials dissociades dels identificadors demogràfics directes. Totes les composicions i contribucions creades per a aquest pacient al llarg de la seva vida s'emmagatzemen dins d'aquest únic contenidor mestre d'EHR.</p>
 
-  <h3>Una mirada ràpida a l'RDC (CDR)</h3>
+<p>Al marge de les històries clíniques, l'RDC emmagatzema <strong>plantilles</strong>. Cada plantilla és un conjunt de regles per a la creació d'un registre assistencial específic, com ara les dades recollides en una primera visita al metge de capçalera, un resultat de laboratori o un qüestionari de resultats reportats pel pacient (PROM). La plantilla no s'omple mai ni es modifica directament. Viu a l'RDC separada de les dades del pacient, actuant únicament com un plànol estructural.</p>
 
-  <p>El Repositori de Dades Clíniques (RDC / CDR) constitueix el cor del circuit de dades clíniques. Aquí persistim tant les dades clíniques com les plantilles. Així mateix, l'RDC governa l'accés i gestiona la recepció i l'enviament de la informació.</p>
+<p>
+Quan un professional mèdic vol registrar dades per al pacient, crea un document estructurat tal com determina aquest conjunt de regles (la plantilla). Aquest document s'anomena <strong>composició</strong> i equival conceptualment a un formulari emplenat. Aquest formulari s'envia posteriorment a l'RDC per desar el registre clínic.</p>
 
-  <p><strong>Un concepte fonamental: </strong>
-  Quan un professional assistencial utilitza una aplicació per consultar la informació d'un pacient, les dades poden procedir de repositoris diferents, com ara un gestor documental, un servidor de terminologia o l'índex mestre de pacients (MPI).</p>
+<p>En fer-ho, n'especifiquem la versió. La versió es registra perquè podem crear, modificar o alterar l'estat d'una composició. Cada canvi genera una nova versió, assegurant que cap dada històrica se sobreescrigui o es perdi mai.</p>
 
-  <p>És clau que els modeladors de coneixement clínic siguem conscients de què cal modelar a openEHR. A l'RDC d'openEHR només s'han de modelar i emmagatzemar les dades estrictament clíniques. Les dades d'identificació personal del pacient, per exemple, no es desen mai a l'RDC d'openEHR, sinó que es referencien des de l'Índex Mestre de Pacients.
-  </p>
+<p>Per traslladar la composició versionada a la història del pacient, la composició s'introdueix dins d'un sobre anomenat <strong>contribució</strong>. Aquesta pot contenir una o diverses composicions, de manera que un o diversos registres creats o actualitzats es poden confirmar a la història del pacient de manera conjunta en un sol esdeveniment.</p>
 
-  <div class="img-container">
-    <img src="images/Pasted image 20261019145220.png" alt="El que visualitza el professional clínic" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
-    <p class="img-caption">
-    Figura 3.2: És important no modelar a openEHR tota la informació que el clínic visualitza en pantalla. Part de la informació prové de fonts heterogènies.
-    </p>
-  </div>
+<p>Les dades contingudes a la composició es poden consultar mitjançant l'Archetype Query Language (<strong>AQL</strong>). Això es pot fer construint consultes ad hoc o utilitzant AQLs predefinides i registrades a l'RDC (Stored AQLs). És una molt bona pràctica disposar d'AQLs predefinides, validades i governades, en lloc de permetre que qualsevol usuari executi qualsevol AQL lliurement en un entorn d'RDC de producció.</p>
 
-  <h3>Organització dins l'RDC (EHR, composicions, plantilles, etc.)</h3>
 
-  <p>Quan hom s'inicia en openEHR, de vegades costa diferenciar plantilles, composicions i contribucions. Expliquem-ho de manera senzilla i entenedora.</p>
+<h2>3.2 Consultes AQL: recupereu les vostres dades</h2>
 
-  <p>El nostre Repositori de Dades Clíniques (RDC) a openEHR funciona de manera semblant a un arxivador d'oficina. Les seves funcions principals són emmagatzemar dades i facilitar-ne la recuperació.</p>
+<p>Un cop enviada una composició a l'RDC, ens hem de preguntar com podem accedir a aquestes dades. Una opció és recuperar la composició sencera, cosa que es pot fer, però caldria conèixer l'identificador únic d'aquesta composició i no permet accedir a una part o a un element específic del document.
+</p>
 
-  <div class="img-container">
-    <img src="images/cdr_drawer_analogy.png" alt="L'arxivador de l'RDC" class="guide-img" style="max-width: 800px; width: 100%;cursor:pointer;" onclick="openImg(this)">
-    <p class="img-caption">
-    Figura 3.3: L'RDC vist com un arxivador. Una analogia que ajuda a entendre la gestió d'EHRs, composicions i plantilles.
-    </p>
-  </div>
+<p>Si no en coneixem l'identificador o volem buscar dades clíniques en múltiples composicions alhora, podem utilitzar un llenguatge especial: l'<strong>Archetype Query Language</strong> (AQL). L'AQL és conceptualment semblant a l'SQL, amb el qual potser ja heu treballat si esteu familiaritzats amb les bases de dades relacionals.</p>
 
-  <p>
-    La història clínica d'un pacient s'emmagatzema a l'RDC com un <strong>Electronic Health Record (EHR)</strong>. Cada pacient té un únic EHR que conserva tota la seva informació clínica al llarg de la vida. Penseu en l'EHR com la carpeta mestra individual i vitalícia del pacient dins l'arxivador digital del repositori. S'identifica mitjançant un codi pseudònim únic (<code>ehr_id</code>), mantenint les dades mèdiques totalment dissociades de les dades demogràfiques directes. Totes les composicions i contribucions creades per a aquest pacient al llarg de la seva vida es custodien dins d'aquest contenidor mestre únic d'EHR.</p>
+<p>
+  Sense entrar en gaires detalls tècnics en aquest punt (hi aprofundirem a la Part III), a grans trets l'<strong>AQL (Archetype Query Language)</strong> ens dóna el poder de recuperar dades clíniques puntuals de l'RDC. Per exemple:
+</p>
 
-  <p>A banda dels historials mèdics, l'RDC emmagatzema <strong>plantilles</strong>. Cada plantilla és un conjunt de regles per a la creació d'un document clínic específic, com ara les dades d'una primera visita d'atenció primària, un resultat de laboratori o un qüestionari de salut percebuda (PROM). La plantilla mai es modifica ni s'omple directament: resideix a l'RDC separada de les dades dels pacients, actuant estrictament com a patró estructural.</p>
+<h4>En relació amb un únic pacient:</h4>
+<ul>
+  <li>Dóna'm una llista de totes les composicions emmagatzemades per a un pacient concret.</li>
+  <li>Dóna'm totes les preses de pressió arterial d'un pacient, ordenades cronològicament.</li>
+  <li>Dóna'm la llista d'al·lèrgies actives registrades per a un pacient.</li>
+</ul>
 
-  <p>
-  Quan un professional assistencial vol registrar informació d'un pacient, crea un document estructurat tal com estipula aquest conjunt de regles. Aquest document s'anomena <strong>composició</strong> i equival a un formulari degudament emplenat. Aquest formulari s'envia posteriorment a l'RDC per desar el registre clínic.</p>
+<h4>En relació amb una població o cohort:</h4>
+<ul>
+  <li>
+    Dóna'm totes les mesures de pressió arterial de pacients homes, de més de 50 anys d'edat i amb un IMC superior a 26,2 kg/m².
+  </li>
+</ul>
 
-  <p>Per fer-ho, n'indiquem la versió. La versió es registra perquè podem crear, modificar o alterar l'estat d'una composició. Cada canvi genera una nova versió, assegurant que cap dada històrica se sobreescrigui o es perdi mai.</p>
+<p>
+  Mentre que les consultes senzilles orientades a un sol pacient són ràpides, és fàcil imaginar que consultar dades a través d'una gran població requereix una càrrega computacional notable. És per això que nosaltres, com a modeladors de coneixement clínic, hem d'entendre l'AQL: <strong>hem de dissenyar els nostres models pensant no només en com s'emmagatzemen les dades, sinó també en les estratègies necessàries per consultar-les i recuperar-les de manera eficient.</strong>
+</p>
 
-  <p>Per trametre la composició versionada a l'historial del pacient, la composició s'empaqueta dins d'un sobre anomenat <strong>contribució</strong>. Aquesta contribució és la unitat transaccional de consolidació (commit). Pot contenir una o diverses composicions, permetent que un o diversos registres creats o actualitzats s'incorporin a la història del pacient de forma simultània en un únic esdeveniment.</p>
 
-  <p>Les dades contingudes a les composicions es poden consultar mitjançant l'Archetype Query Language (<strong>AQL</strong>). Això es pot fer construint consultes ad hoc o emprant AQLs predefinides i desades a l'RDC. És una excel·lent pràctica disposar de consultes AQL predefinides, validades i governades, en lloc de permetre l'execució lliure de qualsevol AQL directa sobre un entorn de producció de l'RDC.</p>
-
-  <h2>3.2 Consultes AQL: recuperar les dades desades</h2>
-
-  <p>Un cop hem enviat una composició a l'RDC, ens hem de preguntar com podem accedir a aquesta informació. Una opció és recuperar la composició sencera, la qual cosa és perfectament possible, però cal conèixer prèviament l'identificador únic d'aquesta composició.
-  </p>
-
-  <p>Si no en coneixem l'identificador o desitgem cercar dades clíniques transversals entre múltiples composicions, podem fer servir un llenguatge especialitzat: l'<strong>Archetype Query Language</strong> (AQL). L'AQL s'assembla molt a l'SQL amb el qual potser esteu familiaritzats si heu treballat amb bases de dades relacionals.</p>
-
-  <p>
-    Sense entrar ara en gaires detalls tècnics, a grans trets l'<strong>AQL (Archetype Query Language)</strong> ens proporciona la capacitat de recuperar informació clínica específica de l'RDC. Per exemple:
-  </p>
-
-  <h4>En relació amb un únic pacient:</h4>
-  <ul>
-    <li>Retorna'm la llista de totes les composicions emmagatzemades per a un pacient concret.</li>
-    <li>Retorna'm totes les mesures de pressió arterial d'un pacient, ordenades cronològicament.</li>
-    <li>Retorna'm la llista d'al·lèrgies actives registrades per a un pacient.</li>
-  </ul>
-
-  <h4>En relació amb una població o cohort:</h4>
-  <ul>
-    <li>
-      Retorna'm totes les mesures de pressió arterial de pacients homes, de més de 50 anys d'edat i amb un IMC superior a 26,2 kg/m².
-    </li>
-  </ul>
-
-  <p>
-    Mentre que les consultes senzilles adreçades a un únic pacient són molt ràpides, és fàcil intuir que fer consultes massives sobre grans poblacions requereix una càrrega computacional notable. És per aquest motiu que nosaltres, com a modeladors de coneixement clínic, hem d'entendre l'AQL: hem de dissenyar els nostres models pensant no només en com es desen les dades, sinó també en les estratègies necessàries per consultar-les i recuperar-les amb la màxima eficiència.
-  </p>
 </section>
